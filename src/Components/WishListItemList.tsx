@@ -12,10 +12,16 @@ import {
   Checkbox,
   Link as MuiLink,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
 } from "@mui/material";
 
 export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
+  const [selectedItem, setSelectedItem] = useState<WishListItem | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleClaim = async (id: string) => {
     try {
@@ -41,65 +47,115 @@ export function WishListItemList() {
   }, []);
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h3" gutterBottom>
-        Мой Wishlist
-      </Typography>
-      <Typography variant="h5" gutterBottom>
-        🎁 Gift Ideas
-      </Typography>
-      <List>
-        {items.map((item) => (
-          <Paper key={item.id} sx={{ mb: 2, p: 2 }}>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => handleClaim(item.id)}
-                disabled={item.claimed}
-              >
-                <Checkbox checked={item.claimed} disabled />
-                <ListItemText
-                  primary={
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        textDecoration: item.claimed ? 'line-through' : 'none',
-                        color: item.claimed ? 'gray' : 'inherit',
-                      }}
-                    >
-                      {item.name} {item.claimed && "✅ (already taken)"}
-                    </Typography>
-                  }
-                  secondary={
-                    <>
-                      {item.link && (
-                        <>
-                          <MuiLink
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            color="primary"
-                            underline="always"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Link
-                          </MuiLink>
-                          <br />
-                        </>
-                      )}
+    <>
+      <Container maxWidth="sm" sx={{ mt: 6 }}>
+        <Typography variant="h2" gutterBottom>
+          Мій Wishlist
+        </Typography>
+        <Typography variant="h3" gutterBottom sx={{ mt: 4 }}>
+          🎁 Gift Ideas
+        </Typography>
+        <List>
+          {items.map((item) => (
+            <Paper key={item.id}
+                   sx={{
+                     mb: 2,
+                     p: 2,
+                     borderRadius: 3,
+                     border: '1px solid #2c2c2c',
+                     boxShadow: 'none',
+                     transition: 'background-color 0.2s ease, transform 0.2s ease',
+                     '&:hover': {
+                       backgroundColor: '#2a2a2a',
+                       transform: 'scale(1.02)',
+                     },
+                   }}
+            >
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    if (!item.claimed) {
+                      setSelectedItem(item);
+                      setConfirmOpen(true);
+                    }
+                  }}
+                  disabled={item.claimed}
+                  sx={{
+                    borderRadius: '15px'
+                  }}
+                >
+                  <Checkbox checked={item.claimed} disabled />
+                  <ListItemText
+                    primary={
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textDecoration: item.claimed ? 'line-through' : 'none',
+                          color: item.claimed ? 'gray' : 'inherit',
+                        }}
+                      >
+                        {item.name} {item.claimed && '✅ (already taken)'}
+                      </Typography>
+                    }
+                    secondary={
+                      <>
+                        {item.link && (
+                          <>
+                            <MuiLink
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              color="primary"
+                              underline="hover"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Link
+                            </MuiLink>
+                            <br />
+                          </>
+                        )}
 
-                      {item.description && (
-                        <Typography variant="body2" color="textSecondary" component="span">
-                          {item.description}
-                        </Typography>
-                      )}
-                    </>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-          </Paper>
-        ))}
-      </List>
-    </Container>
+                        {item.description && (
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            component="span"
+                          >
+                            {item.description}
+                          </Typography>
+                        )}
+                      </>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            </Paper>
+          ))}
+        </List>
+      </Container>
+
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+      >
+        <DialogTitle>
+          {`Confirm to take "${selectedItem?.name}"?`}
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>No</Button>
+          <Button
+            onClick={() => {
+              if (selectedItem) {
+                handleClaim(selectedItem.id);
+              }
+              setConfirmOpen(false);
+            }}
+            autoFocus
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

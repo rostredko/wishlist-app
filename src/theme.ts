@@ -11,4 +11,11 @@ export const darkTheme = createTheme({
       paper: "#282828",
     },
   },
+  typography: {
+    fontFamily: 'Inter, Roboto, sans-serif',
+    h3: {
+      fontWeight: 500,
+      fontSize: '2.5rem',
+    },
+  }
 });
