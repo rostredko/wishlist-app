@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
-import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import { useEffect, useState } from 'react';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
 import type { WishListItem } from '../types/WishListItem';
 import { CustomCheckbox } from './CustomCheckbox'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../hooks/useAuth.ts';
+import ConfirmDialog from './ConfirmDialog.tsx';
+import AddItemDialog from './AddItemDialog.tsx';
 import {
   Container,
   Typography,
@@ -14,29 +18,53 @@ import {
   ListItemButton,
   Link as MuiLink,
   Paper,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-} from "@mui/material";
+  IconButton,
+  Button
+} from '@mui/material';
 
 export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<WishListItem | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [claimConfirmOpen, setClaimConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<WishListItem | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const {isAdmin} = useAuth();
 
-  const handleClaim = async (id: string) => {
+  const handleClaimToggle = async (item: WishListItem) => {
     try {
-      const itemRef = doc(db, "items", id);
-      await updateDoc(itemRef, {claimed: true} as Partial<WishListItem>);
-      console.log(`✅ Claimed item: ${id}`);
+      const itemRef = doc(db, 'items', item.id);
+      await updateDoc(itemRef, {claimed: !item.claimed});
+      console.log(`🔁 Toggled claim for item: ${item.id}`);
     } catch (error) {
-      console.error(error);
+      console.error('Claim toggle error:', error);
     }
-  }
+  };
+
+  const handleAddItem = async (item: { name: string; description?: string; link?: string }) => {
+    try {
+      await addDoc(collection(db, 'items'), {
+        name: item.name,
+        description: item.description || '',
+        link: item.link || '',
+        claimed: false,
+        createdAt: Timestamp.now(),
+      });
+    } catch (error) {
+      console.error('Error adding item:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'items', id));
+    } catch (error) {
+      console.error('Error while deleting the gift:', error);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "items"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, 'items'), (snapshot) => {
       const result: WishListItem[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -50,13 +78,22 @@ export function WishListItemList() {
 
   return (
     <>
-      <Container maxWidth="sm" sx={{ mt: 6 }}>
+      <Container maxWidth="sm" sx={{mt: 6}}>
         <Typography variant="h2" gutterBottom>
           Мій Wishlist
         </Typography>
-        <Typography variant="h3" gutterBottom sx={{ mt: 4 }}>
+        <Typography variant="h3" gutterBottom sx={{mt: 4}}>
           🎁 Gift Ideas
         </Typography>
+        {isAdmin && (
+          <Button
+            variant="outlined"
+            sx={{mb: 1, mt: 2}}
+            onClick={() => setAddDialogOpen(true)}
+          >
+            ➕ Add Gift
+          </Button>
+        )}
         <List>
           {items.map((item) => (
             <Paper key={item.id}
@@ -73,27 +110,45 @@ export function WishListItemList() {
                      },
                    }}
             >
-              <ListItem disablePadding>
+              <ListItem
+                disablePadding
+                secondaryAction={
+                  isAdmin && (
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => {
+                        setItemToDelete(item);
+                        setDeleteConfirmOpen(true);
+                      }}
+                    >
+                      <DeleteIcon sx={{color: '#999'}}/>
+                    </IconButton>
+                  )
+                }
+              >
                 <ListItemButton
                   onClick={() => {
-                    if (!item.claimed) {
+                    if (isAdmin) {
+                      handleClaimToggle(item);
+                    } else if (!item.claimed) {
                       setSelectedItem(item);
-                      setConfirmOpen(true);
+                      setClaimConfirmOpen(true);
                     }
                   }}
-                  disabled={item.claimed}
+                  disabled={!isAdmin && item.claimed}
                   sx={{
                     borderRadius: '15px',
-                      '&:hover': {
-                        backgroundColor: '#3d3d3d'
-                      }
+                    '&:hover': {
+                      backgroundColor: '#3d3d3d'
+                    }
                   }}
                 >
                   <CustomCheckbox
                     checked={item.claimed}
                     disabled
-                    icon={<RadioButtonUncheckedIcon />}
-                    checkedIcon={<CheckCircleIcon />}
+                    icon={<RadioButtonUncheckedIcon/>}
+                    checkedIcon={<CheckCircleIcon/>}
                   />
                   <ListItemText
                     primary={
@@ -121,7 +176,7 @@ export function WishListItemList() {
                             >
                               Link
                             </MuiLink>
-                            <br />
+                            <br/>
                           </>
                         )}
 
@@ -144,28 +199,47 @@ export function WishListItemList() {
         </List>
       </Container>
 
-      <Dialog
-        open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-      >
-        <DialogTitle>
-          {`Confirm to take "${selectedItem?.name}"?`}
-        </DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>No</Button>
-          <Button
-            onClick={() => {
-              if (selectedItem) {
-                handleClaim(selectedItem.id);
-              }
-              setConfirmOpen(false);
-            }}
-            autoFocus
-          >
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title={`Confirm deletion of "${itemToDelete?.name}"?`}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={() => {
+          if (!itemToDelete) return;
+
+          handleDelete(itemToDelete.id);
+          setDeleteConfirmOpen(false);
+          setItemToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      <ConfirmDialog
+        open={claimConfirmOpen}
+        title={`Confirm to take "${selectedItem?.name}"?`}
+        onClose={() => {
+          setClaimConfirmOpen(false);
+          setSelectedItem(null);
+        }}
+        onConfirm={() => {
+          if (selectedItem) {
+            handleClaimToggle(selectedItem);
+          }
+          setClaimConfirmOpen(false);
+          setSelectedItem(null);
+        }}
+        confirmText="Yes"
+        cancelText="No"
+      />
+
+      <AddItemDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onSubmit={handleAddItem}
+      />
     </>
   );
 }
