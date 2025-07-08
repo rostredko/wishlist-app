@@ -33,6 +33,11 @@ export function WishListItemList() {
 
   const handleClaimToggle = async (item: WishListItem) => {
     try {
+      if (!isAdmin && item.claimed) {
+        console.warn('Gift already claimed. Guests cannot unclaim.');
+        return;
+      }
+
       const itemRef = doc(db, 'items', item.id);
       await updateDoc(itemRef, {claimed: !item.claimed});
       console.log(`🔁 Toggled claim for item: ${item.id}`);
