@@ -1,13 +1,13 @@
-import { Button, Container, Typography } from '@mui/material';
+import { WishListItemList } from './Components/WishListItemList.tsx';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { darkTheme } from './theme.ts';
 
 function App() {
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        WishList App
-      </Typography>
-      <Button variant="contained">Test Button</Button>
-    </Container>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <WishListItemList/>
+    </ThemeProvider>
   );
 }
 
