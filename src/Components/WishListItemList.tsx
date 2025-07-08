@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import type { WishListItem } from '../types/WishListItem';
+import { CustomCheckbox } from './CustomCheckbox'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import {
   Container,
   Typography,
@@ -9,7 +12,6 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  Checkbox,
   Link as MuiLink,
   Paper,
   Dialog,
@@ -60,7 +62,7 @@ export function WishListItemList() {
             <Paper key={item.id}
                    sx={{
                      mb: 2,
-                     p: 2,
+                     p: 1,
                      borderRadius: 3,
                      border: '1px solid #2c2c2c',
                      boxShadow: 'none',
@@ -81,10 +83,18 @@ export function WishListItemList() {
                   }}
                   disabled={item.claimed}
                   sx={{
-                    borderRadius: '15px'
+                    borderRadius: '15px',
+                      '&:hover': {
+                        backgroundColor: '#3d3d3d'
+                      }
                   }}
                 >
-                  <Checkbox checked={item.claimed} disabled />
+                  <CustomCheckbox
+                    checked={item.claimed}
+                    disabled
+                    icon={<RadioButtonUncheckedIcon />}
+                    checkedIcon={<CheckCircleIcon />}
+                  />
                   <ListItemText
                     primary={
                       <Typography
@@ -94,7 +104,7 @@ export function WishListItemList() {
                           color: item.claimed ? 'gray' : 'inherit',
                         }}
                       >
-                        {item.name} {item.claimed && '✅ (already taken)'}
+                        {item.name}
                       </Typography>
                     }
                     secondary={
