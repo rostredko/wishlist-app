@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth.ts';
 import ConfirmDialog from './ConfirmDialog.tsx';
 import AddItemDialog from './AddItemDialog.tsx';
 import confetti from 'canvas-confetti';
+import GiftLogo from '/public/favicon.png';
 import {
   Container,
   Typography,
@@ -93,11 +94,12 @@ export function WishListItemList() {
   return (
     <>
       <Container maxWidth="sm" sx={{mt: 6}}>
+        <img src={GiftLogo} alt="WishList Logo" width={80} height={80} style={{mt: 10}} />
         <Typography variant="h2" gutterBottom>
           Мій Wishlist
         </Typography>
         <Typography variant="h3" gutterBottom sx={{mt: 4}}>
-          🎁 Gift Ideas
+          🎁 Gift Ideas - Birthday 30
         </Typography>
         {isAdmin && (
           <Button

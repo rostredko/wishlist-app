@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { Button, Box, Typography } from "@mui/material";
 
 const LoginControls = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   return (
     <Box sx={{
@@ -19,7 +19,7 @@ const LoginControls = () => {
       {user ? (
         <>
           <Typography variant="body1" sx={{ color: "#aaa" }}>
-            👋&nbsp; {user.displayName}
+            👋&nbsp; {user.displayName} {isAdmin ? '(Admin)' : ''}
           </Typography>
           <Button variant="outlined" color="secondary" onClick={() => signOut(auth)}>
             Sign Out
