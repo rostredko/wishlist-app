@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../hooks/useAuth.ts';
 import ConfirmDialog from './ConfirmDialog.tsx';
 import AddItemDialog from './AddItemDialog.tsx';
+import confetti from 'canvas-confetti';
 import {
   Container,
   Typography,
@@ -39,8 +40,16 @@ export function WishListItemList() {
       }
 
       const itemRef = doc(db, 'items', item.id);
-      await updateDoc(itemRef, {claimed: !item.claimed});
+      await updateDoc(itemRef, { claimed: !item.claimed });
       console.log(`🔁 Toggled claim for item: ${item.id}`);
+
+      if (!isAdmin && !item.claimed) {
+        confetti({
+          particleCount: 200,
+          spread: 120,
+          gravity: 0.8
+        });
+      }
     } catch (error) {
       console.error('Claim toggle error:', error);
     }
