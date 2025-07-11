@@ -94,7 +94,7 @@ export function WishListItemList() {
   return (
     <>
       <Container maxWidth="sm" sx={{mt: 6}}>
-        <img src={GiftLogo} alt="WishList Logo" width={80} height={80} style={{mt: 10}} />
+        <img src={GiftLogo} alt="WishList Logo" width={80} height={80} style={{marginTop: 10}} />
         <Typography variant="h2" gutterBottom>
           Мій Wishlist
         </Typography>
