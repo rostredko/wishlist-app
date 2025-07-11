@@ -34,13 +34,16 @@ export function WishListItemList() {
   const [itemToDelete, setItemToDelete] = useState<WishListItem | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [wishlistTitle, setWishlistTitle] = useState('');
-  const {isAdmin} = useAuth();
+  const {user, isAdmin} = useAuth();
+  const [wishlist, setWishlist] = useState<WishList | null>(null);
   const { wishlistId } = useParams();
   const navigate = useNavigate();
 
+  const canEdit = user && wishlist?.ownerUid === user.uid || isAdmin;
+
   const handleClaimToggle = async (item: WishListItem) => {
     try {
-      if (!isAdmin && item.claimed) {
+      if (!canEdit && item.claimed) {
         console.warn('Gift already claimed. Guests cannot unclaim.');
         return;
       }
@@ -48,7 +51,7 @@ export function WishListItemList() {
       const itemRef = doc(db, 'wishlists', wishlistId, 'items', item.id);
       await updateDoc(itemRef, { claimed: !item.claimed });
 
-      if (!isAdmin && !item.claimed) {
+      if (!canEdit && !item.claimed) {
         confetti({
           particleCount: 200,
           spread: 120,
@@ -127,6 +130,7 @@ export function WishListItemList() {
 
       if (snapshot.exists()) {
         const data = snapshot.data() as WishList;
+        setWishlist(data);
         setWishlistTitle(data.title || 'Unnamed Wishlist');
       } else {
         setWishlistTitle('Wishlist not found');
@@ -146,7 +150,7 @@ export function WishListItemList() {
         <Typography variant="h3" gutterBottom sx={{mt: 4}}>
           {wishlistTitle}
         </Typography>
-        {isAdmin && (
+        {canEdit && (
           <Button
             variant="outlined"
             sx={{mb: 1, mt: 2}}
@@ -174,7 +178,7 @@ export function WishListItemList() {
               <ListItem
                 disablePadding
                 secondaryAction={
-                  isAdmin && (
+                  canEdit && (
                     <IconButton
                       edge="end"
                       aria-label="delete"
@@ -190,14 +194,14 @@ export function WishListItemList() {
               >
                 <ListItemButton
                   onClick={() => {
-                    if (isAdmin) {
+                    if (canEdit) {
                       handleClaimToggle(item);
                     } else if (!item.claimed) {
                       setSelectedItem(item);
                       setClaimConfirmOpen(true);
                     }
                   }}
-                  disabled={!isAdmin && item.claimed}
+                  disabled={!canEdit && item.claimed}
                   sx={{
                     borderRadius: '15px',
                     '&:hover': {
