@@ -25,6 +25,7 @@ import {
   Button
 } from '@mui/material';
 import type { WishList } from '../types/WishList.ts';
+import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
 
 export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
@@ -34,6 +35,7 @@ export function WishListItemList() {
   const [itemToDelete, setItemToDelete] = useState<WishListItem | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [wishlistTitle, setWishlistTitle] = useState('');
+  const [createWishlistDialogOpen, setCreateWishlistDialogOpen] = useState(false);
   const {user, isAdmin} = useAuth();
   const [wishlist, setWishlist] = useState<WishList | null>(null);
   const { wishlistId } = useParams();
@@ -47,6 +49,8 @@ export function WishListItemList() {
         console.warn('Gift already claimed. Guests cannot unclaim.');
         return;
       }
+
+      if (!wishlistId) return;
 
       const itemRef = doc(db, 'wishlists', wishlistId, 'items', item.id);
       await updateDoc(itemRef, { claimed: !item.claimed });
@@ -65,6 +69,8 @@ export function WishListItemList() {
 
   const handleAddItem = async (item: { name: string; description?: string; link?: string }) => {
     try {
+      if (!wishlistId) return;
+
       await addDoc(collection(db, 'wishlists', wishlistId, 'items'), {
         name: item.name,
         description: item.description || '',
@@ -79,6 +85,8 @@ export function WishListItemList() {
 
   const handleDelete = async (id: string) => {
     try {
+      if (!wishlistId) return;
+
       await deleteDoc(doc(db, 'wishlists', wishlistId, 'items', id));
     } catch (error) {
       console.error('Error while deleting the gift:', error);
@@ -145,15 +153,24 @@ export function WishListItemList() {
       <Container maxWidth="sm" sx={{mt: 6}}>
         <img src={GiftLogo} alt="WishList Logo" width={80} height={80} style={{marginTop: 10}} />
         <Typography variant="h2" gutterBottom>
-          Мій Wishlist
+          MyWishList App
         </Typography>
-        <Typography variant="h3" gutterBottom sx={{mt: 4}}>
-          {wishlistTitle}
-        </Typography>
-        {canEdit && (
+        {user && (
           <Button
             variant="outlined"
             sx={{mb: 1, mt: 2}}
+            onClick={() => setCreateWishlistDialogOpen(true)}
+          >
+            ➕ Create new wishlist
+          </Button>
+        )}
+        <Typography variant="h3" gutterBottom sx={{mt: 4}}>
+          {wishlistTitle}
+        </Typography>
+        {wishlist && canEdit && (
+          <Button
+            variant="contained"
+            sx={{mb: 1, mt: 2, mr: 2}}
             onClick={() => setAddDialogOpen(true)}
           >
             ➕ Add Gift
@@ -304,6 +321,12 @@ export function WishListItemList() {
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
         onSubmit={handleAddItem}
+      />
+
+      <CreateWishListDialog
+        open={createWishlistDialogOpen}
+        onClose={() => setCreateWishlistDialogOpen(false)}
+        user={user}
       />
     </>
   );
