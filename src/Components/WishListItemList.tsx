@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { useNavigate, useParams } from 'react-router-dom';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs, getDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import type { WishListItem } from '../types/WishListItem';
 import { CustomCheckbox } from './CustomCheckbox'
@@ -23,6 +24,7 @@ import {
   IconButton,
   Button
 } from '@mui/material';
+import type { WishList } from '../types/WishList.ts';
 
 export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
@@ -31,7 +33,10 @@ export function WishListItemList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<WishListItem | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [wishlistTitle, setWishlistTitle] = useState('');
   const {isAdmin} = useAuth();
+  const { wishlistId } = useParams();
+  const navigate = useNavigate();
 
   const handleClaimToggle = async (item: WishListItem) => {
     try {
@@ -40,9 +45,8 @@ export function WishListItemList() {
         return;
       }
 
-      const itemRef = doc(db, 'items', item.id);
+      const itemRef = doc(db, 'wishlists', wishlistId, 'items', item.id);
       await updateDoc(itemRef, { claimed: !item.claimed });
-      console.log(`🔁 Toggled claim for item: ${item.id}`);
 
       if (!isAdmin && !item.claimed) {
         confetti({
@@ -58,7 +62,7 @@ export function WishListItemList() {
 
   const handleAddItem = async (item: { name: string; description?: string; link?: string }) => {
     try {
-      await addDoc(collection(db, 'items'), {
+      await addDoc(collection(db, 'wishlists', wishlistId, 'items'), {
         name: item.name,
         description: item.description || '',
         link: item.link || '',
@@ -72,24 +76,65 @@ export function WishListItemList() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'items', id));
+      await deleteDoc(doc(db, 'wishlists', wishlistId, 'items', id));
     } catch (error) {
       console.error('Error while deleting the gift:', error);
     }
   };
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'items'), (snapshot) => {
-      const result: WishListItem[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as WishListItem[];
+    if (!wishlistId) return;
 
-      setItems(result);
-    });
+    if (wishlistId === 'default') {
+      const fetchAndRedirect = async () => {
+        const wishlistsRef = collection(db, 'wishlists');
+        const snapshot = await getDocs(wishlistsRef);
+
+        if (!snapshot.empty) {
+          const visibleWishlist = snapshot.docs.find(doc => !doc.data().isHidden);
+
+          if (visibleWishlist) {
+            navigate(`/wishlist/${visibleWishlist.id}`, { replace: true });
+          }
+        }
+      };
+
+      fetchAndRedirect();
+      return;
+    }
+
+    const unsubscribe = onSnapshot(
+      collection(db, 'wishlists', wishlistId, 'items'),
+      (snapshot) => {
+        const result: WishListItem[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as WishListItem[];
+
+        setItems(result);
+      }
+    );
 
     return () => unsubscribe();
-  }, []);
+  }, [wishlistId]);
+
+  useEffect(() => {
+    const fetchTitle = async () => {
+      if (!wishlistId || wishlistId === 'default') return;
+
+      const wishlistDocRef = doc(db, 'wishlists', wishlistId);
+      const snapshot = await getDoc(wishlistDocRef);
+
+      if (snapshot.exists()) {
+        const data = snapshot.data() as WishList;
+        setWishlistTitle(data.title || 'Unnamed Wishlist');
+      } else {
+        setWishlistTitle('Wishlist not found');
+      }
+    };
+
+    fetchTitle();
+  }, [wishlistId]);
 
   return (
     <>
@@ -99,7 +144,7 @@ export function WishListItemList() {
           Мій Wishlist
         </Typography>
         <Typography variant="h3" gutterBottom sx={{mt: 4}}>
-          🎁 Gift Ideas - Birthday 30
+          {wishlistTitle}
         </Typography>
         {isAdmin && (
           <Button
