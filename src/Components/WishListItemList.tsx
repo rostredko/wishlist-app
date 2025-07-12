@@ -12,7 +12,10 @@ import ConfirmDialog from './ConfirmDialog.tsx';
 import AddItemDialog from './AddItemDialog.tsx';
 import confetti from 'canvas-confetti';
 import GiftLogo from '/public/favicon.png';
+import EditIcon from '@mui/icons-material/Edit';
 import {
+  Box,
+  TextField,
   Container,
   Typography,
   List,
@@ -36,11 +39,12 @@ export function WishListItemList() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [wishlistTitle, setWishlistTitle] = useState('');
   const [createWishlistDialogOpen, setCreateWishlistDialogOpen] = useState(false);
-  const {user, isAdmin} = useAuth();
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
   const [wishlist, setWishlist] = useState<WishList | null>(null);
+  const {user, isAdmin} = useAuth();
   const { wishlistId } = useParams();
   const navigate = useNavigate();
-
   const canEdit = user && wishlist?.ownerUid === user.uid || isAdmin;
 
   const handleClaimToggle = async (item: WishListItem) => {
@@ -90,6 +94,23 @@ export function WishListItemList() {
       await deleteDoc(doc(db, 'wishlists', wishlistId, 'items', id));
     } catch (error) {
       console.error('Error while deleting the gift:', error);
+    }
+  };
+
+  const handleSaveTitle = async () => {
+    if (newTitle.trim() === wishlistTitle) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    try {
+      const wishlistRef = doc(db, 'wishlists', wishlistId!);
+      await updateDoc(wishlistRef, { title: newTitle });
+      setWishlistTitle(newTitle);
+    } catch (error) {
+      console.error('Error updating title:', error);
+    } finally {
+      setIsEditingTitle(false);
     }
   };
 
@@ -164,9 +185,43 @@ export function WishListItemList() {
             ➕ Create new wishlist
           </Button>
         )}
-        <Typography variant="h3" gutterBottom sx={{mt: 4}}>
-          {wishlistTitle}
-        </Typography>
+        {isEditingTitle ? (
+          <TextField
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onBlur={handleSaveTitle}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSaveTitle();
+              }
+            }}
+            autoFocus
+            fullWidth
+            variant="standard"
+            InputProps={{
+              sx: {
+                fontSize: '2.5rem',
+                color: 'inherit',
+                padding: 0,
+                backgroundColor: 'transparent',
+              },
+            }}
+            sx={{ mt: 3 }}
+          />
+        ) : (
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 4 }}>
+            <Typography variant="h3" gutterBottom onClick={() => {
+              if (canEdit) {
+                setNewTitle(wishlistTitle);
+                setIsEditingTitle(true);
+              }
+            }} sx={{ cursor: canEdit ? 'pointer' : 'default' }}>
+              {wishlistTitle}
+              {canEdit && <EditIcon sx={{ ml: 1, fontSize: 25, color: 'gray' }} />}
+            </Typography>
+          </Box>
+        )}
         {wishlist && canEdit && (
           <Button
             variant="contained"
