@@ -117,21 +117,11 @@ export function WishListItemList() {
   useEffect(() => {
     if (!wishlistId) return;
 
+    const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
+    console.log(DEFAULT_WISHLIST_ID);
+
     if (wishlistId === 'default') {
-      const fetchAndRedirect = async () => {
-        const wishlistsRef = collection(db, 'wishlists');
-        const snapshot = await getDocs(wishlistsRef);
-
-        if (!snapshot.empty) {
-          const visibleWishlist = snapshot.docs.find(doc => !doc.data().isHidden);
-
-          if (visibleWishlist) {
-            navigate(`/wishlist/${visibleWishlist.id}`, { replace: true });
-          }
-        }
-      };
-
-      fetchAndRedirect();
+      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, { replace: true });
       return;
     }
 
