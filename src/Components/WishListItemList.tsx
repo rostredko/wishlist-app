@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs, getDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import type { WishListItem } from '../types/WishListItem';
 import { CustomCheckbox } from './CustomCheckbox'
