@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { onSnapshot, collection } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import type { WishListItem } from '../types/WishListItem';
-import { CustomCheckbox } from './CustomCheckbox'
+import type { WishList } from '../types/WishList.ts';
+import { CustomCheckbox } from './CustomCheckbox';
+import confetti from 'canvas-confetti';
+import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../hooks/useAuth.ts';
 import ConfirmDialog from './ConfirmDialog.tsx';
 import AddItemDialog from './AddItemDialog.tsx';
+import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
 import WishlistHeader from './WishListHeader.tsx';
-import confetti from 'canvas-confetti';
-import EditIcon from '@mui/icons-material/Edit';
 import {
   Box,
   TextField,
@@ -25,26 +27,42 @@ import {
   Link as MuiLink,
   Paper,
   IconButton,
-  Button, Skeleton
+  Button,
+  Skeleton,
 } from '@mui/material';
-import type { WishList } from '../types/WishList.ts';
-import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
+import {
+  getWishlistById,
+  addGiftItem,
+  deleteGiftItem,
+  updateWishlistTitle,
+  toggleGiftClaimStatus,
+} from '../services/wishlistService';
 
 export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<WishListItem | null>(null);
-  const [claimConfirmOpen, setClaimConfirmOpen] = useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<WishListItem | null>(null);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [wishlistTitle, setWishlistTitle] = useState('');
-  const [createWishlistDialogOpen, setCreateWishlistDialogOpen] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
   const [wishlist, setWishlist] = useState<WishList | null>(null);
   const {user, isAdmin} = useAuth();
-  const { wishlistId } = useParams();
+  const {wishlistId} = useParams();
   const navigate = useNavigate();
+
+  const [dialogs, setDialogs] = useState({
+    claimConfirmOpen: false,
+    deleteConfirmOpen: false,
+    addItemOpen: false,
+    createWishlistOpen: false,
+  });
+
+  const [selection, setSelection] = useState({
+    selectedItem: null,
+    itemToDelete: null,
+  });
+
+  const [titleState, setTitleState] = useState({
+    current: '',
+    draft: '',
+    isEditing: false,
+  });
+
   const canEdit = user && wishlist?.ownerUid === user.uid || isAdmin;
 
   const handleClaimToggle = async (item: WishListItem) => {
@@ -56,15 +74,10 @@ export function WishListItemList() {
 
       if (!wishlistId) return;
 
-      const itemRef = doc(db, 'wishlists', wishlistId, 'items', item.id);
-      await updateDoc(itemRef, { claimed: !item.claimed });
+      await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
 
       if (!canEdit && !item.claimed) {
-        confetti({
-          particleCount: 200,
-          spread: 120,
-          gravity: 0.8
-        });
+        confetti({particleCount: 200, spread: 120, gravity: 0.8});
       }
     } catch (error) {
       console.error('Claim toggle error:', error);
@@ -74,14 +87,7 @@ export function WishListItemList() {
   const handleAddItem = async (item: { name: string; description?: string; link?: string }) => {
     try {
       if (!wishlistId) return;
-
-      await addDoc(collection(db, 'wishlists', wishlistId, 'items'), {
-        name: item.name,
-        description: item.description || '',
-        link: item.link || '',
-        claimed: false,
-        createdAt: Timestamp.now(),
-      });
+      await addGiftItem(wishlistId, item);
     } catch (error) {
       console.error('Error adding item:', error);
     }
@@ -90,34 +96,31 @@ export function WishListItemList() {
   const handleDelete = async (id: string) => {
     try {
       if (!wishlistId) return;
-
-      await deleteDoc(doc(db, 'wishlists', wishlistId, 'items', id));
+      await deleteGiftItem(wishlistId, id);
     } catch (error) {
       console.error('Error while deleting the gift:', error);
     }
   };
 
   const handleSaveTitle = async () => {
-    if (newTitle.trim() === wishlistTitle) {
-      setIsEditingTitle(false);
+    if (titleState.draft.trim() === titleState.current) {
+      setTitleState(t => ({...t, isEditing: false}));
       return;
     }
 
     try {
-      const wishlistRef = doc(db, 'wishlists', wishlistId!);
-      await updateDoc(wishlistRef, { title: newTitle });
-      setWishlistTitle(newTitle);
+      await updateWishlistTitle(wishlistId!, titleState.draft);
+      setTitleState(t => ({...t, current: titleState.draft, isEditing: false}));
     } catch (error) {
       console.error('Error updating title:', error);
-    } finally {
-      setIsEditingTitle(false);
+      setTitleState(t => ({...t, isEditing: false}));
     }
   };
 
   const handleBannerUpload = (newUrl: string) => {
     const delimiter = newUrl.includes('?') ? '&' : '?';
     setWishlist((prev) =>
-      prev ? { ...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}` } : prev
+      prev ? {...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}`} : prev
     );
   };
 
@@ -125,10 +128,8 @@ export function WishListItemList() {
     if (!wishlistId) return;
 
     const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
-    console.log(DEFAULT_WISHLIST_ID);
-
     if (wishlistId === 'default') {
-      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, { replace: true });
+      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
       return;
     }
 
@@ -150,25 +151,13 @@ export function WishListItemList() {
   useEffect(() => {
     const fetchWishlistData = async () => {
       if (!wishlistId || wishlistId === 'default') return;
+      const result = await getWishlistById(wishlistId);
 
-      const wishlistDocRef = doc(db, 'wishlists', wishlistId);
-      const snapshot = await getDoc(wishlistDocRef);
-
-      if (snapshot.exists()) {
-        const rawData = snapshot.data();
-        const fullData: WishList = {
-          id: snapshot.id,
-          title: rawData.title || '',
-          ownerUid: rawData.ownerUid || '',
-          bannerImage: rawData.bannerImage || '',
-          isHidden: rawData.isHidden || false,
-          createdAt: rawData.createdAt, // можно привести вручную: new Timestamp(...)
-        };
-        console.log(fullData)
-        setWishlist(fullData);
-        setWishlistTitle(fullData.title || 'Unnamed Wishlist');
+      if (result) {
+        setWishlist(result);
+        setTitleState(t => ({...t, current: result.title || 'Unnamed Wishlist'}));
       } else {
-        setWishlistTitle('Wishlist not found');
+        setTitleState(t => ({...t, current: 'Wishlist not found'}));
       }
     };
 
@@ -178,7 +167,7 @@ export function WishListItemList() {
   return (
     <>
       {wishlist === null ? (
-        <Skeleton variant="rectangular" height={200} />
+        <Skeleton variant="rectangular" height={200}/>
       ) : (
         <WishlistHeader
           wishlist={wishlist}
@@ -187,22 +176,21 @@ export function WishListItemList() {
         />
       )}
 
-      {/* Main Content */}
       <Container maxWidth="sm">
         {user && (
           <Button
             variant="outlined"
-            sx={{ mb: 2 }}
-            onClick={() => setCreateWishlistDialogOpen(true)}
+            sx={{mb: 2}}
+            onClick={() => setDialogs(d => ({...d, createWishlistOpen: true}))}
           >
             ➕ Create new wishlist
           </Button>
         )}
 
-        {isEditingTitle ? (
+        {titleState.isEditing ? (
           <TextField
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            value={titleState.draft}
+            onChange={(e) => setTitleState(t => ({...t, draft: e.target.value}))}
             onBlur={handleSaveTitle}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -221,23 +209,22 @@ export function WishListItemList() {
                 backgroundColor: 'transparent',
               },
             }}
-            sx={{ mt: 3 }}
+            sx={{mt: 3}}
           />
         ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 4 }}>
+          <Box sx={{display: 'flex', alignItems: 'center', mt: 4}}>
             <Typography
               variant="h3"
               gutterBottom
               onClick={() => {
                 if (canEdit) {
-                  setNewTitle(wishlistTitle);
-                  setIsEditingTitle(true);
+                  setTitleState(t => ({...t, draft: titleState.current, isEditing: true}));
                 }
               }}
-              sx={{ cursor: canEdit ? 'pointer' : 'default' }}
+              sx={{cursor: canEdit ? 'pointer' : 'default'}}
             >
-              {wishlistTitle}
-              {canEdit && <EditIcon sx={{ ml: 1, fontSize: 25, color: 'gray' }} />}
+              {titleState.current}
+              {canEdit && <EditIcon sx={{ml: 1, fontSize: 25, color: 'gray'}}/>}
             </Typography>
           </Box>
         )}
@@ -245,8 +232,8 @@ export function WishListItemList() {
         {wishlist && canEdit && (
           <Button
             variant="contained"
-            sx={{ mb: 2 }}
-            onClick={() => setAddDialogOpen(true)}
+            sx={{mb: 2}}
+            onClick={() => setDialogs(d => ({...d, addItemOpen: true}))}
           >
             ➕ Add Gift
           </Button>
@@ -277,11 +264,11 @@ export function WishListItemList() {
                       edge="end"
                       aria-label="delete"
                       onClick={() => {
-                        setItemToDelete(item);
-                        setDeleteConfirmOpen(true);
+                        setSelection(s => ({...s, itemToDelete: item}));
+                        setDialogs(d => ({...d, deleteConfirmOpen: true}));
                       }}
                     >
-                      <DeleteIcon sx={{ color: '#999' }} />
+                      <DeleteIcon sx={{color: '#999'}}/>
                     </IconButton>
                   )
                 }
@@ -291,8 +278,8 @@ export function WishListItemList() {
                     if (canEdit) {
                       handleClaimToggle(item);
                     } else if (!item.claimed) {
-                      setSelectedItem(item);
-                      setClaimConfirmOpen(true);
+                      setSelection(s => ({...s, selectedItem: item}));
+                      setDialogs(d => ({...d, claimConfirmOpen: true}));
                     }
                   }}
                   disabled={!canEdit && item.claimed}
@@ -306,8 +293,8 @@ export function WishListItemList() {
                   <CustomCheckbox
                     checked={item.claimed}
                     disabled
-                    icon={<RadioButtonUncheckedIcon />}
-                    checkedIcon={<CheckCircleIcon />}
+                    icon={<RadioButtonUncheckedIcon/>}
+                    checkedIcon={<CheckCircleIcon/>}
                   />
                   <ListItemText
                     primary={
@@ -335,7 +322,7 @@ export function WishListItemList() {
                             >
                               Link
                             </MuiLink>
-                            <br />
+                            <br/>
                           </>
                         )}
 
@@ -355,50 +342,49 @@ export function WishListItemList() {
       </Container>
 
       <ConfirmDialog
-        open={deleteConfirmOpen}
-        title={`Confirm deletion of "${itemToDelete?.name}"?`}
+        open={dialogs.deleteConfirmOpen}
+        title={`Confirm deletion of "${selection.itemToDelete?.name}"?`}
         onClose={() => {
-          setDeleteConfirmOpen(false);
-          setItemToDelete(null);
+          setDialogs(d => ({...d, deleteConfirmOpen: false}));
+          setSelection(s => ({...s, itemToDelete: null}));
         }}
         onConfirm={() => {
-          if (!itemToDelete) return;
-
-          handleDelete(itemToDelete.id);
-          setDeleteConfirmOpen(false);
-          setItemToDelete(null);
+          if (!selection.itemToDelete) return;
+          handleDelete(selection.itemToDelete.id);
+          setDialogs(d => ({...d, deleteConfirmOpen: false}));
+          setSelection(s => ({...s, itemToDelete: null}));
         }}
         confirmText="Delete"
         cancelText="Cancel"
       />
 
       <ConfirmDialog
-        open={claimConfirmOpen}
-        title={`Confirm to take "${selectedItem?.name}"?`}
+        open={dialogs.claimConfirmOpen}
+        title={`Confirm to take "${selection.selectedItem?.name}"?`}
         onClose={() => {
-          setClaimConfirmOpen(false);
-          setSelectedItem(null);
+          setDialogs(d => ({...d, claimConfirmOpen: false}));
+          setSelection(s => ({...s, selectedItem: null}));
         }}
         onConfirm={() => {
-          if (selectedItem) {
-            handleClaimToggle(selectedItem);
+          if (selection.selectedItem) {
+            handleClaimToggle(selection.selectedItem);
           }
-          setClaimConfirmOpen(false);
-          setSelectedItem(null);
+          setDialogs(d => ({...d, claimConfirmOpen: false}));
+          setSelection(s => ({...s, selectedItem: null}));
         }}
         confirmText="Yes"
         cancelText="No"
       />
 
       <AddItemDialog
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
+        open={dialogs.addItemOpen}
+        onClose={() => setDialogs(d => ({...d, addItemOpen: false}))}
         onSubmit={handleAddItem}
       />
 
       <CreateWishListDialog
-        open={createWishlistDialogOpen}
-        onClose={() => setCreateWishlistDialogOpen(false)}
+        open={dialogs.createWishlistOpen}
+        onClose={() => setDialogs(d => ({...d, createWishlistOpen: false}))}
         user={user}
       />
     </>
