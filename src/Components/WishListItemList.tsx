@@ -10,8 +10,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../hooks/useAuth.ts';
 import ConfirmDialog from './ConfirmDialog.tsx';
 import AddItemDialog from './AddItemDialog.tsx';
+import WishlistHeader from './WishListHeader.tsx';
 import confetti from 'canvas-confetti';
-import GiftLogo from '/public/favicon.png';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Box,
@@ -25,7 +25,7 @@ import {
   Link as MuiLink,
   Paper,
   IconButton,
-  Button
+  Button, Skeleton
 } from '@mui/material';
 import type { WishList } from '../types/WishList.ts';
 import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
@@ -114,6 +114,13 @@ export function WishListItemList() {
     }
   };
 
+  const handleBannerUpload = (newUrl: string) => {
+    const delimiter = newUrl.includes('?') ? '&' : '?';
+    setWishlist((prev) =>
+      prev ? { ...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}` } : prev
+    );
+  };
+
   useEffect(() => {
     if (!wishlistId) return;
 
@@ -141,40 +148,57 @@ export function WishListItemList() {
   }, [wishlistId]);
 
   useEffect(() => {
-    const fetchTitle = async () => {
+    const fetchWishlistData = async () => {
       if (!wishlistId || wishlistId === 'default') return;
 
       const wishlistDocRef = doc(db, 'wishlists', wishlistId);
       const snapshot = await getDoc(wishlistDocRef);
 
       if (snapshot.exists()) {
-        const data = snapshot.data() as WishList;
-        setWishlist(data);
-        setWishlistTitle(data.title || 'Unnamed Wishlist');
+        const rawData = snapshot.data();
+        const fullData: WishList = {
+          id: snapshot.id,
+          title: rawData.title || '',
+          ownerUid: rawData.ownerUid || '',
+          bannerImage: rawData.bannerImage || '',
+          isHidden: rawData.isHidden || false,
+          createdAt: rawData.createdAt, // можно привести вручную: new Timestamp(...)
+        };
+        console.log(fullData)
+        setWishlist(fullData);
+        setWishlistTitle(fullData.title || 'Unnamed Wishlist');
       } else {
         setWishlistTitle('Wishlist not found');
       }
     };
 
-    fetchTitle();
+    fetchWishlistData();
   }, [wishlistId]);
 
   return (
     <>
-      <Container maxWidth="sm" sx={{mt: 6}}>
-        <img src={GiftLogo} alt="WishList Logo" width={80} height={80} style={{marginTop: 10}} />
-        <Typography variant="h2" gutterBottom>
-          MyWishList App
-        </Typography>
+      {wishlist === null ? (
+        <Skeleton variant="rectangular" height={200} />
+      ) : (
+        <WishlistHeader
+          wishlist={wishlist}
+          canEdit={canEdit}
+          onBannerUpload={handleBannerUpload}
+        />
+      )}
+
+      {/* Main Content */}
+      <Container maxWidth="sm">
         {user && (
           <Button
             variant="outlined"
-            sx={{mb: 1, mt: 2}}
+            sx={{ mb: 2 }}
             onClick={() => setCreateWishlistDialogOpen(true)}
           >
             ➕ Create new wishlist
           </Button>
         )}
+
         {isEditingTitle ? (
           <TextField
             value={newTitle}
@@ -201,41 +225,49 @@ export function WishListItemList() {
           />
         ) : (
           <Box sx={{ display: 'flex', alignItems: 'center', mt: 4 }}>
-            <Typography variant="h3" gutterBottom onClick={() => {
-              if (canEdit) {
-                setNewTitle(wishlistTitle);
-                setIsEditingTitle(true);
-              }
-            }} sx={{ cursor: canEdit ? 'pointer' : 'default' }}>
+            <Typography
+              variant="h3"
+              gutterBottom
+              onClick={() => {
+                if (canEdit) {
+                  setNewTitle(wishlistTitle);
+                  setIsEditingTitle(true);
+                }
+              }}
+              sx={{ cursor: canEdit ? 'pointer' : 'default' }}
+            >
               {wishlistTitle}
               {canEdit && <EditIcon sx={{ ml: 1, fontSize: 25, color: 'gray' }} />}
             </Typography>
           </Box>
         )}
+
         {wishlist && canEdit && (
           <Button
             variant="contained"
-            sx={{mb: 1, mt: 2, mr: 2}}
+            sx={{ mb: 2 }}
             onClick={() => setAddDialogOpen(true)}
           >
             ➕ Add Gift
           </Button>
         )}
+
         <List>
           {items.map((item) => (
-            <Paper key={item.id}
-                   sx={{
-                     mb: 2,
-                     p: 1,
-                     borderRadius: 3,
-                     border: '1px solid #2c2c2c',
-                     boxShadow: 'none',
-                     transition: 'background-color 0.2s ease, transform 0.2s ease',
-                     '&:hover': {
-                       backgroundColor: '#2a2a2a',
-                       transform: 'scale(1.02)',
-                     },
-                   }}
+            <Paper
+              key={item.id}
+              sx={{
+                mb: 2,
+                p: 1,
+                borderRadius: 3,
+                border: '1px solid #2c2c2c',
+                boxShadow: 'none',
+                transition: 'background-color 0.2s ease, transform 0.2s ease',
+                '&:hover': {
+                  backgroundColor: '#2a2a2a',
+                  transform: 'scale(1.02)',
+                },
+              }}
             >
               <ListItem
                 disablePadding
@@ -249,7 +281,7 @@ export function WishListItemList() {
                         setDeleteConfirmOpen(true);
                       }}
                     >
-                      <DeleteIcon sx={{color: '#999'}}/>
+                      <DeleteIcon sx={{ color: '#999' }} />
                     </IconButton>
                   )
                 }
@@ -267,15 +299,15 @@ export function WishListItemList() {
                   sx={{
                     borderRadius: '15px',
                     '&:hover': {
-                      backgroundColor: '#3d3d3d'
-                    }
+                      backgroundColor: '#3d3d3d',
+                    },
                   }}
                 >
                   <CustomCheckbox
                     checked={item.claimed}
                     disabled
-                    icon={<RadioButtonUncheckedIcon/>}
-                    checkedIcon={<CheckCircleIcon/>}
+                    icon={<RadioButtonUncheckedIcon />}
+                    checkedIcon={<CheckCircleIcon />}
                   />
                   <ListItemText
                     primary={
@@ -303,16 +335,12 @@ export function WishListItemList() {
                             >
                               Link
                             </MuiLink>
-                            <br/>
+                            <br />
                           </>
                         )}
 
                         {item.description && (
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            component="span"
-                          >
+                          <Typography variant="body2" color="textSecondary" component="span">
                             {item.description}
                           </Typography>
                         )}
