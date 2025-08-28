@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import {type ChangeEvent, useRef, useState } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, storage } from '../firebase/firebase';
