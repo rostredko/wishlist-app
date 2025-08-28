@@ -82,7 +82,6 @@ export function WishListItemList() {
     isEditing: false,
   });
 
-  // строго boolean: сначала проверяем наличие user
   const canEdit: boolean =
     (isAdmin ?? false) || (user ? wishlist?.ownerUid === user.uid : false);
 
@@ -254,104 +253,118 @@ export function WishListItemList() {
         )}
 
         <List>
-          {items.map((item) => (
-            <Paper
-              key={item.id}
-              sx={{
-                mb: 2,
-                p: 1,
-                borderRadius: 3,
-                border: '1px solid #2c2c2c',
-                boxShadow: 'none',
-                transition: 'background-color 0.2s ease, transform 0.2s ease',
-                '&:hover': {
-                  backgroundColor: '#2a2a2a',
-                  transform: 'scale(1.02)',
-                },
-              }}
-            >
-              <ListItem
-                disablePadding
-                secondaryAction={
-                  canEdit && (
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => {
-                        setSelection((s) => ({ ...s, itemToDelete: item }));
-                        setDialogs((d) => ({ ...d, deleteConfirmOpen: true }));
-                      }}
-                    >
-                      <DeleteIcon sx={{ color: '#999' }} />
-                    </IconButton>
-                  )
-                }
+          {items.map((item) => {
+            const isLockedForGuest = !canEdit && item.claimed;
+
+            return (
+              <Paper
+                key={item.id}
+                sx={{
+                  mb: 2,
+                  p: 1,
+                  borderRadius: 3,
+                  border: '1px solid #2c2c2c',
+                  boxShadow: 'none',
+                  transition: 'background-color 0.2s ease, transform 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: '#2a2a2a',
+                    transform: 'scale(1.02)',
+                  },
+                }}
               >
-                <ListItemButton
-                  onClick={() => {
-                    if (canEdit) {
-                      handleClaimToggle(item);
-                    } else if (!item.claimed) {
-                      setSelection((s) => ({ ...s, selectedItem: item }));
-                      setDialogs((d) => ({ ...d, claimConfirmOpen: true }));
-                    }
-                  }}
-                  disabled={!canEdit && item.claimed}
-                  sx={{
-                    borderRadius: '15px',
-                    '&:hover': {
-                      backgroundColor: '#3d3d3d',
-                    },
-                  }}
-                >
-                  <CustomCheckbox
-                    checked={item.claimed}
-                    disabled
-                    icon={<RadioButtonUncheckedIcon />}
-                    checkedIcon={<CheckCircleIcon />}
-                  />
-                  <ListItemText
-                    primary={
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          textDecoration: item.claimed ? 'line-through' : 'none',
-                          color: item.claimed ? 'gray' : 'inherit',
+                <ListItem
+                  disablePadding
+                  secondaryAction={
+                    canEdit && (
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => {
+                          setSelection((s) => ({ ...s, itemToDelete: item }));
+                          setDialogs((d) => ({ ...d, deleteConfirmOpen: true }));
                         }}
                       >
-                        {item.name}
-                      </Typography>
-                    }
-                    secondary={
-                      <>
-                        {item.link && (
-                          <>
-                            <MuiLink
-                              href={item.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              color="primary"
-                              underline="hover"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Link
-                            </MuiLink>
-                            <br />
-                          </>
-                        )}
+                        <DeleteIcon sx={{ color: '#999' }} />
+                      </IconButton>
+                    )
+                  }
+                >
+                  {/* ВАЖНО: НЕ используем disabled у ListItemButton */}
+                  <ListItemButton
+                    aria-disabled={isLockedForGuest}
+                    onClick={() => {
+                      if (isLockedForGuest) return;
+                      if (canEdit) {
+                        handleClaimToggle(item);
+                      } else if (!item.claimed) {
+                        setSelection((s) => ({ ...s, selectedItem: item }));
+                        setDialogs((d) => ({ ...d, claimConfirmOpen: true }));
+                      }
+                    }}
+                    sx={{
+                      borderRadius: '15px',
+                      ...(isLockedForGuest
+                        ? {
+                          opacity: 0.6
+                        }
+                        : {}),
+                      '&:hover': {
+                        backgroundColor: '#3d3d3d',
+                      },
+                    }}
+                  >
+                    <CustomCheckbox
+                      checked={item.claimed}
+                      disabled
+                      icon={<RadioButtonUncheckedIcon />}
+                      checkedIcon={<CheckCircleIcon />}
+                    />
+                    <ListItemText
+                      primary={
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            textDecoration: item.claimed ? 'line-through' : 'none',
+                            color: item.claimed ? 'gray' : 'inherit',
+                          }}
+                        >
+                          {item.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <>
+                          {item.link && (
+                            <>
+                              <MuiLink
+                                href={item.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                color="primary"
+                                underline="hover"
+                                onClick={(e) => {
+                                  // кликаем ссылку даже если item «заблокирован»
+                                  e.stopPropagation();
+                                }}
+                              >
+                                Link
+                              </MuiLink>
+                              <br />
+                            </>
+                          )}
 
-                        {item.description && (
-                          <Typography variant="body2" color="textSecondary" component="span">
-                            {item.description}
-                          </Typography>
-                        )}
-                      </>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </Paper>
-          ))}
+                          {item.description && (
+                            <Typography variant="body2" color="textSecondary" component="span">
+                              {item.description}
+                            </Typography>
+                          )}
+                        </>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Paper>
+            );
+          })}
         </List>
       </Container>
 
