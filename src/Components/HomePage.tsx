@@ -69,7 +69,6 @@ export default function HomePage() {
             Minimal wishlist app with only what matters.
           </Typography>
 
-          {/* Description card */}
           <Card variant="outlined" sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Stack spacing={2}>
@@ -108,7 +107,6 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Create button */}
           <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
             <span>
               <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}>
@@ -117,14 +115,12 @@ export default function HomePage() {
             </span>
           </Tooltip>
 
-          {/* ===== My wishlists (tiles) ===== */}
           {user && (
             <Stack sx={{ width: '100%', mt: 4 }} spacing={2}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 📚 Your wishlists
               </Typography>
 
-              {/* Loading skeletons as tiles */}
               {isLoading && (
                 <Grid container spacing={2}>
                   {Array.from({ length: 6 }).map((_, i) => (
@@ -135,7 +131,6 @@ export default function HomePage() {
                 </Grid>
               )}
 
-              {/* Empty state */}
               {!isLoading && myLists && myLists.length === 0 && (
                 <Card variant="outlined">
                   <CardContent>
@@ -149,7 +144,6 @@ export default function HomePage() {
                 </Card>
               )}
 
-              {/* Tiles */}
               {!isLoading && myLists && myLists.length > 0 && (
                 <Grid container spacing={2}>
                   {myLists.map((wl) => (
