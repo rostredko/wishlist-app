@@ -15,7 +15,7 @@ import {
 import Grid from '@mui/material/Grid';
 
 import { useAuth } from '../hooks/useAuth';
-import { CreateWishListDialog } from './CreateWishListDialog';
+import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
@@ -26,7 +26,7 @@ type WLItem = WishList & { id: string };
 export default function HomePage() {
   const { user } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
-  const [myLists, setMyLists] = useState<WLItem[] | null>(null); // null = loading
+  const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const navigate = useNavigate();
 
   const handleOpenCreate = () => {
@@ -48,7 +48,7 @@ export default function HomePage() {
     const unsub = onSnapshot(q, (snap) => {
       const data: WLItem[] = snap.docs.map((d) => ({
         ...(d.data() as WishList),
-        id: d.id, // кладём id в конец
+        id: d.id,
       }));
       setMyLists(data);
     });
@@ -61,11 +61,7 @@ export default function HomePage() {
     <Box sx={{ py: { xs: 6, md: 10 } }}>
       <Container maxWidth="md">
         <Stack spacing={3} alignItems="flex-start">
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 1 }}
-          >
+          <Typography variant="h3" component="h1" sx={{ fontWeight: 800, display: 'flex', gap: 1 }}>
             🎁 WishList App
           </Typography>
 
@@ -73,6 +69,7 @@ export default function HomePage() {
             Minimal wishlist app with only what matters.
           </Typography>
 
+          {/* Description card */}
           <Card variant="outlined" sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Stack spacing={2}>
@@ -111,6 +108,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
+          {/* Create button */}
           <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
             <span>
               <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}>
@@ -119,22 +117,25 @@ export default function HomePage() {
             </span>
           </Tooltip>
 
+          {/* ===== My wishlists (tiles) ===== */}
           {user && (
             <Stack sx={{ width: '100%', mt: 4 }} spacing={2}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 📚 Your wishlists
               </Typography>
 
+              {/* Loading skeletons as tiles */}
               {isLoading && (
                 <Grid container spacing={2}>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <Grid key={i} xs={12} md={6} lg={4}>
+                    <Grid key={i} size={{xs: 12, md: 6, lg: 4}}>
                       <Skeleton variant="rounded" height={96} />
                     </Grid>
                   ))}
                 </Grid>
               )}
 
+              {/* Empty state */}
               {!isLoading && myLists && myLists.length === 0 && (
                 <Card variant="outlined">
                   <CardContent>
@@ -148,10 +149,11 @@ export default function HomePage() {
                 </Card>
               )}
 
+              {/* Tiles */}
               {!isLoading && myLists && myLists.length > 0 && (
                 <Grid container spacing={2}>
                   {myLists.map((wl) => (
-                    <Grid key={wl.id} xs={12} md={6} lg={4}>
+                    <Grid key={wl.id} size={{xs: 12, md: 6, lg: 4}}>
                       <Card
                         variant="outlined"
                         onClick={() => navigate(`/wishlist/${wl.id}`)}
@@ -159,7 +161,6 @@ export default function HomePage() {
                           height: '100%',
                           cursor: 'pointer',
                           display: 'flex',
-                          alignItems: 'stretch',
                           transition: 'transform 120ms ease, box-shadow 120ms ease',
                           '&:hover': { transform: 'translateY(-2px)', boxShadow: 6 },
                         }}
