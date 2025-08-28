@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import BannerUploader from './BannerUploader';
 import GiftLogo from '../../public/favicon.png';
 import type { WishList } from '../types/WishList';
+import { Link as RouterLink } from 'react-router-dom';
 
 type Props = {
   wishlist: WishList | null;
@@ -11,7 +12,7 @@ type Props = {
 
 const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
   if (!wishlist || !wishlist.id) {
-    console.log("undefined");
+    console.log('undefined');
     return null;
   }
 
@@ -37,11 +38,31 @@ const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 1,
+          gap: 1.5,
         }}
       >
-        <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
-        <h1 style={{ margin: 0, fontSize: '2.5rem' }}>MyWishList App</h1>
+        <Box
+          component={RouterLink}
+          to="/"
+          aria-label="Go to home"
+          sx={{
+            textDecoration: 'none',
+            color: 'inherit',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 1,
+            cursor: 'pointer',
+            '&:focus-visible': {
+              outline: '2px solid rgba(255,255,255,0.6)',
+              borderRadius: 8,
+            },
+          }}
+        >
+          <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
+          <h1 style={{ margin: 0, fontSize: '2.5rem' }}>MyWishList App</h1>
+        </Box>
+
         {canEdit && (
           <BannerUploader
             wishlistId={wishlist.id}

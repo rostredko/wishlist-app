@@ -3,6 +3,7 @@ import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { darkTheme } from './theme.ts';
 import { WishListItemList } from './Components/WishListItemList.tsx';
 import LoginControls from './Components/LoginControls.tsx';
+import HomePage from './Components/HomePage.tsx';
 
 function App() {
   return (
@@ -18,10 +19,12 @@ function App() {
         >
           <Box sx={{ flexGrow: 1 }}>
             <Routes>
+              <Route path="/" element={<HomePage />} />
               <Route path="/wishlist/:wishlistId" element={<WishListItemList />} />
-              <Route path="*" element={<Navigate to="/wishlist/default" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>
+
           <LoginControls />
         </Box>
       </BrowserRouter>
