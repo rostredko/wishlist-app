@@ -10,7 +10,6 @@ import {
 } from 'firebase/firestore';
 
 import type { WishList } from '../types/WishList';
-import type { WishListItem } from '../types/WishListItem';
 
 export const getWishlistById = async (wishlistId: string): Promise<WishList | null> => {
   const wishlistDocRef = doc(db, 'wishlists', wishlistId);

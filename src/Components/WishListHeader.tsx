@@ -41,7 +41,7 @@ const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
         }}
       >
         <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
-        <h1 style={{ margin: 0, fontSize: '2.5rem' }}>MyWishList App - 2</h1>
+        <h1 style={{ margin: 0, fontSize: '2.5rem' }}>MyWishList App</h1>
         {canEdit && (
           <BannerUploader
             wishlistId={wishlist.id}
