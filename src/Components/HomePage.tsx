@@ -9,12 +9,13 @@ import {
   CardContent,
   Tooltip,
   Divider,
-  Grid,
   Chip,
   Skeleton,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
+
 import { useAuth } from '../hooks/useAuth';
-import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
+import { CreateWishListDialog } from './CreateWishListDialog';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
@@ -46,8 +47,8 @@ export default function HomePage() {
     );
     const unsub = onSnapshot(q, (snap) => {
       const data: WLItem[] = snap.docs.map((d) => ({
-        id: d.id,
         ...(d.data() as WishList),
+        id: d.id, // кладём id в конец
       }));
       setMyLists(data);
     });
@@ -99,8 +100,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <Typography>
-                      Friends anonymously <b>claim</b> gifts — everyone can see what’s already
-                      taken.
+                      Friends anonymously <b>claim</b> gifts — everyone can see what’s already taken.
                     </Typography>
                   </li>
                   <li>
@@ -111,10 +111,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Tooltip
-            title={user ? '' : 'Sign in with Google to create a wishlist'}
-            placement="top"
-          >
+          <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
             <span>
               <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}>
                 Create wishlist
@@ -130,9 +127,9 @@ export default function HomePage() {
 
               {isLoading && (
                 <Grid container spacing={2}>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <Grid key={i} item xs={12}>
-                      <Skeleton variant="rounded" height={88} />
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Grid key={i} xs={12} md={6} lg={4}>
+                      <Skeleton variant="rounded" height={96} />
                     </Grid>
                   ))}
                 </Grid>
@@ -154,26 +151,35 @@ export default function HomePage() {
               {!isLoading && myLists && myLists.length > 0 && (
                 <Grid container spacing={2}>
                   {myLists.map((wl) => (
-                    <Grid key={wl.id} item xs={12}>
+                    <Grid key={wl.id} xs={12} md={6} lg={4}>
                       <Card
                         variant="outlined"
+                        onClick={() => navigate(`/wishlist/${wl.id}`)}
                         sx={{
+                          height: '100%',
                           cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'stretch',
                           transition: 'transform 120ms ease, box-shadow 120ms ease',
                           '&:hover': { transform: 'translateY(-2px)', boxShadow: 6 },
                         }}
-                        onClick={() => navigate(`/wishlist/${wl.id}`)}
                       >
-                        <CardContent>
+                        <CardContent sx={{ width: '100%' }}>
                           <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Stack spacing={0.5}>
-                              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                {wl.title || 'Untitled wishlist'}
-                              </Typography>
-                            </Stack>
-                            <Stack direction="row" spacing={1}>
-                              {wl.isHidden && <Chip size="small" label="Hidden" />}
-                            </Stack>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: 700,
+                                pr: 1,
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
+                              }}
+                              title={wl.title || 'Untitled wishlist'}
+                            >
+                              {wl.title || 'Untitled wishlist'}
+                            </Typography>
+                            {wl.isHidden && <Chip size="small" label="Hidden" />}
                           </Stack>
                         </CardContent>
                       </Card>
