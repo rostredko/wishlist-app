@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {
   Box,
   Container,
@@ -13,16 +13,16 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
-import { useAuth } from '@hooks/useAuth';
-import { CreateWishListDialog } from '@components/CreateWishListDialog';
-import { useNavigate } from 'react-router-dom';
-import type { WishList } from '@models/WishList';
-import { subscribeMyWishlists } from '@api/wishlistService';
+import {useAuth} from '@hooks/useAuth';
+import {CreateWishListDialog} from '@components/CreateWishListDialog';
+import {useNavigate} from 'react-router-dom';
+import type {WishList} from '@models/WishList';
+import {subscribeMyWishlists} from '@api/wishlistService';
 
 type WLItem = WishList & { id: string };
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const {user} = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const navigate = useNavigate();
@@ -45,21 +45,21 @@ export default function HomePage() {
   const isLoading = useMemo(() => !!user && myLists === null, [user, myLists]);
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 } }}>
+    <Box sx={{py: {xs: 6, md: 10}}}>
       <Container maxWidth="md">
         <Stack spacing={3} alignItems="flex-start">
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 800, display: 'flex', gap: 1 }}>
+          <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
             🎁 WishList App
           </Typography>
 
-          <Typography variant="h6" sx={{ opacity: 0.9 }}>
+          <Typography variant="h6" sx={{opacity: 0.9}}>
             Minimal wishlist app with only what matters.
           </Typography>
 
-          <Card variant="outlined" sx={{ bgcolor: 'background.paper' }}>
+          <Card variant="outlined" sx={{bgcolor: 'background.paper'}}>
             <CardContent>
               <Stack spacing={2}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                <Typography variant="subtitle1" sx={{fontWeight: 700}}>
                   ✨ What is it?
                 </Typography>
                 <Typography>
@@ -67,12 +67,12 @@ export default function HomePage() {
                   you need on Birthday, New Year, or even Hanukkah 😄
                 </Typography>
 
-                <Divider />
+                <Divider/>
 
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                <Typography variant="subtitle1" sx={{fontWeight: 700}}>
                   🧭 How it works
                 </Typography>
-                <Stack component="ul" sx={{ pl: 3, m: 0 }} spacing={1}>
+                <Stack component="ul" sx={{pl: 3, m: 0}} spacing={1}>
                   <li>
                     <Typography>Create a wishlist in seconds. Button below.</Typography>
                   </li>
@@ -103,16 +103,16 @@ export default function HomePage() {
           </Tooltip>
 
           {user && (
-            <Stack sx={{ width: '100%', mt: 4 }} spacing={2}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            <Stack sx={{width: '100%', mt: 4}} spacing={2}>
+              <Typography variant="h6" sx={{fontWeight: 700}}>
                 📚 Your wishlists
               </Typography>
 
               {isLoading && (
                 <Grid container spacing={2}>
-                  {Array.from({ length: 6 }).map((_, i) => (
+                  {Array.from({length: 6}).map((_, i) => (
                     <Grid key={i} size={{xs: 12, md: 6, lg: 4}}>
-                      <Skeleton variant="rounded" height={96} />
+                      <Skeleton variant="rounded" height={96}/>
                     </Grid>
                   ))}
                 </Grid>
@@ -143,10 +143,10 @@ export default function HomePage() {
                           cursor: 'pointer',
                           display: 'flex',
                           transition: 'transform 120ms ease, box-shadow 120ms ease',
-                          '&:hover': { transform: 'translateY(-2px)', boxShadow: 6 },
+                          '&:hover': {transform: 'translateY(-2px)', boxShadow: 6},
                         }}
                       >
-                        <CardContent sx={{ width: '100%' }}>
+                        <CardContent sx={{width: '100%'}}>
                           <Stack direction="row" alignItems="center" justifyContent="space-between">
                             <Typography
                               variant="subtitle1"
@@ -174,7 +174,7 @@ export default function HomePage() {
           <CreateWishListDialog
             open={createOpen}
             onClose={handleCloseCreate}
-            user={user ? { uid: user.uid } : null}
+            user={user ? {uid: user.uid} : null}
           />
         </Stack>
       </Container>

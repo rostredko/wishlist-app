@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
-import { useAuth } from '@hooks/useAuth';
+import {useAuth} from '@hooks/useAuth';
 
-import type { WishListItem } from '@models/WishListItem';
-import type { WishList } from '@models/WishList';
+import type {WishListItem} from '@models/WishListItem';
+import type {WishList} from '@models/WishList';
 
 import CustomCheckbox from '@components/CustomCheckbox';
 import ConfirmDialog from '@components/ConfirmDialog';
 import AddItemDialog from '@components/AddItemDialog';
-import { CreateWishListDialog } from '@components/CreateWishListDialog';
+import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import WishlistHeader from '@components/WishListHeader';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -41,6 +41,7 @@ import {
   updateWishlistTitle,
   toggleGiftClaimStatus,
   subscribeWishlistItems,
+  updateGiftItem,
 } from '@api/wishlistService';
 
 type DialogsState = {
@@ -48,11 +49,13 @@ type DialogsState = {
   deleteConfirmOpen: boolean;
   addItemOpen: boolean;
   createWishlistOpen: boolean;
+  editItemOpen: boolean;
 };
 
 type SelectionState = {
   selectedItem: WishListItem | null;
   itemToDelete: WishListItem | null;
+  itemToEdit: WishListItem | null;
 };
 
 type TitleState = {
@@ -65,8 +68,8 @@ export function WishListItemList() {
   const [items, setItems] = useState<WishListItem[]>([]);
   const [wishlist, setWishlist] = useState<WishList | null>(null);
 
-  const { user, isAdmin } = useAuth();
-  const { wishlistId } = useParams();
+  const {user, isAdmin} = useAuth();
+  const {wishlistId} = useParams();
   const navigate = useNavigate();
 
   const [dialogs, setDialogs] = useState<DialogsState>({
@@ -74,11 +77,13 @@ export function WishListItemList() {
     deleteConfirmOpen: false,
     addItemOpen: false,
     createWishlistOpen: false,
+    editItemOpen: false,
   });
 
   const [selection, setSelection] = useState<SelectionState>({
     selectedItem: null,
     itemToDelete: null,
+    itemToEdit: null,
   });
 
   const [titleState, setTitleState] = useState<TitleState>({
@@ -92,13 +97,13 @@ export function WishListItemList() {
 
   const handleClaimToggle = async (item: WishListItem) => {
     try {
-      if (!canEdit && item.claimed) return; // гость не может «отменить» чужую бронь
+      if (!canEdit && item.claimed) return;
       if (!wishlistId) return;
 
       await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
 
       if (!canEdit && !item.claimed) {
-        confetti({ particleCount: 200, spread: 120, gravity: 0.8 });
+        confetti({particleCount: 200, spread: 120, gravity: 0.8});
       }
     } catch (error) {
       console.error('Claim toggle error:', error);
@@ -114,6 +119,15 @@ export function WishListItemList() {
     }
   };
 
+  const handleEditItem = async (values: { name: string; description?: string; link?: string }) => {
+    try {
+      if (!wishlistId || !selection.itemToEdit) return;
+      await updateGiftItem(wishlistId, selection.itemToEdit.id, values);
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       if (!wishlistId) return;
@@ -125,24 +139,24 @@ export function WishListItemList() {
 
   const handleSaveTitle = async () => {
     if (titleState.draft.trim() === titleState.current) {
-      setTitleState((t) => ({ ...t, isEditing: false }));
+      setTitleState((t) => ({...t, isEditing: false}));
       return;
     }
 
     try {
       if (!wishlistId) return;
       await updateWishlistTitle(wishlistId, titleState.draft);
-      setTitleState((t) => ({ ...t, current: titleState.draft, isEditing: false }));
+      setTitleState((t) => ({...t, current: titleState.draft, isEditing: false}));
     } catch (error) {
       console.error('Error updating title:', error);
-      setTitleState((t) => ({ ...t, isEditing: false }));
+      setTitleState((t) => ({...t, isEditing: false}));
     }
   };
 
   const handleBannerUpload = (newUrl: string) => {
     const delimiter = newUrl.includes('?') ? '&' : '?';
     setWishlist((prev) =>
-      prev ? { ...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}` } : prev
+      prev ? {...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}`} : prev
     );
   };
 
@@ -151,7 +165,7 @@ export function WishListItemList() {
 
     const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
     if (wishlistId === 'default') {
-      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, { replace: true });
+      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
       return;
     }
 
@@ -166,9 +180,9 @@ export function WishListItemList() {
 
       if (result) {
         setWishlist(result);
-        setTitleState((t) => ({ ...t, current: result.title || 'Unnamed Wishlist' }));
+        setTitleState((t) => ({...t, current: result.title || 'Unnamed Wishlist'}));
       } else {
-        setTitleState((t) => ({ ...t, current: 'Wishlist not found' }));
+        setTitleState((t) => ({...t, current: 'Wishlist not found'}));
       }
     };
 
@@ -178,17 +192,17 @@ export function WishListItemList() {
   return (
     <>
       {wishlist === null ? (
-        <Skeleton variant="rectangular" height={200} />
+        <Skeleton variant="rectangular" height={200}/>
       ) : (
-        <WishlistHeader wishlist={wishlist} canEdit={canEdit} onBannerUpload={handleBannerUpload} />
+        <WishlistHeader wishlist={wishlist} canEdit={canEdit} onBannerUpload={handleBannerUpload}/>
       )}
 
       <Container maxWidth="sm">
         {user && (
           <Button
             variant="outlined"
-            sx={{ mb: 2 }}
-            onClick={() => setDialogs((d) => ({ ...d, createWishlistOpen: true }))}
+            sx={{mb: 2}}
+            onClick={() => setDialogs((d) => ({...d, createWishlistOpen: true}))}
           >
             ➕ Create new wishlist
           </Button>
@@ -197,7 +211,7 @@ export function WishListItemList() {
         {titleState.isEditing ? (
           <TextField
             value={titleState.draft}
-            onChange={(e) => setTitleState((t) => ({ ...t, draft: e.target.value }))}
+            onChange={(e) => setTitleState((t) => ({...t, draft: e.target.value}))}
             onBlur={handleSaveTitle}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -209,24 +223,24 @@ export function WishListItemList() {
             fullWidth
             variant="standard"
             InputProps={{
-              sx: { fontSize: '2.5rem', color: 'inherit', p: 0, backgroundColor: 'transparent' },
+              sx: {fontSize: '2.5rem', color: 'inherit', p: 0, backgroundColor: 'transparent'},
             }}
-            sx={{ mt: 3 }}
+            sx={{mt: 3}}
           />
         ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 4 }}>
+          <Box sx={{display: 'flex', alignItems: 'center', mt: 4}}>
             <Typography
               variant="h3"
               gutterBottom
               onClick={() => {
                 if (canEdit) {
-                  setTitleState((t) => ({ ...t, draft: titleState.current, isEditing: true }));
+                  setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}));
                 }
               }}
-              sx={{ cursor: canEdit ? 'pointer' : 'default' }}
+              sx={{cursor: canEdit ? 'pointer' : 'default'}}
             >
               {titleState.current}
-              {canEdit && <EditIcon sx={{ ml: 1, fontSize: 25, color: 'gray' }} />}
+              {canEdit && <EditIcon sx={{ml: 1, fontSize: 25, color: 'gray'}}/>}
             </Typography>
           </Box>
         )}
@@ -234,8 +248,8 @@ export function WishListItemList() {
         {wishlist && canEdit && (
           <Button
             variant="contained"
-            sx={{ mb: 2 }}
-            onClick={() => setDialogs((d) => ({ ...d, addItemOpen: true }))}
+            sx={{mb: 2}}
+            onClick={() => setDialogs((d) => ({...d, addItemOpen: true}))}
           >
             ➕ Add Gift
           </Button>
@@ -255,27 +269,10 @@ export function WishListItemList() {
                   border: '1px solid #2c2c2c',
                   boxShadow: 'none',
                   transition: 'background-color 0.2s ease, transform 0.2s ease',
-                  '&:hover': { backgroundColor: '#2a2a2a', transform: 'scale(1.02)' },
+                  '&:hover': {backgroundColor: '#2a2a2a', transform: 'scale(1.02)'},
                 }}
               >
-                <ListItem
-                  disablePadding
-                  secondaryAction={
-                    canEdit && (
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => {
-                          setSelection((s) => ({ ...s, itemToDelete: item }));
-                          setDialogs((d) => ({ ...d, deleteConfirmOpen: true }));
-                        }}
-                      >
-                        <DeleteIcon sx={{ color: '#999' }} />
-                      </IconButton>
-                    )
-                  }
-                >
-                  {/* НЕ используем disabled у ListItemButton — иначе линк станет некликабельным */}
+                <ListItem alignItems="flex-start">
                   <ListItemButton
                     aria-disabled={isLockedForGuest}
                     onClick={() => {
@@ -283,61 +280,91 @@ export function WishListItemList() {
                       if (canEdit) {
                         handleClaimToggle(item);
                       } else if (!item.claimed) {
-                        setSelection((s) => ({ ...s, selectedItem: item }));
-                        setDialogs((d) => ({ ...d, claimConfirmOpen: true }));
+                        setSelection((s) => ({...s, selectedItem: item}));
+                        setDialogs((d) => ({...d, claimConfirmOpen: true}));
                       }
                     }}
                     sx={{
                       borderRadius: '15px',
-                      ...(isLockedForGuest ? { opacity: 0.6 } : {}),
-                      '&:hover': { backgroundColor: '#3d3d3d' },
+                      ...(isLockedForGuest ? {opacity: 0.6} : {}),
+                      '&:hover': {backgroundColor: '#3d3d3d'},
+                      width: '100%',
+                      pr: 1.5, // компактнее справа
                     }}
                   >
-                    <CustomCheckbox
-                      checked={item.claimed}
-                      disabled
-                      icon={<RadioButtonUncheckedIcon />}
-                      checkedIcon={<CheckCircleIcon />}
-                    />
+                    <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 2, flexGrow: 1}}>
+                      <CustomCheckbox
+                        checked={item.claimed}
+                        disabled
+                        icon={<RadioButtonUncheckedIcon fontSize="small"/>}
+                        checkedIcon={<CheckCircleIcon fontSize="small"/>}
+                      />
 
-                    <ListItemText
-                      primary={
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            textDecoration: item.claimed ? 'line-through' : 'none',
-                            color: item.claimed ? 'gray' : 'inherit',
+                      <ListItemText
+                        primary={
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              textDecoration: item.claimed ? 'line-through' : 'none',
+                              color: item.claimed ? 'gray' : 'inherit',
+                            }}
+                          >
+                            {item.name}
+                          </Typography>
+                        }
+                        secondary={
+                          <>
+                            {item.link && (
+                              <>
+                                <MuiLink
+                                  href={item.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  color="primary"
+                                  underline="hover"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Link
+                                </MuiLink>
+                                <br/>
+                              </>
+                            )}
+
+                            {item.description && (
+                              <Typography variant="body2" color="text.secondary" component="span">
+                                {item.description}
+                              </Typography>
+                            )}
+                          </>
+                        }
+                      />
+                    </Box>
+
+                    {canEdit && (
+                      <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelection((s) => ({...s, itemToEdit: item}));
+                            setDialogs((d) => ({...d, editItemOpen: true}));
                           }}
                         >
-                          {item.name}
-                        </Typography>
-                      }
-                      secondary={
-                        <>
-                          {item.link && (
-                            <>
-                              <MuiLink
-                                href={item.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                color="primary"
-                                underline="hover"
-                                onClick={(e) => e.stopPropagation()} // ссылка кликается даже если item «заблокирован»
-                              >
-                                Link
-                              </MuiLink>
-                              <br />
-                            </>
-                          )}
+                          <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
+                        </IconButton>
 
-                          {item.description && (
-                            <Typography variant="body2" color="text.secondary" component="span">
-                              {item.description}
-                            </Typography>
-                          )}
-                        </>
-                      }
-                    />
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelection((s) => ({...s, itemToDelete: item}));
+                            setDialogs((d) => ({...d, deleteConfirmOpen: true}));
+                          }}
+                        >
+                          <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
+                        </IconButton>
+                      </Box>
+                    )}
                   </ListItemButton>
                 </ListItem>
               </Paper>
@@ -350,14 +377,14 @@ export function WishListItemList() {
         open={dialogs.deleteConfirmOpen}
         title={`Confirm deletion of "${selection.itemToDelete?.name}"?`}
         onClose={() => {
-          setDialogs((d) => ({ ...d, deleteConfirmOpen: false }));
-          setSelection((s) => ({ ...s, itemToDelete: null }));
+          setDialogs((d) => ({...d, deleteConfirmOpen: false}));
+          setSelection((s) => ({...s, itemToDelete: null}));
         }}
         onConfirm={() => {
           if (!selection.itemToDelete) return;
           handleDelete(selection.itemToDelete.id);
-          setDialogs((d) => ({ ...d, deleteConfirmOpen: false }));
-          setSelection((s) => ({ ...s, itemToDelete: null }));
+          setDialogs((d) => ({...d, deleteConfirmOpen: false}));
+          setSelection((s) => ({...s, itemToDelete: null}));
         }}
         confirmText="Delete"
         cancelText="Cancel"
@@ -368,15 +395,15 @@ export function WishListItemList() {
         open={dialogs.claimConfirmOpen}
         title={`Confirm to take "${selection.selectedItem?.name}"?`}
         onClose={() => {
-          setDialogs((d) => ({ ...d, claimConfirmOpen: false }));
-          setSelection((s) => ({ ...s, selectedItem: null }));
+          setDialogs((d) => ({...d, claimConfirmOpen: false}));
+          setSelection((s) => ({...s, selectedItem: null}));
         }}
         onConfirm={() => {
           if (selection.selectedItem) {
             handleClaimToggle(selection.selectedItem);
           }
-          setDialogs((d) => ({ ...d, claimConfirmOpen: false }));
-          setSelection((s) => ({ ...s, selectedItem: null }));
+          setDialogs((d) => ({...d, claimConfirmOpen: false}));
+          setSelection((s) => ({...s, selectedItem: null}));
         }}
         confirmText="Yes"
         cancelText="No"
@@ -384,14 +411,36 @@ export function WishListItemList() {
 
       <AddItemDialog
         open={dialogs.addItemOpen}
-        onClose={() => setDialogs((d) => ({ ...d, addItemOpen: false }))}
+        onClose={() => setDialogs((d) => ({...d, addItemOpen: false}))}
         onSubmit={handleAddItem}
+      />
+
+      <AddItemDialog
+        open={dialogs.editItemOpen}
+        onClose={() => {
+          setDialogs((d) => ({...d, editItemOpen: false}));
+          setSelection((s) => ({...s, itemToEdit: null}));
+        }}
+        onSubmit={async (v) => {
+          await handleEditItem(v);
+          setDialogs((d) => ({...d, editItemOpen: false}));
+          setSelection((s) => ({...s, itemToEdit: null}));
+        }}
+        initialValues={
+          selection.itemToEdit
+            ? {
+              name: selection.itemToEdit.name ?? '',
+              description: selection.itemToEdit.description ?? '',
+              link: selection.itemToEdit.link ?? '',
+            }
+            : undefined
+        }
       />
 
       <CreateWishListDialog
         open={dialogs.createWishlistOpen}
-        onClose={() => setDialogs((d) => ({ ...d, createWishlistOpen: false }))}
-        user={user ? { uid: user.uid } : null}
+        onClose={() => setDialogs((d) => ({...d, createWishlistOpen: false}))}
+        user={user ? {uid: user.uid} : null}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import { db, storage } from '@lib/firebase';
+import {db, storage} from '@lib/firebase';
 import {
   addDoc,
   collection,
@@ -14,10 +14,10 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 
-import type { WishList } from '@models/WishList';
-import type { WishListItem } from '@models/WishListItem';
+import type {WishList} from '@models/WishList';
+import type {WishListItem} from '@models/WishListItem';
 
 export async function createWishlist(title: string, ownerUid: string): Promise<string> {
   const ref = await addDoc(collection(db, 'wishlists'), {
@@ -43,12 +43,12 @@ export async function getWishlistById(wishlistId: string): Promise<WishList | nu
     ownerUid: raw.ownerUid || '',
     bannerImage: raw.bannerImage || '',
     isHidden: Boolean(raw.isHidden),
-    createdAt: raw.createdAt as Timestamp | undefined, // может быть undefined, пока serverTimestamp не материализовался
+    createdAt: raw.createdAt as Timestamp | undefined,
   };
 }
 
 export async function updateWishlistTitle(wishlistId: string, newTitle: string): Promise<void> {
-  await updateDoc(doc(db, 'wishlists', wishlistId), { title: newTitle.trim() });
+  await updateDoc(doc(db, 'wishlists', wishlistId), {title: newTitle.trim()});
 }
 
 export function subscribeMyWishlists(
@@ -128,6 +128,19 @@ export async function uploadWishlistBanner(wishlistId: string, file: File): Prom
   });
 
   const url = await getDownloadURL(storageRef);
-  await updateDoc(doc(db, 'wishlists', wishlistId), { bannerImage: url });
+  await updateDoc(doc(db, 'wishlists', wishlistId), {bannerImage: url});
   return url;
+}
+
+export async function updateGiftItem(
+  wishlistId: string,
+  itemId: string,
+  patch: { name?: string; description?: string; link?: string }
+): Promise<void> {
+  const normalized = {
+    ...(patch.name !== undefined ? {name: patch.name.trim()} : {}),
+    ...(patch.description !== undefined ? {description: patch.description.trim()} : {}),
+    ...(patch.link !== undefined ? {link: patch.link.trim()} : {}),
+  };
+  await updateDoc(doc(db, 'wishlists', wishlistId, 'items', itemId), normalized);
 }

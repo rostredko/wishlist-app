@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import {useEffect, useState} from 'react';
+import {onAuthStateChanged, type User} from 'firebase/auth';
 
-import { auth } from '@lib/firebase';
+import {auth} from '@lib/firebase';
 
 const ADMIN_UID = import.meta.env.VITE_ADMIN_UID;
 
@@ -17,5 +17,5 @@ export const useAuth = () => {
     return unsub;
   }, []);
 
-  return { user, isAdmin };
+  return {user, isAdmin};
 };

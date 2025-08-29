@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,16 +9,27 @@ import {
   Stack,
 } from '@mui/material';
 
+type GiftValues = { name: string; description?: string; link?: string };
+
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSubmit: (item: { name: string; description?: string; link?: string }) => void;
+  onSubmit: (item: GiftValues) => void;
+  initialValues?: { name?: string | null; description?: string | null; link?: string | null };
 };
 
-const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [link, setLink] = useState('');
+const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
+  const [name, setName] = useState(initialValues?.name ?? '');
+  const [description, setDescription] = useState(initialValues?.description ?? '');
+  const [link, setLink] = useState(initialValues?.link ?? '');
+
+  useEffect(() => {
+    setName(initialValues?.name ?? '');
+    setDescription(initialValues?.description ?? '');
+    setLink(initialValues?.link ?? '');
+  }, [open, initialValues?.name, initialValues?.description, initialValues?.link]);
+
+  const isEdit = Boolean(initialValues);
 
   const reset = () => {
     setName('');
@@ -32,16 +43,19 @@ const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
     const _link = link.trim();
     if (!_name) return;
 
-    onSubmit({ name: _name, description: _description || undefined, link: _link || undefined });
-    reset();
+    onSubmit({name: _name, description: _description || undefined, link: _link || undefined});
+    if (!isEdit) reset();
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Add your desired gift</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
+      <DialogTitle sx={{px: 3, pt: 2, pb: 0}}>
+        {isEdit ? 'Edit gift' : 'Add your desired gift'}
+      </DialogTitle>
+
+      <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
+        <Stack spacing={2}>
           <TextField
             label="What is it?"
             fullWidth
@@ -73,10 +87,18 @@ const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={() => { reset(); onClose(); }}>Cancel</Button>
+
+      <DialogActions sx={{px: 3, py: 2}}>
+        <Button
+          onClick={() => {
+            if (!isEdit) reset();
+            onClose();
+          }}
+        >
+          Cancel
+        </Button>
         <Button onClick={handleConfirm} variant="contained" disabled={!name.trim()}>
-          Add
+          {isEdit ? 'Save' : 'Add'}
         </Button>
       </DialogActions>
     </Dialog>

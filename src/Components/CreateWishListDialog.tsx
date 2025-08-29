@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import {
   Dialog,
   DialogTitle,
@@ -8,9 +8,13 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import { createWishlist } from '@api/wishlistService';
+import {createWishlist} from '@api/wishlistService';
 
-export function CreateWishListDialog({open, onClose, user}: {
+export function CreateWishListDialog({
+                                       open,
+                                       onClose,
+                                       user,
+                                     }: {
   open: boolean;
   onClose: () => void;
   user: { uid: string } | null;
@@ -31,7 +35,7 @@ export function CreateWishListDialog({open, onClose, user}: {
 
     try {
       setIsCreating(true);
-      const id = await createWishlist(name, user.uid); // сервис
+      const id = await createWishlist(name, user.uid);
       safeClose();
       navigate(`/wishlist/${id}`);
     } catch (e) {
@@ -42,11 +46,11 @@ export function CreateWishListDialog({open, onClose, user}: {
 
   return (
     <Dialog open={open} onClose={safeClose} fullWidth maxWidth="sm">
-      <DialogTitle>New wishlist</DialogTitle>
-      <DialogContent>
+      <DialogTitle sx={{px: 3, pt: 3, pb: 3}}>New wishlist</DialogTitle>
+
+      <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
         <TextField
           autoFocus
-          margin="dense"
           label="Wishlist name"
           fullWidth
           value={title}
@@ -59,7 +63,8 @@ export function CreateWishListDialog({open, onClose, user}: {
           }}
         />
       </DialogContent>
-      <DialogActions>
+
+      <DialogActions sx={{px: 3, py: 3}}>
         <Button onClick={safeClose} disabled={isCreating}>
           Cancel
         </Button>

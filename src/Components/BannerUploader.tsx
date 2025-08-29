@@ -1,6 +1,6 @@
-import { type ChangeEvent, useRef, useState } from 'react';
-import { Button, CircularProgress, Box } from '@mui/material';
-import { uploadWishlistBanner } from '@api/wishlistService';
+import {type ChangeEvent, useRef, useState} from 'react';
+import {Button, CircularProgress, Box} from '@mui/material';
+import {uploadWishlistBanner} from '@api/wishlistService';
 
 type Props = {
   wishlistId: string;
@@ -10,7 +10,7 @@ type Props = {
 
 const MAX_SIZE_MB = 8;
 
-const BannerUploader = ({ wishlistId, canEdit, onUpload }: Props) => {
+const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,7 +54,7 @@ const BannerUploader = ({ wishlistId, canEdit, onUpload }: Props) => {
         ref={inputRef}
         type="file"
         accept="image/*"
-        style={{ display: 'none' }}
+        style={{display: 'none'}}
         onChange={handleFileChange}
       />
       <Button
@@ -63,7 +63,7 @@ const BannerUploader = ({ wishlistId, canEdit, onUpload }: Props) => {
         disabled={loading}
         size="small"
       >
-        {loading ? <CircularProgress size={20} /> : 'Upload Banner'}
+        {loading ? <CircularProgress size={20}/> : 'Upload Banner'}
       </Button>
     </Box>
   );

@@ -1,8 +1,8 @@
-import { Box, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import {Box, Typography} from '@mui/material';
+import {Link as RouterLink} from 'react-router-dom';
 
 import BannerUploader from '@components/BannerUploader';
-import type { WishList } from '@models/WishList';
+import type {WishList} from '@models/WishList';
 import GiftLogo from '@assets/favicon.png';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   onBannerUpload: (newUrl: string) => void;
 };
 
-const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
+const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
   if (!wishlist?.id) return null;
 
   const hasBanner = Boolean(wishlist.bannerImage);
@@ -23,7 +23,7 @@ const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
     <Box
       sx={{
         width: '100%',
-        minHeight: { xs: 200, sm: 240, md: 260 },
+        minHeight: {xs: 200, sm: 240, md: 260},
         backgroundImage: bg,
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
@@ -62,8 +62,8 @@ const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
             },
           }}
         >
-          <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
-          <Typography variant="h3" component="h1" sx={{ m: 0, fontWeight: 800 }}>
+          <img src={GiftLogo} alt="WishList Logo" width={70} height={70}/>
+          <Typography variant="h3" component="h1" sx={{m: 0, fontWeight: 800}}>
             MyWishList App
           </Typography>
         </Box>

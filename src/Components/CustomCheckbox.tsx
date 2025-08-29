@@ -1,5 +1,5 @@
-import { Checkbox } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import {Checkbox} from '@mui/material';
+import {styled} from '@mui/material/styles';
 
 const CustomCheckbox = styled(Checkbox)(() => ({
   paddingRight: '15px',

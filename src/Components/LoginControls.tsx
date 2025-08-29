@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Button, Box, Typography } from '@mui/material';
-import { signInWithPopup, signOut } from 'firebase/auth';
+import {useState} from 'react';
+import {Button, Box, Typography} from '@mui/material';
+import {signInWithPopup, signOut} from 'firebase/auth';
 
-import { useAuth } from '@hooks/useAuth';
-import { auth, googleProvider } from '@lib/firebase';
+import {useAuth} from '@hooks/useAuth';
+import {auth, googleProvider} from '@lib/firebase';
 
 const LoginControls = () => {
-  const { user, isAdmin } = useAuth();
+  const {user, isAdmin} = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
@@ -50,7 +50,7 @@ const LoginControls = () => {
     >
       {user ? (
         <>
-          <Typography variant="body1" sx={{ color: '#aaa' }}>
+          <Typography variant="body1" sx={{color: '#aaa'}}>
             👋&nbsp; {user.displayName} {isAdmin ? '(Admin)' : ''}
           </Typography>
           <Button variant="outlined" color="secondary" onClick={handleSignOut} disabled={loading}>
