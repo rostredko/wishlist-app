@@ -43,7 +43,15 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
     const _link = link.trim();
     if (!_name) return;
 
-    onSubmit({name: _name, description: _description || undefined, link: _link || undefined});
+    const payload: GiftValues = isEdit
+      ? { name: _name, description: _description, link: _link }
+      : {
+        name: _name,
+        ...(_description ? { description: _description } : {}),
+        ...(_link ? { link: _link } : {}),
+      };
+
+    onSubmit(payload);
     if (!isEdit) reset();
     onClose();
   };
