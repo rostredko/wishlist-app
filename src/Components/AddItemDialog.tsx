@@ -20,22 +20,25 @@ const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
   const [description, setDescription] = useState('');
   const [link, setLink] = useState('');
 
-  const handleConfirm = () => {
-    if (!name.trim()) return;
-    onSubmit({ name, description, link });
+  const reset = () => {
     setName('');
     setDescription('');
     setLink('');
+  };
+
+  const handleConfirm = () => {
+    const _name = name.trim();
+    const _description = description.trim();
+    const _link = link.trim();
+    if (!_name) return;
+
+    onSubmit({ name: _name, description: _description || undefined, link: _link || undefined });
+    reset();
     onClose();
   };
 
   return (
-    <Dialog
-        open={open}
-        onClose={onClose}
-        maxWidth="xs"
-        fullWidth
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>Add your desired gift</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -45,9 +48,16 @@ const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleConfirm();
+              }
+            }}
           />
           <TextField
-            label="Description (not required)"
+            label="Description (optional)"
             fullWidth
             multiline
             rows={2}
@@ -55,16 +65,19 @@ const AddItemDialog = ({ open, onClose, onSubmit }: Props) => {
             onChange={(e) => setDescription(e.target.value)}
           />
           <TextField
-            label="Link (not required)"
+            label="Link (optional)"
             fullWidth
             value={link}
             onChange={(e) => setLink(e.target.value)}
+            placeholder="https://example.com/item"
           />
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleConfirm} variant="contained">Add</Button>
+        <Button onClick={() => { reset(); onClose(); }}>Cancel</Button>
+        <Button onClick={handleConfirm} variant="contained" disabled={!name.trim()}>
+          Add
+        </Button>
       </DialogActions>
     </Dialog>
   );

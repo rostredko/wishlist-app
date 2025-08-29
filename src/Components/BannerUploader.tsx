@@ -1,8 +1,6 @@
-import {type ChangeEvent, useRef, useState } from 'react';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '../firebase/firebase';
-import { Button, CircularProgress } from '@mui/material';
+import { type ChangeEvent, useRef, useState } from 'react';
+import { Button, CircularProgress, Box } from '@mui/material';
+import { uploadWishlistBanner } from '@api/wishlistService';
 
 type Props = {
   wishlistId: string;
@@ -10,40 +8,48 @@ type Props = {
   onUpload?: (url: string) => void;
 };
 
+const MAX_SIZE_MB = 8;
+
 const BannerUploader = ({ wishlistId, canEdit, onUpload }: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const resetInput = () => {
+    if (inputRef.current) inputRef.current.value = '';
+  };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !wishlistId) return;
 
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      resetInput();
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      alert(`Image is too large. Max ${MAX_SIZE_MB} MB.`);
+      resetInput();
+      return;
+    }
+
     setLoading(true);
-
     try {
-      const fileName = `${wishlistId}-${Date.now()}-${file.name}`;
-      const storageRef = ref(storage, `banners/${fileName}`);
-      await uploadBytes(storageRef, file);
-
-      const url = await getDownloadURL(storageRef);
-
-      const wishlistDocRef = doc(db, 'wishlists', wishlistId);
-      await updateDoc(wishlistDocRef, { bannerImage: url });
-
-      console.log('Banner updated:', url);
-
+      const url = await uploadWishlistBanner(wishlistId, file);
       onUpload?.(url);
-    } catch (error) {
-      console.error('Upload error:', error);
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Failed to upload banner. Please try again.');
     } finally {
       setLoading(false);
+      resetInput();
     }
   };
 
   if (!canEdit) return null;
 
   return (
-    <div>
+    <Box>
       <input
         ref={inputRef}
         type="file"
@@ -59,7 +65,7 @@ const BannerUploader = ({ wishlistId, canEdit, onUpload }: Props) => {
       >
         {loading ? <CircularProgress size={20} /> : 'Upload Banner'}
       </Button>
-    </div>
+    </Box>
   );
 };
 

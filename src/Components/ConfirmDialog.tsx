@@ -1,4 +1,9 @@
-import { Dialog, DialogTitle, DialogActions, Button } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+} from '@mui/material';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -7,6 +12,9 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
   cancelText?: string;
   confirmText?: string;
+  destructive?: boolean;
+  loading?: boolean;
+  disableBackdropClose?: boolean;
 };
 
 const ConfirmDialog = ({
@@ -14,15 +22,32 @@ const ConfirmDialog = ({
                          title,
                          onClose,
                          onConfirm,
-                         cancelText = "No",
-                         confirmText = "Yes",
+                         cancelText = 'Cancel',
+                         confirmText = 'Confirm',
+                         destructive = false,
+                         loading = false,
+                         disableBackdropClose = false,
                        }: ConfirmDialogProps) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle>{title}</DialogTitle>
+  <Dialog
+    open={open}
+    onClose={disableBackdropClose ? undefined : onClose}
+    aria-labelledby="confirm-dialog-title"
+    disableEscapeKeyDown={disableBackdropClose}
+  >
+    <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
+
     <DialogActions>
-      <Button onClick={onClose}>{cancelText}</Button>
-      <Button onClick={onConfirm} autoFocus>
-        {confirmText}
+      <Button onClick={onClose} disabled={loading}>
+        {cancelText}
+      </Button>
+      <Button
+        onClick={onConfirm}
+        autoFocus
+        variant="contained"
+        color={destructive ? 'error' : 'primary'}
+        disabled={loading}
+      >
+        {loading ? 'Please wait…' : confirmText}
       </Button>
     </DialogActions>
   </Dialog>

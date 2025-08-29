@@ -7,9 +7,13 @@ const CustomCheckbox = styled(Checkbox)(() => ({
     fontSize: '2.5rem',
   },
   color: '#bbb',
+  transition: 'color 0.2s ease',
+  '&:hover': {
+    color: '#888',
+  },
   '&.Mui-checked': {
     color: '#4caf50',
   },
 }));
 
-export { CustomCheckbox };
+export default CustomCheckbox;

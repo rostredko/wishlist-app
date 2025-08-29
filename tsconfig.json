@@ -5,7 +5,15 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": false,
+    "baseUrl": "src",
+    "paths": {
+      "@components/*": ["Components/*"],
+      "@models/*": ["types/*"],
+      "@hooks/*": ["hooks/*"],
+      "@api/*": ["services/*"],
+      "@lib/*": ["firebase/*"],
+      "@assets/*": ["assets/*"]
+    }
   }
 }
-

@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { onSnapshot, collection } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
-import type { WishListItem } from '../types/WishListItem';
-import type { WishList } from '../types/WishList';
-import { CustomCheckbox } from './CustomCheckbox';
 import confetti from 'canvas-confetti';
+
+import { useAuth } from '@hooks/useAuth';
+
+import type { WishListItem } from '@models/WishListItem';
+import type { WishList } from '@models/WishList';
+
+import CustomCheckbox from '@components/CustomCheckbox';
+import ConfirmDialog from '@components/ConfirmDialog';
+import AddItemDialog from '@components/AddItemDialog';
+import { CreateWishListDialog } from '@components/CreateWishListDialog';
+import WishlistHeader from '@components/WishListHeader';
+
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useAuth } from '../hooks/useAuth';
-import ConfirmDialog from './ConfirmDialog';
-import AddItemDialog from './AddItemDialog';
-import { CreateWishListDialog } from './CreateWishlistDialog';
-import WishlistHeader from './WishListHeader';
+
 import {
   Box,
   TextField,
@@ -30,13 +33,15 @@ import {
   Button,
   Skeleton,
 } from '@mui/material';
+
 import {
   getWishlistById,
   addGiftItem,
   deleteGiftItem,
   updateWishlistTitle,
   toggleGiftClaimStatus,
-} from '../services/wishlistService';
+  subscribeWishlistItems,
+} from '@api/wishlistService';
 
 type DialogsState = {
   claimConfirmOpen: boolean;
@@ -87,10 +92,7 @@ export function WishListItemList() {
 
   const handleClaimToggle = async (item: WishListItem) => {
     try {
-      if (!canEdit && item.claimed) {
-        console.warn('Gift already claimed. Guests cannot unclaim.');
-        return;
-      }
+      if (!canEdit && item.claimed) return; // гость не может «отменить» чужую бронь
       if (!wishlistId) return;
 
       await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
@@ -140,7 +142,7 @@ export function WishListItemList() {
   const handleBannerUpload = (newUrl: string) => {
     const delimiter = newUrl.includes('?') ? '&' : '?';
     setWishlist((prev) =>
-      prev ? { ...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}` } : prev,
+      prev ? { ...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}` } : prev
     );
   };
 
@@ -153,16 +155,8 @@ export function WishListItemList() {
       return;
     }
 
-    const unsubscribe = onSnapshot(collection(db, 'wishlists', wishlistId, 'items'), (snapshot) => {
-      const result: WishListItem[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as WishListItem[];
-
-      setItems(result);
-    });
-
-    return () => unsubscribe();
+    const unsub = subscribeWishlistItems(wishlistId, (list) => setItems(list));
+    return unsub;
   }, [wishlistId, navigate]);
 
   useEffect(() => {
@@ -215,12 +209,7 @@ export function WishListItemList() {
             fullWidth
             variant="standard"
             InputProps={{
-              sx: {
-                fontSize: '2.5rem',
-                color: 'inherit',
-                padding: 0,
-                backgroundColor: 'transparent',
-              },
+              sx: { fontSize: '2.5rem', color: 'inherit', p: 0, backgroundColor: 'transparent' },
             }}
             sx={{ mt: 3 }}
           />
@@ -266,10 +255,7 @@ export function WishListItemList() {
                   border: '1px solid #2c2c2c',
                   boxShadow: 'none',
                   transition: 'background-color 0.2s ease, transform 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: '#2a2a2a',
-                    transform: 'scale(1.02)',
-                  },
+                  '&:hover': { backgroundColor: '#2a2a2a', transform: 'scale(1.02)' },
                 }}
               >
                 <ListItem
@@ -289,7 +275,7 @@ export function WishListItemList() {
                     )
                   }
                 >
-                  {/* ВАЖНО: НЕ используем disabled у ListItemButton */}
+                  {/* НЕ используем disabled у ListItemButton — иначе линк станет некликабельным */}
                   <ListItemButton
                     aria-disabled={isLockedForGuest}
                     onClick={() => {
@@ -303,14 +289,8 @@ export function WishListItemList() {
                     }}
                     sx={{
                       borderRadius: '15px',
-                      ...(isLockedForGuest
-                        ? {
-                          opacity: 0.6
-                        }
-                        : {}),
-                      '&:hover': {
-                        backgroundColor: '#3d3d3d',
-                      },
+                      ...(isLockedForGuest ? { opacity: 0.6 } : {}),
+                      '&:hover': { backgroundColor: '#3d3d3d' },
                     }}
                   >
                     <CustomCheckbox
@@ -319,6 +299,7 @@ export function WishListItemList() {
                       icon={<RadioButtonUncheckedIcon />}
                       checkedIcon={<CheckCircleIcon />}
                     />
+
                     <ListItemText
                       primary={
                         <Typography
@@ -341,10 +322,7 @@ export function WishListItemList() {
                                 rel="noopener noreferrer"
                                 color="primary"
                                 underline="hover"
-                                onClick={(e) => {
-                                  // кликаем ссылку даже если item «заблокирован»
-                                  e.stopPropagation();
-                                }}
+                                onClick={(e) => e.stopPropagation()} // ссылка кликается даже если item «заблокирован»
                               >
                                 Link
                               </MuiLink>
@@ -353,7 +331,7 @@ export function WishListItemList() {
                           )}
 
                           {item.description && (
-                            <Typography variant="body2" color="textSecondary" component="span">
+                            <Typography variant="body2" color="text.secondary" component="span">
                               {item.description}
                             </Typography>
                           )}
@@ -383,6 +361,7 @@ export function WishListItemList() {
         }}
         confirmText="Delete"
         cancelText="Cancel"
+        destructive
       />
 
       <ConfirmDialog
@@ -412,7 +391,7 @@ export function WishListItemList() {
       <CreateWishListDialog
         open={dialogs.createWishlistOpen}
         onClose={() => setDialogs((d) => ({ ...d, createWishlistOpen: false }))}
-        user={user}
+        user={user ? { uid: user.uid } : null}
       />
     </>
   );

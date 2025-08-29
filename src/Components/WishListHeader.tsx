@@ -1,8 +1,9 @@
-import { Box } from '@mui/material';
-import BannerUploader from './BannerUploader';
-import GiftLogo from '../../public/favicon.png';
-import type { WishList } from '../types/WishList';
+import { Box, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+
+import BannerUploader from '@components/BannerUploader';
+import type { WishList } from '@models/WishList';
+import GiftLogo from '@assets/favicon.png';
 
 type Props = {
   wishlist: WishList | null;
@@ -11,17 +12,19 @@ type Props = {
 };
 
 const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
-  if (!wishlist || !wishlist.id) {
-    console.log('undefined');
-    return null;
-  }
+  if (!wishlist?.id) return null;
+
+  const hasBanner = Boolean(wishlist.bannerImage);
+  const bg = hasBanner
+    ? `linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${wishlist.bannerImage})`
+    : 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)';
 
   return (
     <Box
       sx={{
         width: '100%',
-        minHeight: 250,
-        backgroundImage: wishlist.bannerImage ? `url(${wishlist.bannerImage})` : 'none',
+        minHeight: { xs: 200, sm: 240, md: 260 },
+        backgroundImage: bg,
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
@@ -55,12 +58,14 @@ const WishlistHeader = ({ wishlist, canEdit, onBannerUpload }: Props) => {
             cursor: 'pointer',
             '&:focus-visible': {
               outline: '2px solid rgba(255,255,255,0.6)',
-              borderRadius: 8,
+              borderRadius: 2,
             },
           }}
         >
           <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
-          <h1 style={{ margin: 0, fontSize: '2.5rem' }}>MyWishList App</h1>
+          <Typography variant="h3" component="h1" sx={{ m: 0, fontWeight: 800 }}>
+            MyWishList App
+          </Typography>
         </Box>
 
         {canEdit && (

@@ -9,17 +9,15 @@ import {
   CardContent,
   Tooltip,
   Divider,
-  Chip,
   Skeleton,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
-import { useAuth } from '../hooks/useAuth';
-import { CreateWishListDialog } from './CreateWishlistDialog.tsx';
+import { useAuth } from '@hooks/useAuth';
+import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import { useNavigate } from 'react-router-dom';
-import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
-import type { WishList } from '../types/WishList';
+import type { WishList } from '@models/WishList';
+import { subscribeMyWishlists } from '@api/wishlistService';
 
 type WLItem = WishList & { id: string };
 
@@ -36,26 +34,15 @@ export default function HomePage() {
   const handleCloseCreate = () => setCreateOpen(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.uid) {
       setMyLists(null);
       return;
     }
-    const q = query(
-      collection(db, 'wishlists'),
-      where('ownerUid', '==', user.uid),
-      orderBy('createdAt', 'desc')
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      const data: WLItem[] = snap.docs.map((d) => ({
-        ...(d.data() as WishList),
-        id: d.id,
-      }));
-      setMyLists(data);
-    });
-    return () => unsub();
-  }, [user]);
+    const unsub = subscribeMyWishlists(user.uid, (lists) => setMyLists(lists));
+    return unsub;
+  }, [user?.uid]);
 
-  const isLoading = useMemo(() => user && myLists === null, [user, myLists]);
+  const isLoading = useMemo(() => !!user && myLists === null, [user, myLists]);
 
   return (
     <Box sx={{ py: { xs: 6, md: 10 } }}>
@@ -174,7 +161,6 @@ export default function HomePage() {
                             >
                               {wl.title || 'Untitled wishlist'}
                             </Typography>
-                            {wl.isHidden && <Chip size="small" label="Hidden" />}
                           </Stack>
                         </CardContent>
                       </Card>
