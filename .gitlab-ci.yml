@@ -9,14 +9,13 @@ cache:
   paths:
     - node_modules/
 
-# Общая установка зависимостей для test/build (deploy ставит firebase-tools отдельно)
 before_script:
   - npm ci
 
 test:
   stage: test
   script:
-    - npm run test -- --run
+    - NODE_ENV=test npm run test -- --run
   artifacts:
     when: always
     expire_in: 1 week

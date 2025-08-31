@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { WishListItemList } from '../components/WishListItemList';
+import { WishListItemList } from '@components/WishListItemList';
 
 import {
   getWishlistById,
