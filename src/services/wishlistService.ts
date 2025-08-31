@@ -5,6 +5,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -14,20 +15,20 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
+import {getDownloadURL, ref, uploadBytes, deleteObject} from 'firebase/storage';
 
 import type {WishList} from '@models/WishList';
 import type {WishListItem} from '@models/WishListItem';
 
 export async function createWishlist(title: string, ownerUid: string): Promise<string> {
-  const ref = await addDoc(collection(db, 'wishlists'), {
+  const refDoc = await addDoc(collection(db, 'wishlists'), {
     title,
     ownerUid,
     bannerImage: '',
     isHidden: false,
     createdAt: serverTimestamp(),
   });
-  return ref.id;
+  return refDoc.id;
 }
 
 export async function getWishlistById(wishlistId: string): Promise<WishList | null> {
@@ -92,6 +93,30 @@ export async function addGiftItem(
 
 export async function deleteGiftItem(wishlistId: string, itemId: string): Promise<void> {
   await deleteDoc(doc(db, 'wishlists', wishlistId, 'items', itemId));
+}
+
+export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
+  const wlRef = doc(db, 'wishlists', wishlistId);
+
+  const snap = await getDoc(wlRef);
+  const bannerUrl = snap.exists() ? ((snap.data() as any).bannerImage as string | undefined) : undefined;
+
+  const itemsCol = collection(db, 'wishlists', wishlistId, 'items');
+  const itemsSnap = await getDocs(itemsCol);
+  if (!itemsSnap.empty) {
+    await Promise.all(itemsSnap.docs.map((d) => deleteDoc(d.ref)));
+  }
+
+  await deleteDoc(wlRef);
+
+  if (bannerUrl) {
+    try {
+      const bannerRef = ref(storage, bannerUrl);
+      await deleteObject(bannerRef);
+    } catch (e) {
+      console.warn('Failed to delete banner from Storage:', e);
+    }
+  }
 }
 
 export async function toggleGiftClaimStatus(
