@@ -33,7 +33,7 @@ export default function HomePage() {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({
     open: false,
   });
-  const [isDeleting, setIsDeleting] = useState(false); // глобальный лоудер на время удаления
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const handleOpenCreate = () => {

@@ -26,7 +26,7 @@ describe('CreateWishListDialog (skeleton behavior)', () => {
     );
 
     const createBtn = screen.getByRole('button', { name: /^create$/i });
-    expect(createBtn).toBeDisabled(); // пустой инпут
+    expect(createBtn).toBeDisabled();
 
     rerender(<CreateWishListDialog open onClose={onClose} user={null} />);
     expect(screen.getByRole('button', { name: /^create$/i })).toBeDisabled();

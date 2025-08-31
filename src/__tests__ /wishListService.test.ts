@@ -27,7 +27,6 @@ import {
 } from 'firebase/firestore';
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage';
 
-// --- моки Firestore ---
 vi.mock('firebase/firestore', async () => {
   const actual = await vi.importActual<any>('firebase/firestore');
   return {
@@ -38,7 +37,6 @@ vi.mock('firebase/firestore', async () => {
     getDocs: vi.fn(),
     onSnapshot: vi.fn(),
     updateDoc: vi.fn(),
-    // возврат фейковых ссылок, чтобы не был undefined
     collection: vi.fn(() => ({ _col: true })),
     doc: vi.fn(() => ({ _doc: true })),
     query: vi.fn(() => ({ _query: true })),
@@ -47,7 +45,6 @@ vi.mock('firebase/firestore', async () => {
   };
 });
 
-// --- моки Storage ---
 vi.mock('firebase/storage', async () => {
   const actual = await vi.importActual<any>('firebase/storage');
   return {
@@ -142,7 +139,7 @@ describe('wishListService', () => {
     });
 
     await deleteWishlistDeep('wid');
-    expect(deleteDoc).toHaveBeenCalledTimes(3); // 2 items + wishlist
+    expect(deleteDoc).toHaveBeenCalledTimes(3);
     expect(deleteObject).toHaveBeenCalled();
   });
 
