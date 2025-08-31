@@ -22,7 +22,7 @@ import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import {useNavigate} from 'react-router-dom';
 import type {WishList} from '@models/WishList';
-import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishlistService';
+import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService.ts';
 
 type WLItem = WishList & { id: string };
 

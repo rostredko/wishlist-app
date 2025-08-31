@@ -46,7 +46,7 @@ import {
   toggleGiftClaimStatus,
   subscribeWishlistItems,
   updateGiftItem,
-} from '@api/wishlistService';
+} from '@api/wishListService.ts';
 
 type DialogsState = {
   claimConfirmOpen: boolean;
@@ -205,7 +205,7 @@ export function WishListItemList() {
   return (
     <>
       {status === 'loading' ? (
-        <Skeleton variant="rectangular" height={200}/>
+        <Skeleton data-testid="skeleton" variant="rectangular" height={200}/>
       ) : status === 'found' && wishlist ? (
         <WishlistHeader wishlist={wishlist} canEdit={canEdit} onBannerUpload={handleBannerUpload}/>
       ) : (
@@ -387,6 +387,7 @@ export function WishListItemList() {
                         <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
                           <IconButton
                             size="small"
+                            aria-label={`Edit ${item.name ?? 'item'}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelection((s) => ({...s, itemToEdit: item}));
@@ -398,6 +399,7 @@ export function WishListItemList() {
 
                           <IconButton
                             size="small"
+                            aria-label="Delete"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelection((s) => ({...s, itemToDelete: item}));

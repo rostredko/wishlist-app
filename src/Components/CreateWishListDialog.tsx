@@ -8,7 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import {createWishlist} from '@api/wishlistService';
+import {createWishlist} from '@api/wishListService.ts';
 
 export function CreateWishListDialog({
                                        open,
