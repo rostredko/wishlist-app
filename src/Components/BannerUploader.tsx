@@ -1,7 +1,7 @@
 import {type ChangeEvent, useRef, useState} from 'react';
 import {Button, CircularProgress, Box} from '@mui/material';
 
-import {uploadWishlistBanner} from '@api/wishListService';
+import {uploadWishlistBanner} from '@api/wishlistService';
 
 type Props = {
   wishlistId: string;

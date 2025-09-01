@@ -9,7 +9,7 @@ import {
   Button,
 } from '@mui/material';
 
-import {createWishlist} from '@api/wishListService';
+import {createWishlist} from '@api/wishlistService';
 
 type Props = {
   open: boolean;
