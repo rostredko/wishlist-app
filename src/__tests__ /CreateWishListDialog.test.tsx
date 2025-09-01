@@ -6,7 +6,7 @@ import { CreateWishListDialog } from '@components/CreateWishListDialog';
 const createWishlist = vi.fn();
 const navigate = vi.fn();
 
-vi.mock('@api/wishlistService', () => ({
+vi.mock('@api/wishListService', () => ({
   createWishlist: (...args: any[]) => createWishlist(...args),
 }));
 

@@ -9,7 +9,7 @@ vi.mock('@hooks/useAuth', () => ({
 const subscribeMyWishlists = vi.fn();
 const deleteWishlistDeep = vi.fn();
 
-vi.mock('@api/wishlistService', () => ({
+vi.mock('@api/wishListService', () => ({
   subscribeMyWishlists: (...args: any[]) => subscribeMyWishlists(...args),
   deleteWishlistDeep: (...args: any[]) => deleteWishlistDeep(...args),
 }));

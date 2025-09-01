@@ -5,7 +5,7 @@ import BannerUploader from '@components/BannerUploader';
 
 const uploadWishlistBanner = vi.fn();
 
-vi.mock('@api/wishlistService', () => ({
+vi.mock('@api/wishListService', () => ({
   uploadWishlistBanner: (...args: any[]) => uploadWishlistBanner(...args),
 }));
 
