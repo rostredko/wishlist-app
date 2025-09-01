@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useMemo, useState, useCallback} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
   Dialog,
@@ -8,51 +8,60 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import {createWishlist} from '@api/wishListService';
 
-export function CreateWishListDialog({
-                                       open,
-                                       onClose,
-                                       user,
-                                     }: {
+import {createWishlist} from '@api/wishListService.ts';
+
+type Props = {
   open: boolean;
   onClose: () => void;
   user: { uid: string } | null;
-}) {
+};
+
+export function CreateWishListDialog({open, onClose, user}: Props) {
   const [title, setTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
 
-  const safeClose = () => {
+  useEffect(() => {
+    if (!open) {
+      setTitle('');
+      setIsCreating(false);
+    }
+  }, [open]);
+
+  const canCreate = useMemo(
+    () => !!user && !!title.trim() && !isCreating,
+    [user, title, isCreating],
+  );
+
+  const safeClose = useCallback(() => {
     setTitle('');
     onClose();
-  };
+  }, [onClose]);
 
-  const handleCreate = async () => {
+  const handleCreate = useCallback(async () => {
     if (!user) return;
     const name = title.trim();
     if (!name || isCreating) return;
 
     try {
       setIsCreating(true);
-      try {
-        const id = await createWishlist(title.trim(), user.uid);
-        onClose();
-        setTitle('');
-        navigate(`/wishlist/${id}`);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsCreating(false);
-      }
+      const id = await createWishlist(name, user.uid);
+      safeClose();
+      navigate(`/wishlist/${id}`);
     } catch (e) {
-      console.error('Failed to create wishlist', e);
+      console.error(e);
       setIsCreating(false);
     }
-  };
+  }, [user, title, isCreating, safeClose, navigate]);
 
   return (
-    <Dialog open={open} onClose={safeClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={isCreating ? undefined : safeClose}
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle sx={{px: 3, pt: 3, pb: 3}}>New wishlist</DialogTitle>
 
       <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
@@ -63,9 +72,9 @@ export function CreateWishListDialog({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && canCreate) {
               e.preventDefault();
-              handleCreate();
+              void handleCreate();
             }
           }}
         />
@@ -77,7 +86,7 @@ export function CreateWishListDialog({
         </Button>
         <Button
           onClick={handleCreate}
-          disabled={!title.trim() || !user || isCreating}
+          disabled={!canCreate}
           variant="contained"
         >
           {isCreating ? 'Creating…' : 'Create'}

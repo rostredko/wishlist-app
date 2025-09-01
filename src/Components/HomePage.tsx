@@ -23,7 +23,7 @@ import ConfirmDialog from '@components/ConfirmDialog';
 import {useNavigate} from 'react-router-dom';
 import type {WishList} from '@models/WishList';
 
-import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
+import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService.ts';
 
 type WLItem = WishList & { id: string };
 
@@ -170,7 +170,7 @@ export default function HomePage() {
                                 if (isDeleting) return;
                                 setDeleteDialog({open: true, id: wl.id, title: wl.title});
                               }}
-                              aria-label="Delete wishlist"
+                              aria-label="delete wishlist"
                             >
                               <DeleteIcon sx={{fontSize: 18}}/>
                             </IconButton>
