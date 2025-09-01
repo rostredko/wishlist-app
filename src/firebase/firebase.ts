@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import {initializeApp, getApps, getApp, type FirebaseApp} from 'firebase/app';
+import {getFirestore} from 'firebase/firestore';
+import {getStorage} from 'firebase/storage';
+import {getAuth, GoogleAuthProvider} from 'firebase/auth';
 
 const isTest =
   process.env.NODE_ENV === 'test' ||

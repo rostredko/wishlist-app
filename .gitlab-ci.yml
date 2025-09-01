@@ -31,7 +31,8 @@ build:
     paths:
       - dist
     expire_in: 1 week
-  needs: []
+  needs:
+    - job: test
   only:
     - dev
     - main

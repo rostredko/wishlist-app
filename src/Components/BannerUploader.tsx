@@ -1,6 +1,6 @@
 import {type ChangeEvent, useRef, useState} from 'react';
 import {Button, CircularProgress, Box} from '@mui/material';
-import {uploadWishlistBanner} from '@api/wishListService.ts';
+import {uploadWishlistBanner} from '@api/wishListService';
 
 type Props = {
   wishlistId: string;
@@ -37,6 +37,7 @@ const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
     try {
       const url = await uploadWishlistBanner(wishlistId, file);
       onUpload?.(url);
+      e.currentTarget.value = '';
     } catch (err) {
       console.error('Upload error:', err);
       alert('Failed to upload banner. Please try again.');

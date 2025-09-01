@@ -8,7 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import {createWishlist} from '@api/wishListService.ts';
+import {createWishlist} from '@api/wishListService';
 
 export function CreateWishListDialog({
                                        open,
@@ -35,9 +35,16 @@ export function CreateWishListDialog({
 
     try {
       setIsCreating(true);
-      const id = await createWishlist(name, user.uid);
-      safeClose();
-      navigate(`/wishlist/${id}`);
+      try {
+        const id = await createWishlist(title.trim(), user.uid);
+        onClose();
+        setTitle('');
+        navigate(`/wishlist/${id}`);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsCreating(false);
+      }
     } catch (e) {
       console.error('Failed to create wishlist', e);
       setIsCreating(false);
