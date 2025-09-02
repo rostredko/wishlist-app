@@ -1,0 +1,125 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { customRender as render, screen } from '../test/render';
+import userEventLib from '@testing-library/user-event';
+
+const hoisted = vi.hoisted(() => {
+  return {
+    authState: { user: null as null | { displayName?: string }, isAdmin: false },
+  };
+});
+
+vi.mock('@hooks/useAuth', () => ({
+  useAuth: () => hoisted.authState,
+}));
+
+vi.mock('@lib/firebase', () => ({
+  auth: { __tag: 'auth' },
+  googleProvider: { __tag: 'google' },
+}));
+
+const signInWithPopup = vi.fn();
+const signOut = vi.fn();
+
+vi.mock('firebase/auth', () => ({
+  signInWithPopup: (...args: any[]) => signInWithPopup(...args),
+  signOut: (...args: any[]) => signOut(...args),
+}));
+
+import LoginControls from '@components/LoginControls';
+
+describe('LoginControls (skeleton behavior)', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    hoisted.authState.user = null;
+    hoisted.authState.isAdmin = false;
+
+    signInWithPopup.mockReset();
+    signOut.mockReset();
+
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
+  });
+
+  it('shows Sign In for guests; clicking triggers signInWithPopup with loader', async () => {
+    const user = userEventLib.setup({ pointerEventsCheck: 0 });
+
+    let resolve!: () => void;
+    signInWithPopup.mockImplementationOnce(() => new Promise<void>((r) => (resolve = r)));
+
+    const { rerender } = render(<LoginControls />);
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+
+    const waitBtn = await screen.findByRole('button', { name: /please wait/i });
+    expect(waitBtn).toBeDisabled();
+    expect(signInWithPopup).toHaveBeenCalledTimes(1);
+
+    await user.click(waitBtn);
+    expect(signInWithPopup).toHaveBeenCalledTimes(1);
+
+    resolve();
+    hoisted.authState.user = { displayName: 'Alice' };
+    rerender(<LoginControls />);
+
+    expect(await screen.findByRole('button', { name: /sign out/i })).toBeInTheDocument();
+  });
+
+  it('sign-in error: alerts and exits loading', async () => {
+    const user = userEventLib.setup();
+
+    signInWithPopup.mockRejectedValueOnce(new Error('boom'));
+    render(<LoginControls />);
+
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+
+    expect(await screen.findByRole('button', { name: /sign in/i })).toBeEnabled();
+    expect(window.alert).toHaveBeenCalled();
+  });
+
+  it('shows user name and (Admin) when logged in with isAdmin=true; has Sign Out', async () => {
+    hoisted.authState.user = { displayName: 'Bob' };
+    hoisted.authState.isAdmin = true;
+
+    render(<LoginControls />);
+
+    expect(screen.getByText(/bob/i)).toBeInTheDocument();
+    expect(screen.getByText(/\(admin\)/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+  });
+
+  it('clicking Sign Out triggers signOut(auth) with loader and guards double click', async () => {
+    const user = userEventLib.setup({ pointerEventsCheck: 0 });
+
+    hoisted.authState.user = { displayName: 'Bob' };
+
+    let resolve!: () => void;
+    signOut.mockImplementationOnce(() => new Promise<void>((r) => (resolve = r)));
+
+    render(<LoginControls />);
+
+    await user.click(screen.getByRole('button', { name: /sign out/i }));
+
+    const waitBtn = await screen.findByRole('button', { name: /please wait/i });
+    expect(waitBtn).toBeDisabled();
+    expect(signOut).toHaveBeenCalledTimes(1);
+
+    await user.click(waitBtn);
+    expect(signOut).toHaveBeenCalledTimes(1);
+
+    resolve();
+  });
+
+  it('sign-out error: alerts and exits loading', async () => {
+    const user = userEventLib.setup();
+
+    hoisted.authState.user = { displayName: 'Bob' };
+    signOut.mockRejectedValueOnce(new Error('nope'));
+
+    render(<LoginControls />);
+
+    await user.click(screen.getByRole('button', { name: /sign out/i }));
+
+    expect(await screen.findByRole('button', { name: /sign out/i })).toBeEnabled();
+    expect(window.alert).toHaveBeenCalled();
+  });
+});

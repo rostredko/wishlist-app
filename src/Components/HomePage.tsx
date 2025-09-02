@@ -22,7 +22,8 @@ import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import {useNavigate} from 'react-router-dom';
 import type {WishList} from '@models/WishList';
-import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishlistService';
+
+import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
 
 type WLItem = WishList & { id: string };
 
@@ -33,7 +34,7 @@ export default function HomePage() {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({
     open: false,
   });
-  const [isDeleting, setIsDeleting] = useState(false); // глобальный лоудер на время удаления
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const handleOpenCreate = () => {
