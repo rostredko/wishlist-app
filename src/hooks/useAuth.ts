@@ -7,15 +7,12 @@ const ADMIN_UID = import.meta.env.VITE_ADMIN_UID;
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsAdmin(currentUser?.uid === ADMIN_UID);
-    });
-    return unsub;
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
   }, []);
 
+  const isAdmin = user?.uid === ADMIN_UID;
   return {user, isAdmin};
 };

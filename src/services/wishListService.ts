@@ -20,31 +20,44 @@ import {getDownloadURL, ref, uploadBytes, deleteObject} from 'firebase/storage';
 import type {WishList} from '@models/WishList';
 import type {WishListItem} from '@models/WishListItem';
 
+type FirestoreWishListData = {
+  title?: string;
+  ownerUid?: string;
+  bannerImage?: string;
+  isHidden?: boolean;
+  createdAt?: Timestamp;
+};
+
+type FirestoreWishListItemData = {
+  name: string;
+  description?: string;
+  link?: string;
+  claimed: boolean;
+  createdAt?: Timestamp;
+};
+
 export async function createWishlist(title: string, ownerUid: string): Promise<string> {
-  const refDoc = await addDoc(collection(db, 'wishlists'), {
+  const docRef = await addDoc(collection(db, 'wishlists'), {
     title,
     ownerUid,
     bannerImage: '',
     isHidden: false,
     createdAt: serverTimestamp(),
   });
-  return refDoc.id;
+  return docRef.id;
 }
 
 export async function getWishlistById(wishlistId: string): Promise<WishList | null> {
-  const wishlistDocRef = doc(db, 'wishlists', wishlistId);
-  const snapshot = await getDoc(wishlistDocRef);
-  if (!snapshot.exists()) return null;
-
-  const raw = snapshot.data() as any;
-
+  const snap = await getDoc(doc(db, 'wishlists', wishlistId));
+  if (!snap.exists()) return null;
+  const data = snap.data() as FirestoreWishListData;
   return {
-    id: snapshot.id,
-    title: raw.title || '',
-    ownerUid: raw.ownerUid || '',
-    bannerImage: raw.bannerImage || '',
-    isHidden: Boolean(raw.isHidden),
-    createdAt: raw.createdAt as Timestamp | undefined,
+    id: snap.id,
+    title: data.title ?? '',
+    ownerUid: data.ownerUid ?? '',
+    bannerImage: data.bannerImage ?? '',
+    isHidden: !!data.isHidden,
+    createdAt: data.createdAt,
   };
 }
 
@@ -54,25 +67,24 @@ export async function updateWishlistTitle(wishlistId: string, newTitle: string):
 
 export function subscribeMyWishlists(
   ownerUid: string,
-  cb: (lists: (WishList & { id: string })[]) => void
+  cb: (lists: WishList[]) => void
 ): Unsubscribe {
   const q = query(
     collection(db, 'wishlists'),
     where('ownerUid', '==', ownerUid),
     orderBy('createdAt', 'desc')
   );
-
-  return onSnapshot(q, (snap) => {
-    const lists = snap.docs.map((d) => {
-      const raw = d.data() as any;
+  return onSnapshot(q, (snapshot) => {
+    const lists = snapshot.docs.map((docSnap) => {
+      const data = docSnap.data() as FirestoreWishListData;
       return {
-        id: d.id,
-        title: raw.title || '',
-        ownerUid: raw.ownerUid || '',
-        bannerImage: raw.bannerImage || '',
-        isHidden: Boolean(raw.isHidden),
-        createdAt: raw.createdAt as Timestamp | undefined,
-      } as WishList & { id: string };
+        id: docSnap.id,
+        title: data.title ?? '',
+        ownerUid: data.ownerUid ?? '',
+        bannerImage: data.bannerImage ?? '',
+        isHidden: !!data.isHidden,
+        createdAt: data.createdAt,
+      } as WishList;
     });
     cb(lists);
   });
@@ -97,9 +109,8 @@ export async function deleteGiftItem(wishlistId: string, itemId: string): Promis
 
 export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
   const wlRef = doc(db, 'wishlists', wishlistId);
-
   const snap = await getDoc(wlRef);
-  const bannerUrl = snap.exists() ? ((snap.data() as any).bannerImage as string | undefined) : undefined;
+  const bannerUrl = snap.exists() ? (snap.data() as FirestoreWishListData).bannerImage : undefined;
 
   const itemsCol = collection(db, 'wishlists', wishlistId, 'items');
   const itemsSnap = await getDocs(itemsCol);
@@ -111,10 +122,9 @@ export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
 
   if (bannerUrl) {
     try {
-      const bannerRef = ref(storage, bannerUrl);
-      await deleteObject(bannerRef);
-    } catch (e) {
-      console.warn('Failed to delete banner from Storage:', e);
+      await deleteObject(ref(storage, bannerUrl));
+    } catch (err) {
+      console.warn('Failed to delete banner from Storage:', err);
     }
   }
 }
@@ -133,25 +143,23 @@ export function subscribeWishlistItems(
   wishlistId: string,
   cb: (items: WishListItem[]) => void
 ): Unsubscribe {
-  const col = collection(db, 'wishlists', wishlistId, 'items');
-  return onSnapshot(col, (snapshot) => {
-    const result: WishListItem[] = snapshot.docs.map((docSnap) => ({
-      id: docSnap.id,
-      ...(docSnap.data() as Omit<WishListItem, 'id'>),
-    }));
-    cb(result);
+  const colRef = collection(db, 'wishlists', wishlistId, 'items');
+  return onSnapshot(colRef, (snapshot) => {
+    const items = snapshot.docs.map((docSnap) => {
+      const data = docSnap.data() as FirestoreWishListItemData;
+      return {id: docSnap.id, ...data};
+    });
+    cb(items);
   });
 }
 
 export async function uploadWishlistBanner(wishlistId: string, file: File): Promise<string> {
   const fileName = `${wishlistId}-${Date.now()}-${file.name}`;
   const storageRef = ref(storage, `banners/${fileName}`);
-
   await uploadBytes(storageRef, file, {
     contentType: file.type,
     cacheControl: 'public,max-age=31536000,immutable',
   });
-
   const url = await getDownloadURL(storageRef);
   await updateDoc(doc(db, 'wishlists', wishlistId), {bannerImage: url});
   return url;
