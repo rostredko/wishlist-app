@@ -119,6 +119,7 @@ function logClickAndOpen(url: string, payload: { id: string; name?: string | nul
         event_label: payload.name ?? '',
         item_id: payload.id,
         url,
+        transport_type: 'beacon',
         event_callback: open,
       });
       setTimeout(open, 500);
