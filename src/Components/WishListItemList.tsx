@@ -100,18 +100,33 @@ function useWishlistData(wishlistId: string | undefined) {
   return {items, setItems, wishlist, setWishlist, status, setStatus};
 }
 
-function trackGiftClick(item: { id: string; name?: string | null; link?: string | null }) {
+function logClickAndOpen(url: string, payload: { id: string; name?: string | null }) {
   const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
     | ((...args: any[]) => void)
     | undefined;
-  if (!g) return;
 
-  g('event', 'click_gift_link', {
-    event_category: 'engagement',
-    event_label: item.name ?? '',
-    item_id: item.id,
-    url: item.link ?? undefined, // нормализация null -> undefined
-  });
+  let opened = false;
+  const open = () => {
+    if (opened) return;
+    opened = true;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  if (g) {
+    try {
+      g('event', 'click_gift_link', {
+        event_category: 'engagement',
+        event_label: payload.name ?? '',
+        item_id: payload.id,
+        url,
+        event_callback: open,
+      });
+      setTimeout(open, 500);
+      return;
+    } catch {
+    }
+  }
+  open();
 }
 
 type RowProps = {
@@ -132,8 +147,13 @@ const WishListItemRow = memo(function WishListItemRow({
   const isLockedForGuest = !canEdit && item.claimed;
 
   const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
     e.stopPropagation();
-    trackGiftClick({id: item.id, name: item.name ?? '', link: item.link ?? undefined});
+
+    const url = item.link ?? undefined;
+    if (!url) return;
+
+    logClickAndOpen(url, {id: item.id, name: item.name ?? ''});
   };
 
   return (
