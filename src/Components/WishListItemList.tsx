@@ -100,15 +100,18 @@ function useWishlistData(wishlistId: string | undefined) {
   return {items, setItems, wishlist, setWishlist, status, setStatus};
 }
 
-function trackGiftClick(item: { id: string; name: string; link?: string }) {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', 'click_gift_link', {
-      event_category: 'engagement',
-      event_label: item.name,
-      item_id: item.id,
-      url: item.link,
-    });
-  }
+function trackGiftClick(item: { id: string; name?: string | null; link?: string | null }) {
+  const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+    | ((...args: any[]) => void)
+    | undefined;
+  if (!g) return;
+
+  g('event', 'click_gift_link', {
+    event_category: 'engagement',
+    event_label: item.name ?? '',
+    item_id: item.id,
+    url: item.link ?? undefined, // нормализация null -> undefined
+  });
 }
 
 type RowProps = {
@@ -130,7 +133,7 @@ const WishListItemRow = memo(function WishListItemRow({
 
   const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.stopPropagation();
-    trackGiftClick({id: item.id, name: item.name ?? '', link: item.link});
+    trackGiftClick({id: item.id, name: item.name ?? '', link: item.link ?? undefined});
   };
 
   return (
@@ -181,7 +184,7 @@ const WishListItemRow = memo(function WishListItemRow({
                   {item.link ? (
                     <>
                       <MuiLink
-                        href={item.link}
+                        href={item.link ?? undefined}
                         target="_blank"
                         rel="noopener noreferrer"
                         color="primary"
