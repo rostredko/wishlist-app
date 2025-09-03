@@ -1,25 +1,29 @@
-import {type ChangeEvent, useRef, useState} from 'react';
-import {Button, CircularProgress, Box} from '@mui/material';
-
+import {useRef, useState} from 'react';
+import {Box, Button, CircularProgress, Tooltip} from '@mui/material';
+import UploadIcon from '@mui/icons-material/Upload';
 import {uploadWishlistBanner} from '@api/wishListService';
 
 type Props = {
-  wishlistId: string;
+  wishlistId: string | null | undefined;
   canEdit: boolean;
   onUpload?: (url: string) => void;
 };
 
-const MAX_SIZE_MB = 8;
+const MAX_SIZE_MB = 5;
 
-const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
+export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (!canEdit) return null;
 
   const resetInput = () => {
     if (inputRef.current) inputRef.current.value = '';
   };
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePick = () => inputRef.current?.click();
+
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
     const file = e.target.files?.[0];
     if (!file || !wishlistId) {
       resetInput();
@@ -33,7 +37,7 @@ const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
     }
 
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      alert(`Image is too large. Max ${MAX_SIZE_MB} MB.`);
+      alert(`Image is too large. Max ${MAX_SIZE_MB}MB.`);
       resetInput();
       return;
     }
@@ -43,15 +47,13 @@ const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
       const url = await uploadWishlistBanner(wishlistId, file);
       onUpload?.(url);
     } catch (err) {
-      console.error('Upload error:', err);
+      console.error('Failed to upload banner', err);
       alert('Failed to upload banner. Please try again.');
     } finally {
       setLoading(false);
       resetInput();
     }
   };
-
-  if (!canEdit) return null;
 
   return (
     <Box>
@@ -61,18 +63,21 @@ const BannerUploader = ({wishlistId, canEdit, onUpload}: Props) => {
         accept="image/*"
         style={{display: 'none'}}
         onChange={handleFileChange}
-        data-testid="banner-input"
       />
-      <Button
-        onClick={() => inputRef.current?.click()}
-        variant="outlined"
-        disabled={loading}
-        size="small"
-      >
-        {loading ? <CircularProgress size={20}/> : 'Upload banner'}
-      </Button>
+      <Tooltip title="Upload banner">
+        <span>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={handlePick}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16}/> : <UploadIcon/>}
+            aria-label="Upload banner"
+          >
+            {loading ? 'Uploading…' : 'Upload'}
+          </Button>
+        </span>
+      </Tooltip>
     </Box>
   );
-};
-
-export default BannerUploader;
+}

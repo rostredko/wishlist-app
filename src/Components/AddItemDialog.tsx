@@ -39,17 +39,18 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
 
   const handleConfirm = () => {
     const _name = name.trim();
+    if (!_name) return;
     const _description = description.trim();
     const _link = link.trim();
-    if (!_name) return;
 
-    const payload: GiftValues = isEdit
-      ? { name: _name, description: _description, link: _link }
-      : {
-        name: _name,
-        ...(_description ? { description: _description } : {}),
-        ...(_link ? { link: _link } : {}),
-      };
+    const payload: GiftValues = {name: _name};
+    if (isEdit) {
+      payload.description = _description;
+      payload.link = _link;
+    } else {
+      if (_description) payload.description = _description;
+      if (_link) payload.link = _link;
+    }
 
     onSubmit(payload);
     if (!isEdit) reset();
@@ -58,10 +59,9 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{px: 3, pt: 2, pb: 0}}>
+      <DialogTitle sx={{px: 3, pt: 2, pb: 2}}>
         {isEdit ? 'Edit gift' : 'Add your desired gift'}
       </DialogTitle>
-
       <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
         <Stack spacing={2}>
           <TextField
@@ -95,7 +95,6 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
           />
         </Stack>
       </DialogContent>
-
       <DialogActions sx={{px: 3, py: 2}}>
         <Button
           onClick={() => {
