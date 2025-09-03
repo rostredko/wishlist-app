@@ -1,39 +1,39 @@
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 import {Button, Box, Typography} from '@mui/material';
 import {signInWithPopup, signOut} from 'firebase/auth';
 
 import {useAuth} from '@hooks/useAuth';
 import {auth, googleProvider} from '@lib/firebase';
 
-const LoginControls = () => {
+export default function LoginControls() {
   const {user, isAdmin} = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async () => {
-    if (loading) return;
-    try {
-      setLoading(true);
-      await signInWithPopup(auth, googleProvider);
-    } catch (e) {
-      console.error('Sign-in failed', e);
-      alert('Sign-in failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const run = useCallback(
+    async (action: () => Promise<unknown>, failMsg: string) => {
+      if (loading) return;
+      try {
+        setLoading(true);
+        await action();
+      } catch (e) {
+        console.error(failMsg.replace(' Please try again.', ''), e);
+        alert(failMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
 
-  const handleSignOut = async () => {
-    if (loading) return;
-    try {
-      setLoading(true);
-      await signOut(auth);
-    } catch (e) {
-      console.error('Sign-out failed', e);
-      alert('Sign-out failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSignIn = useCallback(
+    () => run(() => signInWithPopup(auth, googleProvider), 'Sign-in failed. Please try again.'),
+    [run],
+  );
+
+  const handleSignOut = useCallback(
+    () => run(() => signOut(auth), 'Sign-out failed. Please try again.'),
+    [run],
+  );
 
   return (
     <Box
@@ -64,6 +64,4 @@ const LoginControls = () => {
       )}
     </Box>
   );
-};
-
-export default LoginControls;
+}

@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
@@ -70,14 +70,169 @@ type TitleState = {
 
 type PageStatus = 'loading' | 'found' | 'not_found';
 
-export function WishListItemList() {
+function useWishlistData(wishlistId: string | undefined) {
   const [items, setItems] = useState<WishListItem[]>([]);
   const [wishlist, setWishlist] = useState<WishList | null>(null);
   const [status, setStatus] = useState<PageStatus>('loading');
 
+  useEffect(() => {
+    if (!wishlistId) return;
+    const unsub = subscribeWishlistItems(wishlistId, (list) => setItems(list));
+    return unsub;
+  }, [wishlistId]);
+
+  useEffect(() => {
+    const fetchWishlistData = async () => {
+      if (!wishlistId) return;
+      setStatus('loading');
+      const result = await getWishlistById(wishlistId);
+      if (result) {
+        setWishlist(result);
+        setStatus('found');
+      } else {
+        setWishlist(null);
+        setStatus('not_found');
+      }
+    };
+    fetchWishlistData();
+  }, [wishlistId]);
+
+  return {items, setItems, wishlist, setWishlist, status, setStatus};
+}
+
+type RowProps = {
+  item: WishListItem;
+  canEdit: boolean;
+  onRowClick: () => void;
+  onEditClick: () => void;
+  onDeleteClick: () => void;
+};
+
+const WishListItemRow = memo(function WishListItemRow({
+                                                        item,
+                                                        canEdit,
+                                                        onRowClick,
+                                                        onEditClick,
+                                                        onDeleteClick,
+                                                      }: RowProps) {
+  const isLockedForGuest = !canEdit && item.claimed;
+
+  return (
+    <Paper
+      sx={{
+        mb: 2,
+        p: 1,
+        borderRadius: 3,
+        border: '1px solid #2c2c2c',
+        boxShadow: 'none',
+        transition: 'background-color 0.2s ease, transform 0.2s ease',
+        '&:hover': {backgroundColor: '#2a2a2a', transform: 'scale(1.02)'},
+      }}
+    >
+      <ListItem alignItems="flex-start">
+        <ListItemButton
+          aria-disabled={isLockedForGuest}
+          onClick={onRowClick}
+          sx={{
+            borderRadius: '15px',
+            ...(isLockedForGuest ? {opacity: 0.6} : {}),
+            '&:hover': {backgroundColor: '#3d3d3d'},
+            width: '100%',
+            pr: 1.5,
+          }}
+        >
+          <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 2, flexGrow: 1}}>
+            <CustomCheckbox
+              checked={item.claimed}
+              disabled
+              icon={<RadioButtonUncheckedIcon fontSize="small"/>}
+              checkedIcon={<CheckCircleIcon fontSize="small"/>}
+            />
+            <ListItemText
+              primary={
+                <Typography
+                  variant="h6"
+                  sx={{
+                    textDecoration: item.claimed ? 'line-through' : 'none',
+                    color: item.claimed ? 'gray' : 'inherit',
+                  }}
+                >
+                  {item.name}
+                </Typography>
+              }
+              secondary={
+                <>
+                  {item.link ? (
+                    <>
+                      <MuiLink
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="primary"
+                        underline="hover"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Link
+                      </MuiLink>
+                      <br/>
+                    </>
+                  ) : null}
+                  {item.description ? (
+                    <Typography variant="body2" color="text.secondary" component="span">
+                      {item.description}
+                    </Typography>
+                  ) : null}
+                </>
+              }
+            />
+          </Box>
+
+          {canEdit && (
+            <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
+              <IconButton
+                size="small"
+                aria-label="Edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditClick();
+                }}
+              >
+                <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
+              </IconButton>
+              <IconButton
+                size="small"
+                aria-label="Delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick();
+                }}
+              >
+                <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
+              </IconButton>
+            </Box>
+          )}
+        </ListItemButton>
+      </ListItem>
+    </Paper>
+  );
+});
+
+export function WishListItemList() {
   const {user, isAdmin} = useAuth();
   const {wishlistId} = useParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!wishlistId) return;
+    const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
+    if (wishlistId === 'default' && DEFAULT_WISHLIST_ID) {
+      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
+    }
+  }, [wishlistId, navigate]);
+
+  const {items, wishlist, setWishlist, status, setStatus} = useWishlistData(
+    wishlistId && wishlistId !== 'default' ? wishlistId : undefined,
+  );
 
   const [dialogs, setDialogs] = useState<DialogsState>({
     claimConfirmOpen: false,
@@ -99,51 +254,75 @@ export function WishListItemList() {
     isEditing: false,
   });
 
-  const canEdit: boolean =
-    status === 'found' &&
-    ((isAdmin ?? false) || (user ? wishlist?.ownerUid === user.uid : false));
+  useEffect(() => {
+    if (status === 'found' && wishlist) {
+      setTitleState((t) => ({...t, current: wishlist.title || 'Unnamed Wishlist'}));
+    }
+    if (status === 'not_found') {
+      setTitleState((t) => ({...t, current: 'Wishlist not found'}));
+    }
+  }, [status, wishlist]);
 
-  const handleClaimToggle = async (item: WishListItem) => {
-    try {
-      if (!canEdit && item.claimed) return;
-      if (!wishlistId) return;
-      await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
-      if (!canEdit && !item.claimed) {
-        confetti({particleCount: 200, spread: 120, gravity: 0.8});
+  const canEdit: boolean = useMemo(
+    () =>
+      status === 'found' &&
+      ((isAdmin ?? false) || (user ? wishlist?.ownerUid === user.uid : false)),
+    [status, isAdmin, user, wishlist],
+  );
+
+  const handleClaimToggle = useCallback(
+    async (item: WishListItem) => {
+      try {
+        if (!canEdit && item.claimed) return;
+        if (!wishlistId) return;
+        await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
+        if (!canEdit && !item.claimed) {
+          confetti({particleCount: 200, spread: 120, gravity: 0.8});
+        }
+      } catch (error) {
+        console.error('Claim toggle error:', error);
       }
-    } catch (error) {
-      console.error('Claim toggle error:', error);
-    }
-  };
+    },
+    [canEdit, wishlistId],
+  );
 
-  const handleAddItem = async (item: { name: string; description?: string; link?: string }) => {
-    try {
-      if (!wishlistId) return;
-      await addGiftItem(wishlistId, item);
-    } catch (error) {
-      console.error('Error adding item:', error);
-    }
-  };
+  const handleAddItem = useCallback(
+    async (item: { name: string; description?: string; link?: string }) => {
+      try {
+        if (!wishlistId) return;
+        await addGiftItem(wishlistId, item);
+      } catch (error) {
+        console.error('Error adding item:', error);
+      }
+    },
+    [wishlistId],
+  );
 
-  const handleEditItem = async (values: { name: string; description?: string; link?: string }) => {
-    try {
-      if (!wishlistId || !selection.itemToEdit) return;
-      await updateGiftItem(wishlistId, selection.itemToEdit.id, values);
-    } catch (error) {
-      console.error('Error updating item:', error);
-    }
-  };
+  const handleEditItem = useCallback(
+    async (values: { name: string; description?: string; link?: string }) => {
+      try {
+        if (!wishlistId || !selection.itemToEdit) return;
+        await updateGiftItem(wishlistId, selection.itemToEdit.id, values);
+      } catch (error) {
+        console.error('Error updating item:', error);
+      }
+    },
+    [wishlistId, selection.itemToEdit],
+  );
 
-  const handleDelete = async (id: string) => {
-    try {
-      if (!wishlistId) return;
-      await deleteGiftItem(wishlistId, id);
-    } catch (error) {
-      console.error('Error while deleting the gift:', error);
-    }
-  };
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        if (!wishlistId) return;
+        await deleteGiftItem(wishlistId, id);
+      } catch (error) {
+        console.error('Error while deleting the gift:', error);
+      }
+    },
+    [wishlistId],
+  );
 
-  const handleSaveTitle = async () => {
+  const handleSaveTitle = useCallback(async () => {
     if (titleState.draft.trim() === titleState.current) {
       setTitleState((t) => ({...t, isEditing: false}));
       return;
@@ -156,49 +335,18 @@ export function WishListItemList() {
       console.error('Error updating title:', error);
       setTitleState((t) => ({...t, isEditing: false}));
     }
-  };
+  }, [wishlistId, titleState.draft, titleState.current]);
 
-  const handleBannerUpload = (newUrl: string) => {
+  const handleBannerUpload = useCallback((newUrl: string) => {
     const delimiter = newUrl.includes('?') ? '&' : '?';
     setWishlist((prev) =>
-      prev ? {...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}`} : prev
+      prev ? {...prev, bannerImage: `${newUrl}${delimiter}t=${Date.now()}`} : prev,
     );
-  };
-
-  useEffect(() => {
-    if (!wishlistId) return;
-    const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
-    if (wishlistId === 'default') {
-      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
-      return;
-    }
-    const unsubscribe = subscribeWishlistItems(wishlistId, (list) => setItems(list));
-    return unsubscribe;
-  }, [wishlistId, navigate]);
-
-  useEffect(() => {
-    const fetchWishlistData = async () => {
-      if (!wishlistId || wishlistId === 'default') return;
-      setStatus('loading');
-      const result = await getWishlistById(wishlistId);
-      if (result) {
-        setWishlist(result);
-        setTitleState((t) => ({...t, current: result.title || 'Unnamed Wishlist'}));
-        setStatus('found');
-      } else {
-        setWishlist(null);
-        setTitleState((t) => ({...t, current: 'Wishlist not found'}));
-        setStatus('not_found');
-      }
-    };
-    fetchWishlistData();
-  }, [wishlistId]);
+  }, [setWishlist]);
 
   let headerContent;
   if (status === 'loading') {
-    headerContent = (
-      <Skeleton variant="rectangular" height={200} data-testid="skeleton"/>
-    );
+    headerContent = <Skeleton variant="rectangular" height={200} data-testid="skeleton"/>;
   } else if (status === 'found' && wishlist) {
     headerContent = (
       <WishlistHeader wishlist={wishlist} canEdit={canEdit} onBannerUpload={handleBannerUpload}/>
@@ -222,118 +370,6 @@ export function WishListItemList() {
       </Box>
     );
   }
-
-  const renderItem = (item: WishListItem) => {
-    const isLockedForGuest = !canEdit && item.claimed;
-    return (
-      <Paper
-        key={item.id}
-        sx={{
-          mb: 2,
-          p: 1,
-          borderRadius: 3,
-          border: '1px solid #2c2c2c',
-          boxShadow: 'none',
-          transition: 'background-color 0.2s ease, transform 0.2s ease',
-          '&:hover': {backgroundColor: '#2a2a2a', transform: 'scale(1.02)'},
-        }}
-      >
-        <ListItem alignItems="flex-start">
-          <ListItemButton
-            aria-disabled={isLockedForGuest}
-            onClick={() => {
-              if (isLockedForGuest) return;
-              if (canEdit) {
-                handleClaimToggle(item);
-              } else if (!item.claimed) {
-                setSelection((s) => ({...s, selectedItem: item}));
-                setDialogs((d) => ({...d, claimConfirmOpen: true}));
-              }
-            }}
-            sx={{
-              borderRadius: '15px',
-              ...(isLockedForGuest ? {opacity: 0.6} : {}),
-              '&:hover': {backgroundColor: '#3d3d3d'},
-              width: '100%',
-              pr: 1.5,
-            }}
-          >
-            <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 2, flexGrow: 1}}>
-              <CustomCheckbox
-                checked={item.claimed}
-                disabled
-                icon={<RadioButtonUncheckedIcon fontSize="small"/>}
-                checkedIcon={<CheckCircleIcon fontSize="small"/>}
-              />
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textDecoration: item.claimed ? 'line-through' : 'none',
-                      color: item.claimed ? 'gray' : 'inherit',
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                }
-                secondary={
-                  <>
-                    {item.link ? (
-                      <>
-                        <MuiLink
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          color="primary"
-                          underline="hover"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Link
-                        </MuiLink>
-                        <br/>
-                      </>
-                    ) : null}
-                    {item.description ? (
-                      <Typography variant="body2" color="text.secondary" component="span">
-                        {item.description}
-                      </Typography>
-                    ) : null}
-                  </>
-                }
-              />
-            </Box>
-            {canEdit && (
-              <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
-                <IconButton
-                  size="small"
-                  aria-label="Edit"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelection((s) => ({...s, itemToEdit: item}));
-                    setDialogs((d) => ({...d, editItemOpen: true}));
-                  }}
-                >
-                  <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
-                </IconButton>
-                <IconButton
-                  size="small"
-                  aria-label="Delete"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelection((s) => ({...s, itemToDelete: item}));
-                    setDialogs((d) => ({...d, deleteConfirmOpen: true}));
-                  }}
-                >
-                  <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
-                </IconButton>
-              </Box>
-            )}
-          </ListItemButton>
-        </ListItem>
-      </Paper>
-    );
-  };
 
   return (
     <>
@@ -410,7 +446,35 @@ export function WishListItemList() {
         )}
 
         {status === 'found' && (
-          <List>{items.map(renderItem)}</List>
+          <List>
+            {items.map((item) => {
+              const isLockedForGuest = !canEdit && item.claimed;
+              return (
+                <WishListItemRow
+                  key={item.id}
+                  item={item}
+                  canEdit={canEdit}
+                  onRowClick={() => {
+                    if (isLockedForGuest) return;
+                    if (canEdit) {
+                      handleClaimToggle(item);
+                    } else if (!item.claimed) {
+                      setSelection((s) => ({...s, selectedItem: item}));
+                      setDialogs((d) => ({...d, claimConfirmOpen: true}));
+                    }
+                  }}
+                  onEditClick={() => {
+                    setSelection((s) => ({...s, itemToEdit: item}));
+                    setDialogs((d) => ({...d, editItemOpen: true}));
+                  }}
+                  onDeleteClick={() => {
+                    setSelection((s) => ({...s, itemToDelete: item}));
+                    setDialogs((d) => ({...d, deleteConfirmOpen: true}));
+                  }}
+                />
+              );
+            })}
+          </List>
         )}
       </Container>
 

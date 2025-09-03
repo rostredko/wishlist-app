@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Box,
   Container,
@@ -16,32 +16,28 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {useNavigate} from 'react-router-dom';
 
 import {useAuth} from '@hooks/useAuth';
 import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
-import {useNavigate} from 'react-router-dom';
 import type {WishList} from '@models/WishList';
-
 import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
 
 type WLItem = WishList & { id: string };
 
+const SKELETON_CARDS = 6 as const;
+
 export default function HomePage() {
   const {user} = useAuth();
+  const navigate = useNavigate();
+
   const [createOpen, setCreateOpen] = useState(false);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({
     open: false,
   });
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
-
-  const handleOpenCreate = () => {
-    if (!user) return;
-    setCreateOpen(true);
-  };
-  const handleCloseCreate = () => setCreateOpen(false);
 
   useEffect(() => {
     if (!user?.uid) {
@@ -53,6 +49,34 @@ export default function HomePage() {
   }, [user?.uid]);
 
   const isLoading = useMemo(() => !!user && myLists === null, [user, myLists]);
+
+  const handleOpenCreate = useCallback(() => {
+    if (!user) return;
+    setCreateOpen(true);
+  }, [user]);
+
+  const handleCloseCreate = useCallback(() => setCreateOpen(false), []);
+
+  const openDeleteDialog = useCallback((id: string, title?: string) => {
+    setDeleteDialog({open: true, id, title});
+  }, []);
+
+  const closeDeleteDialog = useCallback(() => {
+    setDeleteDialog({open: false});
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteDialog.id) return;
+    try {
+      setIsDeleting(true);
+      await deleteWishlistDeep(deleteDialog.id);
+    } catch (e) {
+      console.error('Failed to delete wishlist:', e);
+    } finally {
+      setIsDeleting(false);
+      closeDeleteDialog();
+    }
+  }, [deleteDialog.id, closeDeleteDialog]);
 
   return (
     <Box sx={{py: {xs: 6, md: 10}}}>
@@ -96,7 +120,13 @@ export default function HomePage() {
 
           <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
             <span>
-              <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}>
+              <Button
+                size="large"
+                variant="contained"
+                onClick={handleOpenCreate}
+                disabled={!user}
+                aria-label="Create wishlist"
+              >
                 Create wishlist
               </Button>
             </span>
@@ -110,7 +140,7 @@ export default function HomePage() {
 
               {isLoading && (
                 <Grid container spacing={2}>
-                  {Array.from({length: 6}).map((_, i) => (
+                  {Array.from({length: SKELETON_CARDS}).map((_, i) => (
                     <Grid key={i} size={{xs: 12, md: 6, lg: 4}}>
                       <Skeleton variant="rounded" height={96}/>
                     </Grid>
@@ -168,7 +198,7 @@ export default function HomePage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isDeleting) return;
-                                setDeleteDialog({open: true, id: wl.id, title: wl.title});
+                                openDeleteDialog(wl.id, wl.title);
                               }}
                               aria-label="delete wishlist"
                             >
@@ -195,19 +225,8 @@ export default function HomePage() {
       <ConfirmDialog
         open={deleteDialog.open}
         title={`Delete wishlist "${deleteDialog.title ?? ''}"?`}
-        onClose={() => setDeleteDialog({open: false})}
-        onConfirm={async () => {
-          if (!deleteDialog.id) return;
-          try {
-            setIsDeleting(true);
-            await deleteWishlistDeep(deleteDialog.id);
-          } catch (e) {
-            console.error('Failed to delete wishlist:', e);
-          } finally {
-            setIsDeleting(false);
-            setDeleteDialog({open: false});
-          }
-        }}
+        onClose={closeDeleteDialog}
+        onConfirm={handleConfirmDelete}
         confirmText="Delete"
         cancelText="Cancel"
         destructive

@@ -59,7 +59,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{px: 3, pt: 2, pb: 0}}>
+      <DialogTitle sx={{px: 3, pt: 2, pb: 2}}>
         {isEdit ? 'Edit gift' : 'Add your desired gift'}
       </DialogTitle>
       <DialogContent sx={{px: 3, pt: 2, pb: 0}}>

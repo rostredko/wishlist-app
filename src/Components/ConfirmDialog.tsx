@@ -1,56 +1,68 @@
 import {
   Dialog,
   DialogTitle,
+  DialogContent,
   DialogActions,
   Button,
+  Typography,
 } from '@mui/material';
 
-type ConfirmDialogProps = {
+type Props = {
   open: boolean;
-  title: string;
-  onClose: () => void;
-  onConfirm: () => void;
-  cancelText?: string;
-  confirmText?: string;
+  title?: string;
+  description?: string;
   destructive?: boolean;
   loading?: boolean;
   disableBackdropClose?: boolean;
+  onClose: () => void;
+  onConfirm: () => void | Promise<void>;
+  confirmText?: string;
+  cancelText?: string;
 };
 
-const ConfirmDialog = ({
-                         open,
-                         title,
-                         onClose,
-                         onConfirm,
-                         cancelText = 'Cancel',
-                         confirmText = 'Confirm',
-                         destructive = false,
-                         loading = false,
-                         disableBackdropClose = false,
-                       }: ConfirmDialogProps) => (
-  <Dialog
-    open={open}
-    onClose={disableBackdropClose ? undefined : onClose}
-    aria-labelledby="confirm-dialog-title"
-    disableEscapeKeyDown={disableBackdropClose}
-  >
-    <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
+export default function ConfirmDialog({
+                                        open,
+                                        title = 'Are you sure?',
+                                        description,
+                                        destructive,
+                                        loading,
+                                        disableBackdropClose,
+                                        onClose,
+                                        onConfirm,
+                                        confirmText = 'Confirm',
+                                        cancelText = 'Cancel',
+                                      }: Props) {
+  return (
+    <Dialog
+      open={open}
+      onClose={disableBackdropClose || loading ? undefined : onClose}
+      aria-labelledby="confirm-title"
+    >
+      <DialogTitle id="confirm-title" sx={{px: 3, pt: 2}}>
+        {title}
+      </DialogTitle>
 
-    <DialogActions>
-      <Button onClick={onClose} disabled={loading}>
-        {cancelText}
-      </Button>
-      <Button
-        onClick={onConfirm}
-        autoFocus
-        variant="contained"
-        color={destructive ? 'error' : 'primary'}
-        disabled={loading}
-      >
-        {loading ? 'Please wait…' : confirmText}
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
+      {description ? (
+        <DialogContent sx={{px: 3, pb: 0}}>
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </DialogContent>
+      ) : null}
 
-export default ConfirmDialog;
+      <DialogActions sx={{px: 3, pb: 2}}>
+        <Button onClick={onClose} disabled={loading}>
+          {cancelText}
+        </Button>
+        <Button
+          variant="contained"
+          color={destructive ? 'error' : 'primary'}
+          onClick={onConfirm}
+          disabled={loading}
+        >
+          {loading ? 'Please wait…' : confirmText}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

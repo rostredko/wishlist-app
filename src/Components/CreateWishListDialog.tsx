@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState, useCallback} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
   Dialog,
@@ -7,8 +7,8 @@ import {
   DialogActions,
   TextField,
   Button,
+  Stack,
 } from '@mui/material';
-
 import {createWishlist} from '@api/wishListService';
 
 type Props = {
@@ -22,6 +22,12 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
 
+  const safeClose = useCallback(() => {
+    setTitle('');
+    setIsCreating(false);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) {
       setTitle('');
@@ -30,14 +36,9 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
   }, [open]);
 
   const canCreate = useMemo(
-    () => !!user && !!title.trim() && !isCreating,
+    () => Boolean(user) && title.trim().length > 0 && !isCreating,
     [user, title, isCreating],
   );
-
-  const safeClose = useCallback(() => {
-    setTitle('');
-    onClose();
-  }, [onClose]);
 
   const handleCreate = useCallback(async () => {
     if (!user) return;
@@ -50,45 +51,42 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       safeClose();
       navigate(`/wishlist/${id}`);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to create wishlist', e);
       setIsCreating(false);
     }
-  }, [user, title, isCreating, safeClose, navigate]);
+  }, [user, title, isCreating, navigate, safeClose]);
 
   return (
     <Dialog
+      maxWidth="xs"
+      fullWidth
       open={open}
       onClose={isCreating ? undefined : safeClose}
-      fullWidth
-      maxWidth="sm"
+      aria-labelledby="create-wishlist"
     >
-      <DialogTitle sx={{px: 3, pt: 3, pb: 3}}>New wishlist</DialogTitle>
+      <DialogTitle id="create-wishlist" sx={{px: 3, pt: 2}}>
+        New wishlist
+      </DialogTitle>
 
-      <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
-        <TextField
-          autoFocus
-          label="Wishlist name"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && canCreate) {
-              e.preventDefault();
-              void handleCreate();
-            }
-          }}
-        />
+      <DialogContent sx={{px: 3, pt: 2}}>
+        <Stack spacing={2}>
+          <TextField
+            label="Wishlist name"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            autoFocus
+            fullWidth
+            disabled={isCreating}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleCreate();
+            }}
+          />
+        </Stack>
       </DialogContent>
 
-      <DialogActions sx={{px: 3, py: 3}}>
-        <Button onClick={safeClose} disabled={isCreating}>
-          Cancel
-        </Button>
-        <Button
-          onClick={handleCreate}
-          disabled={!canCreate}
-          variant="contained"
-        >
+      <DialogActions sx={{px: 3, pb: 2}}>
+        <Button onClick={safeClose} disabled={isCreating}>Cancel</Button>
+        <Button onClick={handleCreate} variant="contained" disabled={!canCreate}>
           {isCreating ? 'Creating…' : 'Create'}
         </Button>
       </DialogActions>

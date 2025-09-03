@@ -1,3 +1,4 @@
+import {memo, useMemo} from 'react';
 import {Box, Typography} from '@mui/material';
 import {Link as RouterLink} from 'react-router-dom';
 
@@ -14,17 +15,20 @@ type Props = {
 const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
   if (!wishlist?.id) return null;
 
-  const hasBanner = Boolean(wishlist.bannerImage);
-  const bg = hasBanner
-    ? `linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${wishlist.bannerImage})`
-    : 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)';
+  const {id, bannerImage} = wishlist;
+
+  const backgroundImage = useMemo(() => {
+    return bannerImage
+      ? `linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${bannerImage})`
+      : 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)';
+  }, [bannerImage]);
 
   return (
     <Box
       sx={{
         width: '100%',
         minHeight: {xs: 200, sm: 240, md: 260},
-        backgroundImage: bg,
+        backgroundImage,
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
@@ -70,7 +74,7 @@ const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
 
         {canEdit && (
           <BannerUploader
-            wishlistId={wishlist.id}
+            wishlistId={id}
             canEdit={canEdit}
             onUpload={onBannerUpload}
           />
@@ -80,4 +84,4 @@ const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
   );
 };
 
-export default WishlistHeader;
+export default memo(WishlistHeader);
