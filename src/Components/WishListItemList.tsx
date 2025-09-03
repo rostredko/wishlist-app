@@ -100,6 +100,17 @@ function useWishlistData(wishlistId: string | undefined) {
   return {items, setItems, wishlist, setWishlist, status, setStatus};
 }
 
+function trackGiftClick(item: { id: string; name: string; link?: string }) {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'click_gift_link', {
+      event_category: 'engagement',
+      event_label: item.name,
+      item_id: item.id,
+      url: item.link,
+    });
+  }
+}
+
 type RowProps = {
   item: WishListItem;
   canEdit: boolean;
@@ -116,6 +127,11 @@ const WishListItemRow = memo(function WishListItemRow({
                                                         onDeleteClick,
                                                       }: RowProps) {
   const isLockedForGuest = !canEdit && item.claimed;
+
+  const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.stopPropagation();
+    trackGiftClick({id: item.id, name: item.name ?? '', link: item.link});
+  };
 
   return (
     <Paper
@@ -170,7 +186,7 @@ const WishListItemRow = memo(function WishListItemRow({
                         rel="noopener noreferrer"
                         color="primary"
                         underline="hover"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={handleGiftClick}
                       >
                         Link
                       </MuiLink>
@@ -230,7 +246,7 @@ export function WishListItemList() {
     }
   }, [wishlistId, navigate]);
 
-  const {items, wishlist, setWishlist, status, setStatus} = useWishlistData(
+  const {items, wishlist, setWishlist, status} = useWishlistData(
     wishlistId && wishlistId !== 'default' ? wishlistId : undefined,
   );
 
