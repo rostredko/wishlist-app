@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://wishlistapp.com.ua/sitemap.xml

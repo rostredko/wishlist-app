@@ -1,23 +1,12 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Stack,
-  Card,
-  CardContent,
-  Tooltip,
-  Divider,
-  Skeleton,
-  IconButton,
-  Backdrop,
-  CircularProgress,
-} from '@mui/material';
-import Grid from '@mui/material/Grid';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {useEffect, useMemo, useState, useCallback} from 'react';
 import {useNavigate} from 'react-router-dom';
+import {
+  Box, Container, Typography, Button, Stack, Card, CardContent,
+  Tooltip, Divider, Grid, Skeleton, IconButton, Backdrop, CircularProgress
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
+import SEOHead from '@components/SEOHead';
 import {useAuth} from '@hooks/useAuth';
 import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
@@ -26,17 +15,21 @@ import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
 
 type WLItem = WishList & { id: string };
 
-const SKELETON_CARDS = 6 as const;
+function detectLang(): 'en' | 'uk' {
+  if (typeof navigator === 'undefined') return 'en';
+  let ln = navigator.language.toLowerCase();
+  if (ln.startsWith('ru')) ln = 'uk'
+  return ln.startsWith('uk') ? 'uk' : 'en';
+}
 
 export default function HomePage() {
+  const lang = detectLang();
   const {user} = useAuth();
   const navigate = useNavigate();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({
-    open: false,
-  });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({open: false});
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -44,75 +37,110 @@ export default function HomePage() {
       setMyLists(null);
       return;
     }
-    const unsub = subscribeMyWishlists(user.uid, (lists) => setMyLists(lists));
+    const unsub = subscribeMyWishlists(user.uid, lists => setMyLists(lists));
     return unsub;
   }, [user?.uid]);
 
   const isLoading = useMemo(() => !!user && myLists === null, [user, myLists]);
 
-  const handleOpenCreate = useCallback(() => {
-    if (!user) return;
-    setCreateOpen(true);
-  }, [user]);
-
+  const handleOpenCreate = useCallback(() => user && setCreateOpen(true), [user]);
   const handleCloseCreate = useCallback(() => setCreateOpen(false), []);
 
   const openDeleteDialog = useCallback((id: string, title?: string) => {
     setDeleteDialog({open: true, id, title});
   }, []);
-
-  const closeDeleteDialog = useCallback(() => {
-    setDeleteDialog({open: false});
-  }, []);
+  const closeDeleteDialog = useCallback(() => setDeleteDialog({open: false}), []);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteDialog.id) return;
     try {
       setIsDeleting(true);
       await deleteWishlistDeep(deleteDialog.id);
-    } catch (e) {
-      console.error('Failed to delete wishlist:', e);
     } finally {
       setIsDeleting(false);
       closeDeleteDialog();
     }
   }, [deleteDialog.id, closeDeleteDialog]);
 
+  const props = {
+    en: {
+      title: 'WishList App - create and share wishlists',
+      desc:
+        'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.',
+      what: '✨ What is it?',
+      whatText: 'A clean, distraction-free wishlist that keeps the core features simple. Just all you need to build simple wishlist on Birthday, New Year, Secret Santa, Christmas, Wedding, or any other or for any other occasion 😄',
+      how: '🧭 How it works',
+      li1: 'Create a wishlist in seconds. Button below.',
+      li2: 'Share a private URL with friends. Just from your browser. From any device. For free.',
+      li3: 'Friends anonymously claim gifts - everyone sees what’s taken.',
+      li4: 'Sign in with Google to manage your lists.',
+      your: '📚 Your wishlists',
+      noLists: 'No wishlists yet.',
+      createOne: 'Create wishlist',
+      createBtn: 'Create wishlist',
+      deleteTitle: (name?: string) => `Delete “${name ?? 'Untitled'}”?`,
+    },
+    uk: {
+      title: 'WishList App - створюйте та діліться вішлістами',
+      desc:
+        'Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно.',
+      what: '✨ Що це?',
+      whatText: 'Лаконічний вішліст без зайвого - тільки головне. Безкоштовно. Все що тобі треба для створення вішлісту на День народження, Новий рік, Секретного Санту (або ж Таємного Миколая), Різдво, Одруження, або будь-які інші події у житті 😄',
+      how: '🧭 Як це працює',
+      li1: 'Створіть вішліст за секунди. Кнопка нижче. Дуже просто.',
+      li2: 'Поділіться приватним посиланням із друзями - з будь-якого пристрою. І це повністю безкоштовно.',
+      li3: 'Друзі анонімно бронюють подарунки - усі бачать, що вже зайнято.',
+      li4: 'Увійдіть швидко через Google, щоб керувати своїми списками.',
+      your: '📚 Ваші вішлісти',
+      noLists: 'Поки що немає вішлістів.',
+      createOne: 'Створити вішліст',
+      createBtn: 'Створити вішлист',
+      deleteTitle: (name?: string) => `Видалити "${name ?? 'Без назви'}"?`,
+    },
+  }[lang];
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://wishlistapp.com.ua';
+  const alternates = {
+    en: `${origin}/`,
+    uk: `${origin}/?lang=uk`,
+  };
+
   return (
-    <Box sx={{py: {xs: 6, md: 10}}}>
+    <Box component="main" sx={{py: {xs: 6, md: 10}}}>
+      <SEOHead
+        lang={lang}
+        title={props.title}
+        description={props.desc}
+        alternates={alternates}
+      />
+
       <Container maxWidth="md">
         <Stack spacing={3} alignItems="flex-start">
           <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
             🎁 WishList App
           </Typography>
-
-          <Typography variant="h6" sx={{opacity: 0.9}}>
+          <Typography variant="h4" sx={{opacity: 0.8}}>
             Minimal wishlist app with only what matters.
           </Typography>
 
           <Card variant="outlined" sx={{bgcolor: 'background.paper'}}>
             <CardContent>
               <Stack spacing={2}>
-                <Typography variant="subtitle1" sx={{fontWeight: 700}}>
-                  ✨ What is it?
+                <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+                  {props.what}
                 </Typography>
-                <Typography>
-                  A clean, distraction-free wishlist that keeps the core features simple. Just all
-                  you need on Birthday, New Year, or even Hanukkah 😄
-                </Typography>
+                <Typography>{props.whatText}</Typography>
 
                 <Divider/>
 
-                <Typography variant="subtitle1" sx={{fontWeight: 700}}>
-                  🧭 How it works
+                <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+                  {props.how}
                 </Typography>
                 <Stack component="ul" sx={{pl: 3, m: 0}} spacing={1}>
-                  <li><Typography>Create a wishlist in seconds. Button below.</Typography></li>
-                  <li><Typography>Share a private URL with friends. Just from your browser. From any
-                    device.</Typography></li>
-                  <li><Typography>Friends anonymously <b>claim</b> gifts — everyone can see what’s already
-                    taken.</Typography></li>
-                  <li><Typography>Sign in with Google to manage your lists.</Typography></li>
+                  <li><Typography>{props.li1}</Typography></li>
+                  <li><Typography>{props.li2}</Typography></li>
+                  <li><Typography>{props.li3}</Typography></li>
+                  <li><Typography>{props.li4}</Typography></li>
                 </Stack>
               </Stack>
             </CardContent>
@@ -120,27 +148,22 @@ export default function HomePage() {
 
           <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
             <span>
-              <Button
-                size="large"
-                variant="contained"
-                onClick={handleOpenCreate}
-                disabled={!user}
-                aria-label="Create wishlist"
-              >
-                Create wishlist
+              <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}
+                      aria-label="Create wishlist">
+                {props.createBtn}
               </Button>
             </span>
           </Tooltip>
 
           {user && (
             <Stack sx={{width: '100%', mt: 4}} spacing={2}>
-              <Typography variant="h6" sx={{fontWeight: 700}}>
-                📚 Your wishlists
+              <Typography variant="h6" sx={{fontWeight: 700, fontSize: 24}}>
+                {props.your}
               </Typography>
 
               {isLoading && (
                 <Grid container spacing={2}>
-                  {Array.from({length: SKELETON_CARDS}).map((_, i) => (
+                  {Array.from({length: 6}).map((_, i) => (
                     <Grid key={i} size={{xs: 12, md: 6, lg: 4}}>
                       <Skeleton variant="rounded" height={96}/>
                     </Grid>
@@ -152,10 +175,8 @@ export default function HomePage() {
                 <Card variant="outlined">
                   <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
-                      <Typography>No wishlists yet.</Typography>
-                      <Button variant="outlined" onClick={handleOpenCreate}>
-                        Create one
-                      </Button>
+                      <Typography>{props.noLists}</Typography>
+                      <Button variant="outlined" onClick={handleOpenCreate}>{props.createOne}</Button>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -163,7 +184,7 @@ export default function HomePage() {
 
               {!isLoading && myLists && myLists.length > 0 && (
                 <Grid container spacing={2}>
-                  {myLists.map((wl) => (
+                  {myLists.map(wl => (
                     <Grid key={wl.id} size={{xs: 12, md: 6, lg: 4}}>
                       <Card
                         variant="outlined"
@@ -185,24 +206,20 @@ export default function HomePage() {
                                 pr: 1,
                                 overflow: 'hidden',
                                 whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
+                                textOverflow: 'ellipsis'
                               }}
-                              title={wl.title || 'Untitled wishlist'}
                             >
-                              {wl.title || 'Untitled wishlist'}
+                              {wl.title || (lang === 'uk' ? 'Без назви' : 'Untitled wishlist')}
                             </Typography>
-
                             <IconButton
+                              aria-label="Delete"
                               size="small"
-                              disabled={isDeleting}
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
-                                if (isDeleting) return;
                                 openDeleteDialog(wl.id, wl.title);
                               }}
-                              aria-label="delete wishlist"
                             >
-                              <DeleteIcon sx={{fontSize: 18}}/>
+                              <DeleteIcon/>
                             </IconButton>
                           </Stack>
                         </CardContent>
@@ -213,29 +230,25 @@ export default function HomePage() {
               )}
             </Stack>
           )}
-
-          <CreateWishListDialog
-            open={createOpen}
-            onClose={handleCloseCreate}
-            user={user ? {uid: user.uid} : null}
-          />
         </Stack>
       </Container>
 
+      <CreateWishListDialog
+        user={user ? {uid: user.uid} : null}
+        open={createOpen}
+        onClose={handleCloseCreate}/>
       <ConfirmDialog
         open={deleteDialog.open}
-        title={`Delete wishlist "${deleteDialog.title ?? ''}"?`}
+        title={props.deleteTitle(deleteDialog.title)}
         onClose={closeDeleteDialog}
         onConfirm={handleConfirmDelete}
         confirmText="Delete"
         cancelText="Cancel"
         destructive
-        loading={isDeleting}
-        disableBackdropClose={isDeleting}
       />
 
-      <Backdrop open={isDeleting} sx={{zIndex: (t) => t.zIndex.modal + 1}}>
-        <CircularProgress/>
+      <Backdrop open={isDeleting} sx={{color: '#fff', zIndex: 9999}}>
+        <CircularProgress color="inherit"/>
       </Backdrop>
     </Box>
   );

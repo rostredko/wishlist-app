@@ -1,6 +1,7 @@
 import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import SEOHead from '@components/SEOHead';
 
 import {useAuth} from '@hooks/useAuth';
 
@@ -119,7 +120,6 @@ function logClickAndOpen(url: string, payload: { id: string; name?: string | nul
         event_label: payload.name ?? '',
         item_id: payload.id,
         url,
-        transport_type: 'beacon',
         event_callback: open,
       });
       setTimeout(open, 500);
@@ -384,6 +384,34 @@ export function WishListItemList() {
     );
   }, [setWishlist]);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const canonicalUrl = typeof window !== 'undefined'
+    ? (() => {
+      try {
+        const u = new URL(window.location.href);
+        u.hash = '';
+        u.search = '';
+        return u.toString();
+      } catch {
+        return window.location.href;
+      }
+    })()
+    : '';
+  const pageTitle =
+    status === 'found' && wishlist
+      ? `${wishlist.title} - WishList App`
+      : status === 'not_found'
+        ? 'Wishlist not found - WishList App'
+        : 'WishList App';
+  const pageDescription =
+    status === 'found' && wishlist
+      ? `View the "${wishlist.title}" wishlist on WishList App. Friends can anonymously claim gifts - everyone sees what’s taken.`
+      : status === 'not_found'
+        ? 'This wishlist is not available. It may have been deleted or the link is incorrect.'
+        : 'Loading wishlist…';
+  const ogImage =
+    (wishlist && wishlist.bannerImage) ? wishlist.bannerImage : `${origin}/og-image.png`;
+
   let headerContent;
   if (status === 'loading') {
     headerContent = <Skeleton variant="rectangular" height={200} data-testid="skeleton"/>;
@@ -413,6 +441,14 @@ export function WishListItemList() {
 
   return (
     <>
+      <SEOHead
+        lang={(typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('uk')) ? 'uk' : 'en'}
+        title={pageTitle}
+        description={pageDescription}
+        canonical={canonicalUrl}
+        image={ogImage}
+      />
+
       {headerContent}
       <Container maxWidth="sm">
         {user && (
