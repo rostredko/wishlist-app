@@ -48,6 +48,19 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
     try {
       setIsCreating(true);
       const id = await createWishlist(name, user.uid);
+
+      const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+        | ((...args: any[]) => void)
+        | undefined;
+      if (g) {
+        g('event', 'wishlist_create', {
+          event_category: 'engagement',
+          event_label: name,
+          wishlist_id: id,
+          user_id: user.uid,
+        });
+      }
+
       safeClose();
       navigate(`/wishlist/${id}`);
     } catch (e) {

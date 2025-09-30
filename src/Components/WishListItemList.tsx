@@ -331,6 +331,19 @@ export function WishListItemList() {
       try {
         if (!wishlistId) return;
         await addGiftItem(wishlistId, item);
+
+        const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+          | ((...args: any[]) => void)
+          | undefined;
+        if (g) {
+          g('event', 'wishlist_item_add', {
+            event_category: 'engagement',
+            event_label: item.name,
+            wishlist_id: wishlistId,
+            item_name: item.name,
+            has_link: Boolean(item.link),
+          });
+        }
       } catch (error) {
         console.error('Error adding item:', error);
       }
