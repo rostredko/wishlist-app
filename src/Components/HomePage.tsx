@@ -76,7 +76,7 @@ export default function HomePage() {
       li4: 'Sign in with Google to manage your lists.',
       your: '📚 Your wishlists',
       noLists: 'No wishlists yet.',
-      createOne: 'Create wishlist',
+      createOne: 'Create one',
       createBtn: 'Create wishlist',
       deleteTitle: (name?: string) => `Delete “${name ?? 'Untitled'}”?`,
     },
@@ -93,7 +93,7 @@ export default function HomePage() {
       li4: 'Увійдіть швидко через Google, щоб керувати своїми списками.',
       your: '📚 Ваші вішлісти',
       noLists: 'Поки що немає вішлістів.',
-      createOne: 'Створити вішліст',
+      createOne: 'Створити перший вішліст',
       createBtn: 'Створити вішлист',
       deleteTitle: (name?: string) => `Видалити "${name ?? 'Без назви'}"?`,
     },
@@ -212,7 +212,7 @@ export default function HomePage() {
                               {wl.title || (lang === 'uk' ? 'Без назви' : 'Untitled wishlist')}
                             </Typography>
                             <IconButton
-                              aria-label="Delete"
+                              aria-label="Delete wishlist"
                               size="small"
                               onClick={e => {
                                 e.stopPropagation();
@@ -245,6 +245,8 @@ export default function HomePage() {
         confirmText="Delete"
         cancelText="Cancel"
         destructive
+        loading={isDeleting}
+        disableBackdropClose={isDeleting}
       />
 
       <Backdrop open={isDeleting} sx={{color: '#fff', zIndex: 9999}}>
