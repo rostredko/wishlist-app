@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 
 type Lang = 'en' | 'uk';
 
@@ -81,11 +81,13 @@ export default function SEOHead({
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
+    document.documentElement.lang = lang;
+
     const origin = currentOrigin();
     const href =
       canonical ??
       (typeof window !== 'undefined' ? sanitizeCanonical(window.location.href) : `${origin}/`);
-    const ogImage = image ?? `${origin}/og-image.png`;
+    const ogImage = image ?? `${origin}/og-image.webp`;
     const ogLocale = lang === 'uk' ? 'uk_UA' : 'en_US';
 
     document.title = title;
@@ -97,9 +99,9 @@ export default function SEOHead({
 
     removeAllManaged('link[rel="alternate"][data-seo-head="1"]');
     const alts = alternates ?? {};
-    if (alts.en) upsertLink('alternate', alts.en, { hrefLang: 'en' });
-    if (alts.uk) upsertLink('alternate', alts.uk, { hrefLang: 'uk' });
-    if (alts.en) upsertLink('alternate', alts.en, { hrefLang: 'x-default' });
+    if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'en'});
+    if (alts.uk) upsertLink('alternate', alts.uk, {hreflang: 'uk'});
+    if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'x-default'});
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
@@ -113,7 +115,6 @@ export default function SEOHead({
     upsertMetaByName('twitter:title', title);
     upsertMetaByName('twitter:description', description);
     upsertMetaByName('twitter:image', ogImage);
-
   }, [title, description, lang, canonical, image, alternates]);
 
   return null;

@@ -1,9 +1,21 @@
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {
-  Box, Container, Typography, Button, Stack, Card, CardContent,
-  Tooltip, Divider, Grid, Skeleton, IconButton, Backdrop, CircularProgress
-} from '@mui/material';
+
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
+import Skeleton from '@mui/material/Skeleton';
+import IconButton from '@mui/material/IconButton';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import SEOHead from '@components/SEOHead';
@@ -18,7 +30,7 @@ type WLItem = WishList & { id: string };
 function detectLang(): 'en' | 'uk' {
   if (typeof navigator === 'undefined') return 'en';
   let ln = navigator.language.toLowerCase();
-  if (ln.startsWith('ru')) ln = 'uk'
+  if (ln.startsWith('ru')) ln = 'uk';
   return ln.startsWith('uk') ? 'uk' : 'en';
 }
 
@@ -31,6 +43,23 @@ export default function HomePage() {
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({open: false});
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const tags: HTMLLinkElement[] = [];
+    const add = (rel: string, href: string, cross = true) => {
+      const link = document.createElement('link');
+      link.rel = rel;
+      link.href = href;
+      if (cross) link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+      tags.push(link);
+    };
+    add('preconnect', 'https://firestore.googleapis.com');
+    add('preconnect', 'https://www.gstatic.com');
+    return () => {
+      tags.forEach(t => t.remove());
+    };
+  }, []);
 
   useEffect(() => {
     if (!user?.uid) {
@@ -68,7 +97,8 @@ export default function HomePage() {
       desc:
         'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.',
       what: '✨ What is it?',
-      whatText: 'A clean, distraction-free wishlist that keeps the core features simple. Just all you need to build simple wishlist on Birthday, New Year, Secret Santa, Christmas, Wedding, or any other or for any other occasion 😄',
+      whatText:
+        'A clean, distraction-free wishlist that keeps the core features simple. Just all you need to build simple wishlist on Birthday, New Year, Secret Santa, Christmas, Wedding, or any other or for any other occasion 😄',
       how: '🧭 How it works',
       li1: 'Create a wishlist in seconds. Button below.',
       li2: 'Share a private URL with friends. Just from your browser. From any device. For free.',
@@ -78,14 +108,15 @@ export default function HomePage() {
       noLists: 'No wishlists yet.',
       createOne: 'Create one',
       createBtn: 'Create wishlist',
-      deleteTitle: (name?: string) => `Delete “${name ?? 'Untitled'}”?`,
+      deleteTitle: (name?: string) => `Delete “${name ?? 'Untitled'}”?`
     },
     uk: {
       title: 'WishList App - створюйте та діліться вішлістами',
       desc:
         'Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно.',
       what: '✨ Що це?',
-      whatText: 'Лаконічний вішліст без зайвого - тільки головне. Безкоштовно. Все що тобі треба для створення вішлісту на День народження, Новий рік, Секретного Санту (або ж Таємного Миколая), Різдво, Одруження, або будь-які інші події у житті 😄',
+      whatText:
+        'Лаконічний вішліст без зайвого - тільки головне. Безкоштовно. Все що тобі треба для створення вішлісту на День народження, Новий рік, Секретного Санту (або ж Таємного Миколая), Різдво, Одруження, або будь-які інші події у житті 😄',
       how: '🧭 Як це працює',
       li1: 'Створіть вішліст за секунди. Кнопка нижче. Дуже просто.',
       li2: 'Поділіться приватним посиланням із друзями - з будь-якого пристрою. І це повністю безкоштовно.',
@@ -95,14 +126,14 @@ export default function HomePage() {
       noLists: 'Поки що немає вішлістів.',
       createOne: 'Створити перший вішліст',
       createBtn: 'Створити вішлист',
-      deleteTitle: (name?: string) => `Видалити "${name ?? 'Без назви'}"?`,
-    },
+      deleteTitle: (name?: string) => `Видалити "${name ?? 'Без назви'}"?`
+    }
   }[lang];
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://wishlistapp.com.ua';
   const alternates = {
     en: `${origin}/`,
-    uk: `${origin}/?lang=uk`,
+    uk: `${origin}/?lang=uk`
   };
 
   return (
@@ -112,17 +143,21 @@ export default function HomePage() {
         title={props.title}
         description={props.desc}
         alternates={alternates}
-      />
+        image="/og-image.webp"/>
 
       <Container maxWidth="md">
-        <Stack spacing={3} alignItems="flex-start">
-          <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
-            🎁 WishList App
-          </Typography>
-          <Typography variant="h4" sx={{opacity: 0.8}}>
-            Minimal wishlist app with only what matters.
-          </Typography>
+        <Box className="hero" sx={{width: '100%'}}>
+          <Stack spacing={3} alignItems="flex-start" sx={{width: '100%'}}>
+            <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
+              🎁 WishList App
+            </Typography>
+            <Typography variant="h4" sx={{opacity: 0.8, pb: 3}}>
+              Minimal wishlist app with only what matters.
+            </Typography>
+          </Stack>
+        </Box>
 
+        <Stack spacing={3} alignItems="flex-start">
           <Card variant="outlined" sx={{bgcolor: 'background.paper'}}>
             <CardContent>
               <Stack spacing={2}>
@@ -157,7 +192,7 @@ export default function HomePage() {
 
           {user && (
             <Stack sx={{width: '100%', mt: 4}} spacing={2}>
-              <Typography variant="h6" sx={{fontWeight: 700, fontSize: 24}}>
+              <Typography variant="h5" sx={{fontWeight: 700, fontSize: 24}}>
                 {props.your}
               </Typography>
 
@@ -176,7 +211,9 @@ export default function HomePage() {
                   <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Typography>{props.noLists}</Typography>
-                      <Button variant="outlined" onClick={handleOpenCreate}>{props.createOne}</Button>
+                      <Button variant="outlined" onClick={handleOpenCreate}>
+                        {props.createOne}
+                      </Button>
                     </Stack>
                   </CardContent>
                 </Card>

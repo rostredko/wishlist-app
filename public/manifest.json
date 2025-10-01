@@ -2,10 +2,29 @@
   "short_name": "WishList",
   "name": "WishList App",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1976d2",
+  "description": "Create and share wishlists. Friends can anonymously claim gifts. Simple and free.",
   "icons": [
-    { "src": "/favicon.png", "sizes": "48x48", "type": "image/png" }
+    {
+      "src": "/favicon.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
   ]
 }
