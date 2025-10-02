@@ -19,6 +19,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import {
   Box,
@@ -37,6 +38,8 @@ import {
   Stack,
   Card,
   CardContent,
+  Tooltip,
+  Snackbar,
 } from '@mui/material';
 
 import {
@@ -294,6 +297,8 @@ export function WishListItemList() {
     isEditing: false,
   });
 
+  const [copySnackOpen, setCopySnackOpen] = useState(false);
+
   useEffect(() => {
     if (status === 'found' && wishlist) {
       setTitleState((t) => ({...t, current: wishlist.title || 'Unnamed Wishlist'}));
@@ -410,6 +415,7 @@ export function WishListItemList() {
       }
     })()
     : '';
+
   const pageTitle =
     status === 'found' && wishlist
       ? `${wishlist.title} - WishList App`
@@ -424,6 +430,29 @@ export function WishListItemList() {
         : 'Loading wishlist…';
   const ogImage =
     (wishlist && wishlist.bannerImage) ? wishlist.bannerImage : `${origin}/og-image.png`;
+
+  const handleCopyShareLink = useCallback(async () => {
+    const shareUrl = canonicalUrl || (origin && wishlistId ? `${origin}/wishlist/${wishlistId}` : '');
+    if (!shareUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySnackOpen(true);
+
+      const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+        | ((...args: any[]) => void)
+        | undefined;
+      if (g) {
+        g('event', 'wishlist_share_copy', {
+          event_category: 'engagement',
+          wishlist_id: wishlistId,
+          url: shareUrl,
+        });
+      }
+    } catch {
+      window.prompt('Copy this link:', shareUrl);
+    }
+  }, [canonicalUrl, origin, wishlistId]);
 
   let headerContent;
   if (status === 'loading') {
@@ -489,26 +518,99 @@ export function WishListItemList() {
               autoFocus
               fullWidth
               variant="standard"
-              InputProps={{
-                sx: {fontSize: '2.5rem', color: 'inherit', p: 0, backgroundColor: 'transparent'},
+              slotProps={{
+                input: {
+                  sx: {
+                    fontSize: '2.5rem',
+                    color: 'inherit',
+                    p: 0,
+                    backgroundColor: 'transparent',
+                  },
+                },
               }}
-              sx={{mt: 3}}
+              sx={{mt: 3, mb: 1.5}}
             />
           ) : (
-            <Box sx={{display: 'flex', alignItems: 'center', mt: 4}}>
-              <Typography
-                variant="h3"
-                gutterBottom
-                onClick={() => {
-                  if (canEdit) {
-                    setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}));
-                  }
+            <Box
+              sx={{
+                mt: 2.5,
+                mb: 2.5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+              }}
+            >
+              <Box sx={{minWidth: 0, flex: '1 1 auto'}}>
+                <Typography
+                  variant="h3"
+                  gutterBottom
+                  onClick={() => {
+                    if (canEdit) {
+                      setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}));
+                    }
+                  }}
+                  sx={{
+                    cursor: canEdit ? 'pointer' : 'default',
+                    mb: 0,
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {titleState.current}
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  flex: '0 0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  ml: 1,
                 }}
-                sx={{cursor: canEdit ? 'pointer' : 'default'}}
               >
-                {titleState.current}
-                {canEdit && <EditIcon sx={{ml: 1, fontSize: 25, color: 'gray'}}/>}
-              </Typography>
+                {canEdit && (
+                  <Tooltip title="Edit title" arrow>
+                    <IconButton
+                      aria-label="Edit title"
+                      size="small"
+                      onClick={() =>
+                        setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}))
+                      }
+                      sx={{
+                        color: 'text.secondary',
+                        opacity: 0.6,
+                        '&:hover': {
+                          opacity: 1,
+                          color: 'text.primary',
+                        },
+                      }}
+                    >
+                      <EditIcon fontSize="small"/>
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {status === 'found' && wishlist && (
+                  <Tooltip title="Copy wishlist link" arrow>
+                    <IconButton
+                      aria-label="Copy wishlist link"
+                      size="small"
+                      onClick={handleCopyShareLink}
+                      sx={{
+                        color: 'text.secondary',
+                        opacity: 0.6,
+                        '&:hover': {
+                          opacity: 1,
+                          color: 'text.primary',
+                        },
+                      }}
+                    >
+                      <ContentCopyIcon fontSize="small"/>
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
           )
         ) : status === 'not_found' ? (
@@ -527,7 +629,7 @@ export function WishListItemList() {
         {status === 'found' && wishlist && canEdit && (
           <Button
             variant="contained"
-            sx={{mb: 2}}
+            sx={{mb: 2, mt: 2}}
             onClick={() => setDialogs((d) => ({...d, addItemOpen: true}))}
           >
             ➕ Add Gift
@@ -635,6 +737,14 @@ export function WishListItemList() {
         open={dialogs.createWishlistOpen}
         onClose={() => setDialogs((d) => ({...d, createWishlistOpen: false}))}
         user={user ? {uid: user.uid} : null}
+      />
+
+      <Snackbar
+        open={copySnackOpen}
+        onClose={() => setCopySnackOpen(false)}
+        autoHideDuration={2000}
+        message="Link copied"
+        anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
       />
     </>
   );
