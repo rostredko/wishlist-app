@@ -95,7 +95,7 @@ describe('BannerUploader (skeleton behavior)', () => {
     const { container } = render(
       <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
-    const tooBig = makeFile({ type: 'image/png', size: 8 * 1024 * 1024 + 1 });
+    const tooBig = makeFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 });
     const input = getHiddenInput(container);
 
     await userEvent.upload(input, tooBig);
