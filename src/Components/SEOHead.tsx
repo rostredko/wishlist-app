@@ -8,7 +8,7 @@ type SEOHeadProps = {
   lang: Lang;
   canonical?: string;
   image?: string;
-  alternates?: Partial<Record<Lang, string>>;
+  alternates?: Partial<Record<Lang, string>>; // { en: '/en', uk: '/ua' } – как и было
 };
 
 function sanitizeCanonical(rawHref: string) {
@@ -70,6 +70,8 @@ function removeAllManaged(selector: string) {
   document.head.querySelectorAll(selector).forEach(n => n.remove());
 }
 
+const toOgLocale = (l: Lang) => (l === 'uk' ? 'uk_UA' : 'en_US');
+
 export default function SEOHead({
                                   title,
                                   description,
@@ -88,7 +90,7 @@ export default function SEOHead({
       canonical ??
       (typeof window !== 'undefined' ? sanitizeCanonical(window.location.href) : `${origin}/`);
     const ogImage = image ?? `${origin}/og-image.webp`;
-    const ogLocale = lang === 'uk' ? 'uk_UA' : 'en_US';
+    const ogLocale = toOgLocale(lang);
 
     document.title = title;
 
@@ -97,12 +99,14 @@ export default function SEOHead({
 
     upsertLink('canonical', href);
 
+    // hreflang alternates
     removeAllManaged('link[rel="alternate"][data-seo-head="1"]');
     const alts = alternates ?? {};
     if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'en'});
     if (alts.uk) upsertLink('alternate', alts.uk, {hreflang: 'uk'});
     if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'x-default'});
 
+    // OpenGraph
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
     upsertMetaByProperty('og:site_name', 'WishList App');
@@ -111,6 +115,19 @@ export default function SEOHead({
     upsertMetaByProperty('og:image', ogImage);
     upsertMetaByProperty('og:url', href);
 
+    // og:locale:alternate для других языков (если передали)
+    removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
+    (Object.keys(alts) as Lang[])
+      .filter((l) => l !== lang && alts[l])
+      .forEach((l) => {
+        const el = document.createElement('meta');
+        el.setAttribute('property', 'og:locale:alternate');
+        el.setAttribute('content', toOgLocale(l));
+        el.setAttribute('data-seo-head', '1');
+        document.head.appendChild(el);
+      });
+
+    // Twitter
     upsertMetaByName('twitter:card', 'summary_large_image');
     upsertMetaByName('twitter:title', title);
     upsertMetaByName('twitter:description', description);

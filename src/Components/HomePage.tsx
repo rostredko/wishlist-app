@@ -1,5 +1,6 @@
-import {useEffect, useMemo, useState, useCallback} from 'react';
+import {useEffect, useMemo, useState, useCallback, useLayoutEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -26,16 +27,33 @@ import type {WishList} from '@models/WishList';
 import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
 
 type WLItem = WishList & { id: string };
+type RouteLang = 'ua' | 'en';
+type Props = { lang: RouteLang };
 
-function detectLang(): 'en' | 'uk' {
-  if (typeof navigator === 'undefined') return 'en';
-  let ln = navigator.language.toLowerCase();
-  if (ln.startsWith('ru')) ln = 'uk';
-  return ln.startsWith('uk') ? 'uk' : 'en';
+function toSeoLang(lng: RouteLang): 'uk' | 'en' {
+  return lng === 'ua' ? 'uk' : 'en';
 }
 
-export default function HomePage() {
-  const lang = detectLang();
+export default function HomePage({lang}: Props) {
+  const {t, i18n} = useTranslation('home');
+  const [ready, setReady] = useState(false);
+  useLayoutEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (i18n.language !== lang) {
+        try {
+          await i18n.changeLanguage(lang);
+        } catch {
+        }
+      }
+      if (mounted) setReady(true);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [lang, i18n]);
+
+  const seoLang = toSeoLang(lang);
   const {user} = useAuth();
   const navigate = useNavigate();
 
@@ -91,68 +109,38 @@ export default function HomePage() {
     }
   }, [deleteDialog.id, closeDeleteDialog]);
 
-  const props = {
-    en: {
-      title: 'WishList App - create and share wishlists',
-      desc:
-        'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.',
-      what: '✨ What is it?',
-      whatText:
-        'A clean, distraction-free wishlist that keeps the core features simple. Just all you need to build simple wishlist on Birthday, New Year, Secret Santa, Christmas, Wedding, or any other or for any other occasion 😄',
-      how: '🧭 How it works',
-      li1: 'Create a wishlist in seconds. Button below.',
-      li2: 'Share a private URL with friends. Just from your browser. From any device. For free.',
-      li3: 'Friends anonymously claim gifts - everyone sees what’s taken.',
-      li4: 'Sign in with Google to manage your lists.',
-      your: '📚 Your wishlists',
-      noLists: 'No wishlists yet.',
-      createOne: 'Create one',
-      createBtn: 'Create wishlist',
-      deleteTitle: (name?: string) => `Delete “${name ?? 'Untitled'}”?`
-    },
-    uk: {
-      title: 'WishList App - створюйте та діліться вішлістами',
-      desc:
-        'Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно.',
-      what: '✨ Що це?',
-      whatText:
-        'Лаконічний вішліст без зайвого - тільки головне. Безкоштовно. Все що тобі треба для створення вішлісту на День народження, Новий рік, Секретного Санту (або ж Таємного Миколая), Різдво, Одруження, або будь-які інші події у житті 😄',
-      how: '🧭 Як це працює',
-      li1: 'Створіть вішліст за секунди. Кнопка нижче. Дуже просто.',
-      li2: 'Поділіться приватним посиланням із друзями - з будь-якого пристрою. І це повністю безкоштовно.',
-      li3: 'Друзі анонімно бронюють подарунки - усі бачать, що вже зайнято.',
-      li4: 'Увійдіть швидко через Google, щоб керувати своїми списками.',
-      your: '📚 Ваші вішлісти',
-      noLists: 'Поки що немає вішлістів.',
-      createOne: 'Створити перший вішліст',
-      createBtn: 'Створити вішлист',
-      deleteTitle: (name?: string) => `Видалити "${name ?? 'Без назви'}"?`
-    }
-  }[lang];
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://wishlistapp.com.ua';
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://wishlistapp.com.ua';
   const alternates = {
-    en: `${origin}/`,
-    uk: `${origin}/?lang=uk`
+    en: `${origin}/en`,
+    uk: `${origin}/ua`,
   };
 
+  const deleteName = deleteDialog.title && deleteDialog.title.trim().length > 0
+    ? deleteDialog.title
+    : t('untitled');
+
   return (
-    <Box component="main" sx={{py: {xs: 6, md: 10}}}>
+    <Box component="main" sx={{py: {xs: 6, md: 10}, visibility: ready ? 'visible' : 'hidden'}}>
       <SEOHead
-        lang={lang}
-        title={props.title}
-        description={props.desc}
+        lang={seoLang}
+        title={t('title')}
+        description={t('desc')}
         alternates={alternates}
-        image="/og-image.webp"/>
+        image={`${origin}/og-image.webp`}
+      />
 
       <Container maxWidth="md">
         <Box className="hero" sx={{width: '100%'}}>
           <Stack spacing={3} alignItems="flex-start" sx={{width: '100%'}}>
             <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
-              🎁 WishList App
+              {t('heroH1')}
             </Typography>
             <Typography variant="h4" sx={{opacity: 0.8, pb: 3}}>
-              Minimal wishlist app with only what matters.
+              {t('heroH2')}
             </Typography>
           </Stack>
         </Box>
@@ -162,30 +150,35 @@ export default function HomePage() {
             <CardContent>
               <Stack spacing={2}>
                 <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
-                  {props.what}
+                  {t('what')}
                 </Typography>
-                <Typography>{props.whatText}</Typography>
+                <Typography>{t('whatText')}</Typography>
 
                 <Divider/>
 
                 <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
-                  {props.how}
+                  {t('how')}
                 </Typography>
                 <Stack component="ul" sx={{pl: 3, m: 0}} spacing={1}>
-                  <li><Typography>{props.li1}</Typography></li>
-                  <li><Typography>{props.li2}</Typography></li>
-                  <li><Typography>{props.li3}</Typography></li>
-                  <li><Typography>{props.li4}</Typography></li>
+                  <li><Typography>{t('li1')}</Typography></li>
+                  <li><Typography>{t('li2')}</Typography></li>
+                  <li><Typography>{t('li3')}</Typography></li>
+                  <li><Typography>{t('li4')}</Typography></li>
                 </Stack>
               </Stack>
             </CardContent>
           </Card>
 
-          <Tooltip title={user ? '' : 'Sign in with Google to create a wishlist'} placement="top">
+          <Tooltip title={user ? '' : t('createTooltip')} placement="top">
             <span>
-              <Button size="large" variant="contained" onClick={handleOpenCreate} disabled={!user}
-                      aria-label="Create wishlist">
-                {props.createBtn}
+              <Button
+                size="large"
+                variant="contained"
+                onClick={handleOpenCreate}
+                disabled={!user}
+                aria-label={t('createBtn')}
+              >
+                {t('createBtn')}
               </Button>
             </span>
           </Tooltip>
@@ -193,7 +186,7 @@ export default function HomePage() {
           {user && (
             <Stack sx={{width: '100%', mt: 4}} spacing={2}>
               <Typography variant="h5" sx={{fontWeight: 700, fontSize: 24}}>
-                {props.your}
+                {t('your')}
               </Typography>
 
               {isLoading && (
@@ -210,9 +203,9 @@ export default function HomePage() {
                 <Card variant="outlined">
                   <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
-                      <Typography>{props.noLists}</Typography>
+                      <Typography>{t('noLists')}</Typography>
                       <Button variant="outlined" onClick={handleOpenCreate}>
-                        {props.createOne}
+                        {t('createOne')}
                       </Button>
                     </Stack>
                   </CardContent>
@@ -225,7 +218,7 @@ export default function HomePage() {
                     <Grid key={wl.id} size={{xs: 12, md: 6, lg: 4}}>
                       <Card
                         variant="outlined"
-                        onClick={() => navigate(`/wishlist/${wl.id}`)}
+                        onClick={() => navigate(`/${lang}/wishlist/${wl.id}`)}
                         sx={{
                           height: '100%',
                           cursor: 'pointer',
@@ -246,10 +239,10 @@ export default function HomePage() {
                                 textOverflow: 'ellipsis'
                               }}
                             >
-                              {wl.title || (lang === 'uk' ? 'Без назви' : 'Untitled wishlist')}
+                              {wl.title || t('untitled')}
                             </Typography>
                             <IconButton
-                              aria-label="Delete wishlist"
+                              aria-label={t('deleteAria')}
                               size="small"
                               onClick={e => {
                                 e.stopPropagation();
@@ -273,14 +266,15 @@ export default function HomePage() {
       <CreateWishListDialog
         user={user ? {uid: user.uid} : null}
         open={createOpen}
-        onClose={handleCloseCreate}/>
+        onClose={handleCloseCreate}
+      />
       <ConfirmDialog
         open={deleteDialog.open}
-        title={props.deleteTitle(deleteDialog.title)}
+        title={t('deleteTitle', {name: deleteName})}
         onClose={closeDeleteDialog}
         onConfirm={handleConfirmDelete}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('confirmDelete')}
+        cancelText={t('cancel')}
         destructive
         loading={isDeleting}
         disableBackdropClose={isDeleting}

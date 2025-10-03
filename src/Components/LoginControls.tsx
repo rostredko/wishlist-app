@@ -1,11 +1,13 @@
 import {useCallback, useState} from 'react';
 import {Button, Box, Typography} from '@mui/material';
 import {signInWithPopup, signOut} from 'firebase/auth';
+import {useTranslation} from 'react-i18next';
 
 import {useAuth} from '@hooks/useAuth';
 import {auth, googleProvider} from '@lib/firebase';
 
 export default function LoginControls() {
+  const {t} = useTranslation('auth');
   const {user, isAdmin} = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +18,7 @@ export default function LoginControls() {
         setLoading(true);
         await action();
       } catch (e) {
-        console.error(failMsg.replace(' Please try again.', ''), e);
+        console.error(failMsg.replace(/\.? Please try again\.?$/i, ''), e);
         alert(failMsg);
       } finally {
         setLoading(false);
@@ -26,13 +28,13 @@ export default function LoginControls() {
   );
 
   const handleSignIn = useCallback(
-    () => run(() => signInWithPopup(auth, googleProvider), 'Sign-in failed. Please try again.'),
-    [run],
+    () => run(() => signInWithPopup(auth, googleProvider), t('signinFailed')),
+    [run, t],
   );
 
   const handleSignOut = useCallback(
-    () => run(() => signOut(auth), 'Sign-out failed. Please try again.'),
-    [run],
+    () => run(() => signOut(auth), t('signoutFailed')),
+    [run, t],
   );
 
   return (
@@ -51,15 +53,15 @@ export default function LoginControls() {
       {user ? (
         <>
           <Typography variant="body1" sx={{color: '#aaa'}}>
-            👋&nbsp; {user.displayName} {isAdmin ? '(Admin)' : ''}
+            👋&nbsp; {user.displayName} {isAdmin ? t('admin') : ''}
           </Typography>
           <Button variant="outlined" color="secondary" onClick={handleSignOut} disabled={loading}>
-            {loading ? 'Please wait…' : 'Sign Out'}
+            {loading ? t('pleaseWait') : t('signOut')}
           </Button>
         </>
       ) : (
         <Button variant="outlined" onClick={handleSignIn} disabled={loading}>
-          {loading ? 'Please wait…' : 'Sign In'}
+          {loading ? t('pleaseWait') : t('signIn')}
         </Button>
       )}
     </Box>

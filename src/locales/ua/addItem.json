@@ -1,0 +1,13 @@
+{
+  "titleAdd": "Додайте бажаний подарунок",
+  "titleEdit": "Редагувати подарунок",
+  "labelName": "Що це?",
+  "labelDesc": "Опис (необовʼязково)",
+  "labelLink": "Посилання (необовʼязково)",
+  "placeholderLink": "https://example.com/item",
+  "linkHelper": "Має бути дійсною http(s) адресою",
+  "linkError": "Введіть коректне посилання (напр. https://example.com/item)",
+  "cancel": "Скасувати",
+  "save": "Зберегти",
+  "add": "Додати"
+}

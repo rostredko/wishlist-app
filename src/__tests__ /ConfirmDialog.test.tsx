@@ -1,8 +1,8 @@
 import ConfirmDialog from '@components/ConfirmDialog';
-import { customRender as render, screen } from '../test/render';
+import {customRender as render, screen} from '../test/render';
 import userEvent from '@testing-library/user-event';
-import { fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
+import {vi, describe, it, expect} from 'vitest';
+import '../../src/i18n';
 
 describe('ConfirmDialog (skeleton logic)', () => {
   it('binds title to dialog accessible name (aria-labelledby)', () => {
@@ -10,11 +10,13 @@ describe('ConfirmDialog (skeleton logic)', () => {
       <ConfirmDialog
         open
         title="Delete?"
-        onClose={() => {}}
-        onConfirm={() => {}}
+        onClose={() => {
+        }}
+        onConfirm={() => {
+        }}
       />
     );
-    expect(screen.getByRole('dialog', { name: /delete\?/i })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', {name: /delete\?/i})).toBeInTheDocument();
   });
 
   it('loading=true: buttons disabled and callbacks NOT called', async () => {
@@ -32,8 +34,8 @@ describe('ConfirmDialog (skeleton logic)', () => {
       />
     );
 
-    const loadingBtn = screen.getByRole('button', { name: /please wait/i });
-    const cancelBtn  = screen.getByRole('button', { name: /cancel/i });
+    const loadingBtn = screen.getByRole('button', {name: /please wait/i});
+    const cancelBtn = screen.getByRole('button', {name: /cancel/i});
 
     expect(loadingBtn).toBeDisabled();
     expect(cancelBtn).toBeDisabled();
@@ -56,28 +58,33 @@ describe('ConfirmDialog (skeleton logic)', () => {
       />
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /delete/i }));
+    await userEvent.click(screen.getByRole('button', {name: /delete/i}));
     expect(onConfirm).toHaveBeenCalled();
 
-    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await userEvent.click(screen.getByRole('button', {name: /cancel/i}));
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('disableBackdropClose prevents closing on Escape; enabled allows it', async () => {
+  it('disableBackdropClose prevents closing on backdrop; enabled allows it', async () => {
     const onClose = vi.fn();
+    const user = userEvent.setup();
 
-    const { rerender } = render(
+    const {rerender} = render(
       <ConfirmDialog
         open
         title="Sure?"
         onClose={onClose}
-        onConfirm={() => {}}
+        onConfirm={() => {
+        }}
         disableBackdropClose
       />
     );
 
-    const dialog = screen.getByRole('dialog', { name: /sure\?/i });
-    fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' });
+    const container1 = document.querySelector('.MuiDialog-container') as HTMLElement | null;
+    expect(container1).toBeTruthy();
+    if (container1) {
+      await user.click(container1);
+    }
     expect(onClose).not.toHaveBeenCalled();
 
     rerender(
@@ -85,13 +92,18 @@ describe('ConfirmDialog (skeleton logic)', () => {
         open
         title="Sure?"
         onClose={onClose}
-        onConfirm={() => {}}
+        onConfirm={() => {
+        }}
       />
     );
-    const dialog2 = screen.getByRole('dialog', { name: /sure\?/i });
-    fireEvent.keyDown(dialog2, { key: 'Escape', code: 'Escape' });
 
-    expect(onClose).toHaveBeenCalled();
+    const container2 = document.querySelector('.MuiDialog-container') as HTMLElement | null;
+    expect(container2).toBeTruthy();
+    if (container2) {
+      await user.click(container2);
+    }
+
+    await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it('does not render when open=false', () => {
@@ -99,8 +111,10 @@ describe('ConfirmDialog (skeleton logic)', () => {
       <ConfirmDialog
         open={false}
         title="Hidden"
-        onClose={() => {}}
-        onConfirm={() => {}}
+        onClose={() => {
+        }}
+        onConfirm={() => {
+        }}
       />
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

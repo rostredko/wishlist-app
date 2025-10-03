@@ -1,3 +1,4 @@
+import {useTranslation} from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -22,16 +23,23 @@ type Props = {
 
 export default function ConfirmDialog({
                                         open,
-                                        title = 'Are you sure?',
+                                        title,
                                         description,
                                         destructive,
                                         loading,
                                         disableBackdropClose,
                                         onClose,
                                         onConfirm,
-                                        confirmText = 'Confirm',
-                                        cancelText = 'Cancel',
+                                        confirmText,
+                                        cancelText,
                                       }: Props) {
+  const {t} = useTranslation('confirm');
+
+  const _title = title ?? t('title');
+  const _cancel = cancelText ?? t('cancel');
+  const _confirm = confirmText ?? (destructive ? t('delete') : t('confirm'));
+  const pleaseWait = t('pleaseWait');
+
   return (
     <Dialog
       open={open}
@@ -39,7 +47,7 @@ export default function ConfirmDialog({
       aria-labelledby="confirm-title"
     >
       <DialogTitle id="confirm-title" sx={{px: 3, pt: 2}}>
-        {title}
+        {_title}
       </DialogTitle>
 
       {description ? (
@@ -52,7 +60,7 @@ export default function ConfirmDialog({
 
       <DialogActions sx={{px: 3, pb: 2}}>
         <Button onClick={onClose} disabled={loading}>
-          {cancelText}
+          {_cancel}
         </Button>
         <Button
           variant="contained"
@@ -60,7 +68,7 @@ export default function ConfirmDialog({
           onClick={onConfirm}
           disabled={loading}
         >
-          {loading ? 'Please wait…' : confirmText}
+          {loading ? pleaseWait : _confirm}
         </Button>
       </DialogActions>
     </Dialog>

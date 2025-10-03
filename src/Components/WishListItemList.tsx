@@ -2,6 +2,7 @@ import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import SEOHead from '@components/SEOHead';
+import {useTranslation} from 'react-i18next';
 
 import {useAuth} from '@hooks/useAuth';
 
@@ -148,6 +149,7 @@ const WishListItemRow = memo(function WishListItemRow({
                                                         onEditClick,
                                                         onDeleteClick,
                                                       }: RowProps) {
+  const {t} = useTranslation('wishlist');
   const isLockedForGuest = !canEdit && item.claimed;
 
   const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -215,7 +217,7 @@ const WishListItemRow = memo(function WishListItemRow({
                         underline="hover"
                         onClick={handleGiftClick}
                       >
-                        Link
+                        {t('link')}
                       </MuiLink>
                       <br/>
                     </>
@@ -232,26 +234,30 @@ const WishListItemRow = memo(function WishListItemRow({
 
           {canEdit && (
             <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
-              <IconButton
-                size="small"
-                aria-label="Edit"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEditClick();
-                }}
-              >
-                <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
-              </IconButton>
-              <IconButton
-                size="small"
-                aria-label="Delete"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteClick();
-                }}
-              >
-                <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
-              </IconButton>
+              <Tooltip title={t('editTitleTooltip')} arrow>
+                <IconButton
+                  size="small"
+                  aria-label={t('editAria')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditClick();
+                  }}
+                >
+                  <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={t('deleteTitleTooltip')} arrow>
+                <IconButton
+                  size="small"
+                  aria-label={t('deleteAria')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick();
+                  }}
+                >
+                  <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
+                </IconButton>
+              </Tooltip>
             </Box>
           )}
         </ListItemButton>
@@ -260,18 +266,28 @@ const WishListItemRow = memo(function WishListItemRow({
   );
 });
 
+type RouteLang = 'ua' | 'en';
+const toSeoLang = (lng: RouteLang): 'uk' | 'en' => (lng === 'ua' ? 'uk' : 'en');
+
 export function WishListItemList() {
+  const {t, i18n} = useTranslation('wishlist');
   const {user, isAdmin} = useAuth();
-  const {wishlistId} = useParams();
+  const {wishlistId, lng} = useParams();
+  const routeLang = (lng === 'ua' || lng === 'en' ? lng : 'en') as RouteLang;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (i18n.language !== routeLang) i18n.changeLanguage(routeLang).catch(() => {
+    });
+  }, [routeLang, i18n]);
 
   useEffect(() => {
     if (!wishlistId) return;
     const DEFAULT_WISHLIST_ID = import.meta.env.VITE_DEFAULT_WISHLIST_ID;
     if (wishlistId === 'default' && DEFAULT_WISHLIST_ID) {
-      navigate(`/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
+      navigate(`/${routeLang}/wishlist/${DEFAULT_WISHLIST_ID}`, {replace: true});
     }
-  }, [wishlistId, navigate]);
+  }, [wishlistId, navigate, routeLang]);
 
   const {items, wishlist, setWishlist, status} = useWishlistData(
     wishlistId && wishlistId !== 'default' ? wishlistId : undefined,
@@ -301,12 +317,12 @@ export function WishListItemList() {
 
   useEffect(() => {
     if (status === 'found' && wishlist) {
-      setTitleState((t) => ({...t, current: wishlist.title || 'Unnamed Wishlist'}));
+      setTitleState((tst) => ({...tst, current: wishlist.title || t('unnamed')}));
     }
     if (status === 'not_found') {
-      setTitleState((t) => ({...t, current: 'Wishlist not found'}));
+      setTitleState((tst) => ({...tst, current: t('notFoundTitle')}));
     }
-  }, [status, wishlist]);
+  }, [status, wishlist, t]);
 
   const canEdit: boolean = useMemo(
     () =>
@@ -382,16 +398,16 @@ export function WishListItemList() {
 
   const handleSaveTitle = useCallback(async () => {
     if (titleState.draft.trim() === titleState.current) {
-      setTitleState((t) => ({...t, isEditing: false}));
+      setTitleState((tst) => ({...tst, isEditing: false}));
       return;
     }
     try {
       if (!wishlistId) return;
       await updateWishlistTitle(wishlistId, titleState.draft);
-      setTitleState((t) => ({...t, current: titleState.draft, isEditing: false}));
+      setTitleState((tst) => ({...tst, current: titleState.draft, isEditing: false}));
     } catch (error) {
       console.error('Error updating title:', error);
-      setTitleState((t) => ({...t, isEditing: false}));
+      setTitleState((tst) => ({...tst, isEditing: false}));
     }
   }, [wishlistId, titleState.draft, titleState.current]);
 
@@ -420,19 +436,23 @@ export function WishListItemList() {
     status === 'found' && wishlist
       ? `${wishlist.title} - WishList App`
       : status === 'not_found'
-        ? 'Wishlist not found - WishList App'
+        ? `${t('notFoundTitle')} - WishList App`
         : 'WishList App';
+
   const pageDescription =
     status === 'found' && wishlist
-      ? `View the "${wishlist.title}" wishlist on WishList App. Friends can anonymously claim gifts - everyone sees what’s taken.`
+      ? t('pageDescriptionView', {name: wishlist.title})
       : status === 'not_found'
-        ? 'This wishlist is not available. It may have been deleted or the link is incorrect.'
-        : 'Loading wishlist…';
+        ? t('pageDescriptionNotFound')
+        : t('pageDescriptionLoading');
+
   const ogImage =
-    (wishlist && wishlist.bannerImage) ? wishlist.bannerImage : `${origin}/og-image.png`;
+    (wishlist && wishlist.bannerImage) ? wishlist.bannerImage : `${origin}/og-image.webp`;
 
   const handleCopyShareLink = useCallback(async () => {
-    const shareUrl = canonicalUrl || (origin && wishlistId ? `${origin}/wishlist/${wishlistId}` : '');
+    const shareUrl =
+      canonicalUrl ||
+      (origin && wishlistId ? `${origin}/${routeLang}/wishlist/${wishlistId}` : '');
     if (!shareUrl) return;
 
     try {
@@ -450,9 +470,18 @@ export function WishListItemList() {
         });
       }
     } catch {
-      window.prompt('Copy this link:', shareUrl);
+      window.prompt(t('copyFallbackPrompt'), shareUrl);
     }
-  }, [canonicalUrl, origin, wishlistId]);
+  }, [canonicalUrl, origin, wishlistId, routeLang, t]);
+
+  // hreflang alternate для этой страницы
+  const alternates =
+    wishlistId && origin
+      ? {
+        en: `${origin}/en/wishlist/${wishlistId}`,
+        uk: `${origin}/ua/wishlist/${wishlistId}`,
+      }
+      : undefined;
 
   let headerContent;
   if (status === 'loading') {
@@ -468,11 +497,11 @@ export function WishListItemList() {
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{pb: 2}}>
             <Button
               startIcon={<ArrowBackIosNewIcon/>}
-              onClick={() => navigate('/')}
+              onClick={() => navigate(`/${routeLang}`)}
               variant="outlined"
               size="small"
             >
-              Back to Home
+              {t('backToHome')}
             </Button>
             <Box/>
           </Stack>
@@ -484,11 +513,12 @@ export function WishListItemList() {
   return (
     <>
       <SEOHead
-        lang={(typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('uk')) ? 'uk' : 'en'}
+        lang={toSeoLang(routeLang)}
         title={pageTitle}
         description={pageDescription}
         canonical={canonicalUrl}
         image={ogImage}
+        alternates={alternates}
       />
 
       {headerContent}
@@ -499,7 +529,7 @@ export function WishListItemList() {
             sx={{mb: 2}}
             onClick={() => setDialogs((d) => ({...d, createWishlistOpen: true}))}
           >
-            ➕ Create new wishlist
+            ➕ {t('createNewWishlist')}
           </Button>
         )}
 
@@ -507,7 +537,7 @@ export function WishListItemList() {
           titleState.isEditing ? (
             <TextField
               value={titleState.draft}
-              onChange={(e) => setTitleState((t) => ({...t, draft: e.target.value}))}
+              onChange={(e) => setTitleState((tst) => ({...tst, draft: e.target.value}))}
               onBlur={handleSaveTitle}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -547,7 +577,7 @@ export function WishListItemList() {
                   gutterBottom
                   onClick={() => {
                     if (canEdit) {
-                      setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}));
+                      setTitleState((tst) => ({...tst, draft: titleState.current, isEditing: true}));
                     }
                   }}
                   sx={{
@@ -570,12 +600,12 @@ export function WishListItemList() {
                 }}
               >
                 {canEdit && (
-                  <Tooltip title="Edit title" arrow>
+                  <Tooltip title={t('editTitleTooltip')} arrow>
                     <IconButton
-                      aria-label="Edit title"
+                      aria-label={t('editTitleAria')}
                       size="small"
                       onClick={() =>
-                        setTitleState((t) => ({...t, draft: titleState.current, isEditing: true}))
+                        setTitleState((tst) => ({...tst, draft: titleState.current, isEditing: true}))
                       }
                       sx={{
                         color: 'text.secondary',
@@ -592,9 +622,9 @@ export function WishListItemList() {
                 )}
 
                 {status === 'found' && wishlist && (
-                  <Tooltip title="Copy wishlist link" arrow>
+                  <Tooltip title={t('copyLinkTooltip')} arrow>
                     <IconButton
-                      aria-label="Copy wishlist link"
+                      aria-label={t('copyLinkAria')}
                       size="small"
                       onClick={handleCopyShareLink}
                       sx={{
@@ -617,10 +647,10 @@ export function WishListItemList() {
           <Card variant="outlined" sx={{mt: 4, mb: 2}}>
             <CardContent>
               <Typography variant="h4" sx={{fontWeight: 700}}>
-                Wishlist not found
+                {t('notFoundTitle')}
               </Typography>
               <Typography variant="body2" sx={{mt: 1}} color="text.secondary">
-                This wishlist may have been deleted or the link is incorrect.
+                {t('notFoundText')}
               </Typography>
             </CardContent>
           </Card>
@@ -632,7 +662,7 @@ export function WishListItemList() {
             sx={{mb: 2, mt: 2}}
             onClick={() => setDialogs((d) => ({...d, addItemOpen: true}))}
           >
-            ➕ Add Gift
+            ➕ {t('addGift')}
           </Button>
         )}
 
@@ -671,7 +701,7 @@ export function WishListItemList() {
 
       <ConfirmDialog
         open={dialogs.deleteConfirmOpen}
-        title={`Confirm deletion of "${selection.itemToDelete?.name}"?`}
+        title={t('confirmDeleteTitle', {name: selection.itemToDelete?.name ?? ''})}
         onClose={() => {
           setDialogs((d) => ({...d, deleteConfirmOpen: false}));
           setSelection((s) => ({...s, itemToDelete: null}));
@@ -682,14 +712,14 @@ export function WishListItemList() {
           setDialogs((d) => ({...d, deleteConfirmOpen: false}));
           setSelection((s) => ({...s, itemToDelete: null}));
         }}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
         destructive
       />
 
       <ConfirmDialog
         open={dialogs.claimConfirmOpen}
-        title={`Confirm to take "${selection.selectedItem?.name}"?`}
+        title={t('confirmClaimTitle', {name: selection.selectedItem?.name ?? ''})}
         onClose={() => {
           setDialogs((d) => ({...d, claimConfirmOpen: false}));
           setSelection((s) => ({...s, selectedItem: null}));
@@ -701,8 +731,8 @@ export function WishListItemList() {
           setDialogs((d) => ({...d, claimConfirmOpen: false}));
           setSelection((s) => ({...s, selectedItem: null}));
         }}
-        confirmText="Yes"
-        cancelText="No"
+        confirmText={t('yes')}
+        cancelText={t('no')}
       />
 
       <AddItemDialog
@@ -743,7 +773,7 @@ export function WishListItemList() {
         open={copySnackOpen}
         onClose={() => setCopySnackOpen(false)}
         autoHideDuration={2000}
-        message="Link copied"
+        message={t('linkCopied')}
         anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
       />
     </>

@@ -1,8 +1,32 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { WishListItemList } from '@components/WishListItemList';
+import {Routes, Route} from 'react-router-dom';
+import {customRender as render, screen, waitFor} from '../test/render';
+import '../../src/i18n';
+import {WishListItemList} from '@components/WishListItemList';
+
+vi.mock('canvas-confetti', () => ({
+  __esModule: true,
+  default: () => {
+  },
+}));
+
+vi.mock('@components/WishListHeader', () => ({
+  __esModule: true,
+  default: () => <div data-testid="header-stub"/>,
+}));
+vi.mock('@components/BannerUploader', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+vi.mock('@components/SEOHead', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+vi.mock('@hooks/useAuth', () => ({
+  useAuth: () => ({user: {uid: 'u1', displayName: 'Test User'}, isAdmin: false}),
+}));
 
 import {
   getWishlistById,
@@ -13,10 +37,6 @@ import {
   subscribeWishlistItems,
 } from '@api/wishListService';
 
-vi.mock('@hooks/useAuth', () => ({
-  useAuth: () => ({ user: { uid: 'u1', displayName: 'Test User' }, isAdmin: false }),
-}));
-
 vi.mock('@api/wishListService', () => ({
   getWishlistById: vi.fn(),
   updateWishlistTitle: vi.fn(),
@@ -26,32 +46,34 @@ vi.mock('@api/wishListService', () => ({
   subscribeWishlistItems: vi.fn(),
 }));
 
-function renderWithRouter(ui: React.ReactNode, { initialPath = '/wishlist/wl1' } = {}) {
+function renderAt(path: string) {
+  window.history.pushState({}, '', path);
   return render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Routes>
-        <Route path="/wishlist/:wishlistId" element={ui} />
-      </Routes>
-    </MemoryRouter>
+    <Routes>
+      <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList/>}/>
+    </Routes>
   );
 }
 
-describe('WishListItemList (skeleton logic)', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+beforeEach(() => {
+  vi.clearAllMocks();
+  (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
+    cb([]);
+    return () => {
+    };
   });
+});
 
+describe('WishListItemList (skeleton logic)', () => {
   it('renders loading skeleton first', async () => {
     (getWishlistById as vi.Mock).mockResolvedValueOnce(null);
-
-    renderWithRouter(<WishListItemList />);
+    renderAt('/en/wishlist/wl1');
     expect(screen.getByTestId('skeleton')).toBeInTheDocument();
   });
 
   it('renders wishlist not found if API returns null', async () => {
     (getWishlistById as vi.Mock).mockResolvedValueOnce(null);
-
-    renderWithRouter(<WishListItemList />);
+    renderAt('/en/wishlist/wl1');
     await waitFor(() =>
       expect(screen.getByText(/wishlist not found/i)).toBeInTheDocument()
     );
@@ -63,15 +85,8 @@ describe('WishListItemList (skeleton logic)', () => {
       title: 'Birthday',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_, cb) => {
-      cb([]);
-      return vi.fn();
-    });
-
-    renderWithRouter(<WishListItemList />);
-    await waitFor(() =>
-      expect(screen.getByText(/birthday/i)).toBeInTheDocument()
-    );
+    renderAt('/en/wishlist/wl1');
+    await waitFor(() => expect(screen.getByText(/birthday/i)).toBeInTheDocument());
   });
 
   it('allows editing title for owner', async () => {
@@ -80,12 +95,8 @@ describe('WishListItemList (skeleton logic)', () => {
       title: 'Old Title',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_, cb) => {
-      cb([]);
-      return vi.fn();
-    });
+    renderAt('/en/wishlist/wl1');
 
-    renderWithRouter(<WishListItemList />);
     const titleEl = await screen.findByText(/old title/i);
     await userEvent.click(titleEl);
 
@@ -98,70 +109,74 @@ describe('WishListItemList (skeleton logic)', () => {
     );
   });
 
-  it('adds item when Add Gift clicked', async () => {
+  it('opens Add Item dialog when "Add Gift" clicked', async () => {
     (getWishlistById as vi.Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'My List',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_, cb) => {
-      cb([]);
-      return vi.fn();
-    });
-
-    renderWithRouter(<WishListItemList />);
+    renderAt('/en/wishlist/wl1');
     await screen.findByText(/my list/i);
 
-    await userEvent.click(screen.getByRole('button', { name: /add gift/i }));
-
+    await userEvent.click(screen.getByRole('button', {name: /add gift/i}));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
-  it('claiming as guest opens confirm dialog', async () => {
-    vi.doMock('@hooks/useAuth', () => ({
-      useAuth: () => ({ user: null, isAdmin: false }),
-    }));
-
+  it('clicking item as non-owner (guest) opens claim confirm dialog', async () => {
     (getWishlistById as vi.Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Guest List',
       ownerUid: 'owner123',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_, cb) => {
-      cb([{ id: 'i1', name: 'Book', claimed: false }]);
-      return vi.fn();
+    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
+      cb([{id: 'i1', name: 'Book', claimed: false}]);
+      return () => {
+      };
     });
 
-    renderWithRouter(<WishListItemList />);
+    renderAt('/en/wishlist/wl1');
     await screen.findByText(/book/i);
-
     await userEvent.click(screen.getByText(/book/i));
 
-    expect(
-      await screen.findByText(/confirm to take "book"/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/confirm to take "book"\?/i)).toBeInTheDocument();
   });
 
-  it('delete item as owner triggers API', async () => {
+  it('delete item as owner shows confirm dialog', async () => {
     (getWishlistById as vi.Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Delete List',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_, cb) => {
-      cb([{ id: 'i2', name: 'Pen', claimed: false }]);
-      return vi.fn();
+    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
+      cb([{id: 'i2', name: 'Pen', claimed: false}]);
+      return () => {
+      };
     });
 
-    renderWithRouter(<WishListItemList />);
+    renderAt('/en/wishlist/wl1');
     await screen.findByText(/pen/i);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /delete/i })
-    );
+    await userEvent.click(screen.getByRole('button', {name: /delete/i}));
+    expect(await screen.findByText(/confirm deletion of "pen"\?/i)).toBeInTheDocument();
+  });
 
-    expect(
-      await screen.findByText(/confirm deletion of "pen"/i)
-    ).toBeInTheDocument();
+  it('toggling claim calls API when owner clicks item', async () => {
+    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+      id: 'wl1',
+      title: 'Owner List',
+      ownerUid: 'u1',
+    });
+    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
+      cb([{id: 'i3', name: 'Game', claimed: false}]);
+      return () => {
+      };
+    });
+
+    renderAt('/en/wishlist/wl1');
+    await userEvent.click(await screen.findByText(/game/i));
+
+    await waitFor(() =>
+      expect(toggleGiftClaimStatus).toHaveBeenCalledWith('wl1', 'i3', false)
+    );
   });
 });

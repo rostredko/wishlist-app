@@ -1,0 +1,23 @@
+{
+  "title": "WishList App - create and share wishlists",
+  "desc": "Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.",
+  "heroH1": "🎁 WishList App",
+  "heroH2": "Minimal wishlist app with only what matters.",
+  "what": "✨ What is it?",
+  "whatText": "A clean, distraction-free wishlist application that keeps the core features simple. Just all you need to build a simple wishlist for Birthday, New Year, Secret Santa, Christmas, Wedding, or any other occasion 😄",
+  "how": "🧭 How it works",
+  "li1": "Create a wishlist in seconds. Button below.",
+  "li2": "Share a private URL with friends. From any device. Free.",
+  "li3": "Friends anonymously claim gifts - everyone sees what’s taken.",
+  "li4": "Sign in with Google to manage your lists.",
+  "your": "📚 Your wishlists",
+  "noLists": "No wishlists yet.",
+  "createOne": "Create one",
+  "createBtn": "Create wishlist",
+  "createTooltip": "Sign in with Google to create a wishlist",
+  "deleteAria": "Delete wishlist",
+  "deleteTitle": "Delete “{{name}}”?",
+  "untitled": "Untitled wishlist",
+  "confirmDelete": "Delete",
+  "cancel": "Cancel"
+}

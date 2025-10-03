@@ -8,6 +8,7 @@ import {
   TextField,
   Stack,
 } from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
 type GiftValues = { name: string; description?: string; link?: string };
 
@@ -19,6 +20,8 @@ type Props = {
 };
 
 const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
+  const {t} = useTranslation('addItem');
+
   const [name, setName] = useState(initialValues?.name ?? '');
   const [description, setDescription] = useState(initialValues?.description ?? '');
   const [link, setLink] = useState(initialValues?.link ?? '');
@@ -68,7 +71,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
       setLinkError(null);
       return true;
     }
-    setLinkError('Enter a valid URL (e.g. https://example.com/item)');
+    setLinkError(t('linkError'));
     return false;
   };
 
@@ -82,7 +85,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
     let _link: string = _linkRaw;
     if (_linkRaw) {
       if (!isValidHttpUrl(_linkRaw)) {
-        setLinkError('Enter a valid URL (e.g. https://example.com/item)');
+        setLinkError(t('linkError'));
         return;
       }
       _link = ensureProtocol(_linkRaw);
@@ -111,12 +114,12 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{px: 3, pt: 2, pb: 2}}>
-        {isEdit ? 'Edit gift' : 'Add your desired gift'}
+        {isEdit ? t('titleEdit') : t('titleAdd')}
       </DialogTitle>
       <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
         <Stack spacing={2}>
           <TextField
-            label="What is it?"
+            label={t('labelName')}
             fullWidth
             required
             value={name}
@@ -130,7 +133,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
             }}
           />
           <TextField
-            label="Description (optional)"
+            label={t('labelDesc')}
             fullWidth
             multiline
             rows={2}
@@ -138,7 +141,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
             onChange={(e) => setDescription(e.target.value)}
           />
           <TextField
-            label="Link (optional)"
+            label={t('labelLink')}
             fullWidth
             value={link}
             onChange={(e) => {
@@ -147,9 +150,9 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
               validateLinkLive(v);
             }}
             onBlur={(e) => validateLinkLive(e.target.value)}
-            placeholder="https://example.com/item"
+            placeholder={t('placeholderLink')}
             error={!!linkError}
-            helperText={linkError ?? 'Must be a valid http(s) URL'}
+            helperText={linkError ?? t('linkHelper')}
             slotProps={{
               input: {
                 inputMode: 'url',
@@ -165,10 +168,10 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
             onClose();
           }}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button onClick={handleConfirm} variant="contained" disabled={!canSubmit}>
-          {isEdit ? 'Save' : 'Add'}
+          {isEdit ? t('save') : t('add')}
         </Button>
       </DialogActions>
     </Dialog>

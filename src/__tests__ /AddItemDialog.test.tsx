@@ -1,6 +1,7 @@
 import {describe, it, expect, vi} from 'vitest';
 import {customRender as render, screen} from '../test/render';
 import userEvent from '@testing-library/user-event';
+import '../../src/i18n';
 import AddItemDialog from '@components/AddItemDialog';
 
 const getInputs = () => ({
@@ -17,6 +18,7 @@ describe('AddItemDialog (skeleton logic)', () => {
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     expect(screen.getByText(/add your desired gift/i)).toBeInTheDocument();
+
     const confirmBtn = screen.getByRole('button', {name: /^add$/i});
     expect(confirmBtn).toBeDisabled();
 
@@ -30,11 +32,13 @@ describe('AddItemDialog (skeleton logic)', () => {
 
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'Phone',
-      description: 'cool one',
-      link: undefined,
-    });
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Phone',
+        description: 'cool one',
+        link: undefined,
+      })
+    );
 
     expect((name as HTMLInputElement).value).toBe('');
     expect((description as HTMLInputElement).value).toBe('');
@@ -57,6 +61,7 @@ describe('AddItemDialog (skeleton logic)', () => {
     );
 
     expect(screen.getByText(/edit gift/i)).toBeInTheDocument();
+
     const confirmBtn = screen.getByRole('button', {name: /^save$/i});
     expect(confirmBtn).toBeEnabled();
 
@@ -75,14 +80,15 @@ describe('AddItemDialog (skeleton logic)', () => {
 
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'New',
-      description: 'd',
-      link: 'https://y',
-    });
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'New',
+        description: 'd',
+        link: 'https://y',
+      })
+    );
 
     expect((name as HTMLInputElement).value).toBe('  New   ');
-
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -96,13 +102,14 @@ describe('AddItemDialog (skeleton logic)', () => {
     await userEvent.type(name, '   Gift   ');
     await userEvent.type(name, '{enter}');
 
-    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift'});
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith({name: 'Gift'}));
     expect(onClose).toHaveBeenCalled();
   });
 
   it('Cancel: in Add mode resets, in Edit mode does not reset', async () => {
     const onCloseAdd = vi.fn();
     const onSubmitAdd = vi.fn();
+
     const {rerender} = render(<AddItemDialog open onClose={onCloseAdd} onSubmit={onSubmitAdd}/>);
 
     const addInputs = getInputs();
@@ -114,6 +121,7 @@ describe('AddItemDialog (skeleton logic)', () => {
 
     const onCloseEdit = vi.fn();
     const onSubmitEdit = vi.fn();
+
     rerender(
       <AddItemDialog
         open
@@ -125,6 +133,7 @@ describe('AddItemDialog (skeleton logic)', () => {
 
     const editInputs = getInputs();
     await userEvent.click(screen.getByRole('button', {name: /cancel/i}));
+
     expect(onCloseEdit).toHaveBeenCalled();
     expect((editInputs.name as HTMLInputElement).value).toBe('Prefilled');
   });
@@ -163,6 +172,7 @@ describe('AddItemDialog (skeleton logic)', () => {
   it('Confirm button stays disabled when name is whitespace only', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name} = getInputs();
@@ -177,6 +187,7 @@ describe('AddItemDialog (URL validation)', () => {
   it('Shows error and disables submit for invalid URL', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name, link} = getInputs();
@@ -198,6 +209,7 @@ describe('AddItemDialog (URL validation)', () => {
   it('Accepts domain without protocol and normalizes to https on submit (Add mode)', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name, link} = getInputs();
@@ -209,16 +221,19 @@ describe('AddItemDialog (URL validation)', () => {
     expect(confirmBtn).toBeEnabled();
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'Phone',
-      link: 'https://example.com/item',
-    });
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Phone',
+        link: 'https://example.com/item',
+      })
+    );
     expect(onClose).toHaveBeenCalled();
   });
 
   it('Allows empty link in Add mode (no error, submit enabled)', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name, link} = getInputs();
@@ -230,12 +245,13 @@ describe('AddItemDialog (URL validation)', () => {
     expect(confirmBtn).toBeEnabled();
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({name: 'Book', link: undefined});
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith({name: 'Book', link: undefined}));
   });
 
   it('Edit mode: can clear link and save empty string', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(
       <AddItemDialog
         open
@@ -248,21 +264,24 @@ describe('AddItemDialog (URL validation)', () => {
     const confirmBtn = screen.getByRole('button', {name: /^save$/i});
     const {link} = getInputs();
 
-    await userEvent.clear(link); // очищаем
+    await userEvent.clear(link);
     expect(confirmBtn).toBeEnabled();
 
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'Item',
-      description: 'D',
-      link: '',
-    });
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Item',
+        description: 'D',
+        link: '',
+      })
+    );
   });
 
   it('Accepts http and https schemes', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name, link} = getInputs();
@@ -274,15 +293,18 @@ describe('AddItemDialog (URL validation)', () => {
     expect(confirmBtn).toBeEnabled();
     await userEvent.click(confirmBtn);
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'Cam',
-      link: 'http://shop.test/item?id=1',
-    });
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Cam',
+        link: 'http://shop.test/item?id=1',
+      })
+    );
   });
 
   it('Clears error when user fixes invalid URL', async () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
+
     render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
 
     const {name, link} = getInputs();
@@ -290,22 +312,27 @@ describe('AddItemDialog (URL validation)', () => {
 
     await userEvent.type(name, 'Gift');
     await userEvent.type(link, 'bad');
+
     expect(
       await screen.findByText('Enter a valid URL (e.g. https://example.com/item)')
     ).toBeInTheDocument();
     expect(confirmBtn).toBeDisabled();
 
     await userEvent.clear(link);
-    await userEvent.type(link, 'store.com/gift'); // теперь валидно (нормализуется)
+    await userEvent.type(link, 'store.com/gift');
+
     expect(
       screen.queryByText('Enter a valid URL (e.g. https://example.com/item)')
     ).not.toBeInTheDocument();
     expect(confirmBtn).toBeEnabled();
 
     await userEvent.click(confirmBtn);
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: 'Gift',
-      link: 'https://store.com/gift',
-    });
+
+    await vi.waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Gift',
+        link: 'https://store.com/gift',
+      })
+    );
   });
 });

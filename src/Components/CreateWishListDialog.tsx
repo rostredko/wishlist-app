@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -18,9 +19,12 @@ type Props = {
 };
 
 export function CreateWishListDialog({open, onClose, user}: Props) {
+  const {t, i18n} = useTranslation('create');
   const [title, setTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
+
+  const routeLang = i18n.language === 'ua' ? 'ua' : 'en';
 
   const safeClose = useCallback(() => {
     setTitle('');
@@ -62,12 +66,12 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       }
 
       safeClose();
-      navigate(`/wishlist/${id}`);
+      navigate(`/${routeLang}/wishlist/${id}`);
     } catch (e) {
       console.error('Failed to create wishlist', e);
       setIsCreating(false);
     }
-  }, [user, title, isCreating, navigate, safeClose]);
+  }, [user, title, isCreating, navigate, safeClose, routeLang]);
 
   return (
     <Dialog
@@ -78,13 +82,13 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       aria-labelledby="create-wishlist"
     >
       <DialogTitle id="create-wishlist" sx={{px: 3, pt: 2}}>
-        New wishlist
+        {t('title')}
       </DialogTitle>
 
       <DialogContent sx={{px: 3, pt: 2}}>
         <Stack spacing={2}>
           <TextField
-            label="Wishlist name"
+            label={t('labelName')}
             value={title}
             onChange={e => setTitle(e.target.value)}
             autoFocus
@@ -98,9 +102,9 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       </DialogContent>
 
       <DialogActions sx={{px: 3, pb: 2}}>
-        <Button onClick={safeClose} disabled={isCreating}>Cancel</Button>
+        <Button onClick={safeClose} disabled={isCreating}>{t('cancel')}</Button>
         <Button onClick={handleCreate} variant="contained" disabled={!canCreate}>
-          {isCreating ? 'Creating…' : 'Create'}
+          {isCreating ? t('creating') : t('create')}
         </Button>
       </DialogActions>
     </Dialog>

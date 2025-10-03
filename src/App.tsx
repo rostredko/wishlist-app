@@ -1,39 +1,103 @@
-import {lazy, Suspense} from 'react';
-import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import {lazy, Suspense, useEffect} from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import {Box, CssBaseline, ThemeProvider, CircularProgress} from '@mui/material';
 import {darkTheme} from './theme';
+import Cookies from 'js-cookie';
+import {isProbablyBot, detectPreferredLang, SUPPORTED_LANGS} from './utils/locale';
 
 const HomePage = lazy(() => import('@components/HomePage'));
-
 const WishListItemList = lazy(() =>
-  import('@components/WishListItemList').then((m) => ({default: m.WishListItemList}))
+  import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
-
 import LoginControls from '@components/LoginControls';
+
+function FirstVisitGate() {
+  const nav = useNavigate();
+  const loc = useLocation();
+
+  useEffect(() => {
+    if (isProbablyBot(navigator.userAgent)) return;
+
+    const cookieLang = Cookies.get('lng');
+    if (cookieLang && SUPPORTED_LANGS.includes(cookieLang as any)) {
+      if (loc.pathname === '/') nav(`/${cookieLang}`, { replace: true });
+      return;
+    }
+
+    const preferred = detectPreferredLang(navigator.languages?.[0] || navigator.language);
+    Cookies.set('lng', preferred, { expires: 365, sameSite: 'Lax' });
+    if (loc.pathname === '/') nav(`/${preferred}`, { replace: true });
+  }, [loc.pathname, nav]);
+
+  return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+      <a href="/ua" style={{ marginRight: 16 }}>Українською</a>
+      <a href="/en">English</a>
+    </Box>
+  );
+}
+
+function LocalizedHome({ lng }: { lng: 'ua' | 'en' }) {
+  return <HomePage lang={lng} />;
+}
+
+// редирект со старого нелокализованного пути
+function LegacyWishlistRedirect() {
+  const nav = useNavigate();
+  const { wishlistId } = useParams();
+  useEffect(() => {
+    const cookieLang = Cookies.get('lng');
+    const lng = (cookieLang === 'ua' || cookieLang === 'en')
+      ? cookieLang
+      : detectPreferredLang(navigator.languages?.[0] || navigator.language);
+    nav(`/${lng}/wishlist/${wishlistId}`, { replace: true });
+  }, [nav, wishlistId]);
+  return null;
+}
 
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline/>
+      <CssBaseline />
       <BrowserRouter>
-        <Box sx={{minHeight: '100vh', display: 'flex', flexDirection: 'column'}}>
-          <Box component="main" sx={{flexGrow: 1}}>
+        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <Box component="main" sx={{ flexGrow: 1 }}>
             <Suspense
               fallback={
-                <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4}}>
-                  <CircularProgress/>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                  <CircularProgress />
                 </Box>
               }
             >
               <Routes>
-                <Route path="/" element={<HomePage/>}/>
-                <Route path="/wishlist/:wishlistId" element={<WishListItemList/>}/>
-                <Route path="*" element={<Navigate to="/" replace/>}/>
+                <Route path="/" element={<FirstVisitGate />} />
+
+                {/* локализованные главные */}
+                <Route path="/ua" element={<LocalizedHome lng="ua" />} />
+                <Route path="/en" element={<LocalizedHome lng="en" />} />
+
+                {/* локализованные страницы вишлиста — БЕЗ regex в параметре */}
+                <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
+                {/* на всякий случай поддержим вариант во множественном числе */}
+                <Route path="/:lng/wishlists/:wishlistId" element={<WishListItemList />} />
+
+                {/* легаси без префикса языка */}
+                <Route path="/wishlist/:wishlistId" element={<LegacyWishlistRedirect />} />
+
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
           </Box>
 
-          <LoginControls/>
+          <LoginControls />
         </Box>
       </BrowserRouter>
     </ThemeProvider>

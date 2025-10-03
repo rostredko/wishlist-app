@@ -1,6 +1,7 @@
 import {memo, useMemo} from 'react';
 import {Box, Typography} from '@mui/material';
-import {Link as RouterLink} from 'react-router-dom';
+import {Link as RouterLink, useParams} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 
 import BannerUploader from '@components/BannerUploader';
 import type {WishList} from '@models/WishList';
@@ -16,6 +17,13 @@ const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
   if (!wishlist?.id) return null;
 
   const {id, bannerImage} = wishlist;
+  const {lng} = useParams();
+  const {t} = useTranslation('wishlist');
+
+  const homeHref =
+    lng === 'ua' || lng === 'en'
+      ? `/${lng}`
+      : '/';
 
   const backgroundImage = useMemo(() => {
     return bannerImage
@@ -50,8 +58,8 @@ const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
       >
         <Box
           component={RouterLink}
-          to="/"
-          aria-label="Go to home"
+          to={homeHref}
+          aria-label={t('backToHome')}
           sx={{
             textDecoration: 'none',
             color: 'inherit',

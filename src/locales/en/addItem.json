@@ -1,0 +1,13 @@
+{
+  "titleAdd": "Add your desired gift",
+  "titleEdit": "Edit gift",
+  "labelName": "What is it?",
+  "labelDesc": "Description (optional)",
+  "labelLink": "Link (optional)",
+  "placeholderLink": "https://example.com/item",
+  "linkHelper": "Must be a valid http(s) URL",
+  "linkError": "Enter a valid URL (e.g. https://example.com/item)",
+  "cancel": "Cancel",
+  "save": "Save",
+  "add": "Add"
+}
