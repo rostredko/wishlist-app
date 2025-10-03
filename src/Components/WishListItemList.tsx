@@ -754,13 +754,25 @@ export function WishListItemList() {
         ) : null}
 
         {status === 'found' && wishlist && canEdit && (
-          <Button
-            variant="contained"
-            sx={{mb: 2, mt: 2}}
-            onClick={() => setDialogs((d) => ({...d, addItemOpen: true}))}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: {xs: 'center', sm: 'flex-start'},
+              width: '100%',
+              mb: 2,
+              mt: 2,
+            }}
           >
-            ➕ {t('addGift')}
-          </Button>
+            <Button
+              size="large"
+              variant="contained"
+              onClick={() => setDialogs((d) => ({...d, addItemOpen: true}))}
+              aria-label={t('addGift')}
+              sx={{width: {xs: '100%', sm: 'auto'}}}
+            >
+              ➕ {t('addGift')}
+            </Button>
+          </Box>
         )}
 
         {status === 'found' && (
