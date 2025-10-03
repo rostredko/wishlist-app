@@ -43,8 +43,7 @@ export default function HomePage({lang}: Props) {
       if (i18n.language !== lang) {
         try {
           await i18n.changeLanguage(lang);
-        } catch {
-        }
+        } catch {}
       }
       if (mounted) setReady(true);
     })();
@@ -153,7 +152,13 @@ export default function HomePage({lang}: Props) {
                   {t('what')}
                 </Typography>
 
-                <Stack spacing={1.5} sx={{pl: 0, m: 0}}>
+                <Stack
+                  spacing={2}
+                  sx={{
+                    pl: {xs: 2, sm: 4, md: 4},
+                    m: 0,
+                  }}
+                >
                   {(t('whatList', {returnObjects: true}) as string[]).map((item, idx) => (
                     <Typography
                       key={idx}
@@ -170,7 +175,16 @@ export default function HomePage({lang}: Props) {
                 <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
                   {t('how')}
                 </Typography>
-                <Stack component="ul" sx={{pl: 3, m: 0}} spacing={1}>
+
+                <Stack
+                  component="ul"
+                  spacing={1.5}
+                  sx={{
+                    pl: {xs: 3, sm: 5, md: 6},
+                    m: 0,
+                    listStylePosition: 'outside',
+                  }}
+                >
                   <li><Typography>{t('li1')}</Typography></li>
                   <li><Typography>{t('li2')}</Typography></li>
                   <li><Typography>{t('li3')}</Typography></li>
