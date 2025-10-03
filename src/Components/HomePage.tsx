@@ -152,7 +152,18 @@ export default function HomePage({lang}: Props) {
                 <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
                   {t('what')}
                 </Typography>
-                <Typography>{t('whatText')}</Typography>
+
+                <Stack spacing={1.5} sx={{pl: 0, m: 0}}>
+                  {(t('whatList', { returnObjects: true }) as string[]).map((item, idx) => (
+                    <Typography
+                      key={idx}
+                      variant="body1"
+                      sx={{fontSize: 18, display: 'flex', alignItems: 'flex-start', gap: 1}}
+                    >
+                      {item}
+                    </Typography>
+                  ))}
+                </Stack>
 
                 <Divider/>
 
@@ -170,22 +181,30 @@ export default function HomePage({lang}: Props) {
           </Card>
 
           <Tooltip title={user ? '' : t('createTooltip')} placement="top">
-            <span>
+            <Box sx={{width: {xs: '100%', sm: 'auto'}, display: 'flex', justifyContent: 'center'}}>
               <Button
                 size="large"
                 variant="contained"
                 onClick={handleOpenCreate}
                 disabled={!user}
                 aria-label={t('createBtn')}
+                fullWidth
               >
                 {t('createBtn')}
               </Button>
-            </span>
+            </Box>
           </Tooltip>
 
           {user && (
             <Stack sx={{width: '100%', mt: 4}} spacing={2}>
-              <Typography variant="h5" sx={{fontWeight: 700, fontSize: 24}}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 24,
+                  textAlign: {xs: 'center', md: 'left'},
+                }}
+              >
                 {t('your')}
               </Typography>
 

@@ -4,7 +4,11 @@
   "heroH1": "🎁 WishList App",
   "heroH2": "Minimal wishlist app with only what matters.",
   "what": "✨ What is it?",
-  "whatText": "A clean, distraction-free wishlist application that keeps the core features simple. Just all you need to build a simple wishlist for Birthday, New Year, Secret Santa, Christmas, Wedding, or any other occasion 😄",
+  "whatList": [
+    "🎯 A clean, distraction-free wishlist app with only the core features that you need.",
+    "🆓 Free and accessible from any device.",
+    "🎉 Create a wishlist for Birthday, New Year, Secret Santa 🎅, Christmas, Wedding, or any other occasion."
+  ],
   "how": "🧭 How it works",
   "li1": "Create a wishlist in seconds. Button below.",
   "li2": "Share a private URL with friends. From any device. Free.",
