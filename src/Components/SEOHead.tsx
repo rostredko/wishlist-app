@@ -8,7 +8,7 @@ type SEOHeadProps = {
   lang: Lang;
   canonical?: string;
   image?: string;
-  alternates?: Partial<Record<Lang, string>>; // { en: '/en', uk: '/ua' } – как и было
+  alternates?: Partial<Record<Lang, string>>;
 };
 
 function sanitizeCanonical(rawHref: string) {
@@ -99,14 +99,12 @@ export default function SEOHead({
 
     upsertLink('canonical', href);
 
-    // hreflang alternates
     removeAllManaged('link[rel="alternate"][data-seo-head="1"]');
     const alts = alternates ?? {};
     if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'en'});
     if (alts.uk) upsertLink('alternate', alts.uk, {hreflang: 'uk'});
     if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'x-default'});
 
-    // OpenGraph
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
     upsertMetaByProperty('og:site_name', 'WishList App');
@@ -115,7 +113,6 @@ export default function SEOHead({
     upsertMetaByProperty('og:image', ogImage);
     upsertMetaByProperty('og:url', href);
 
-    // og:locale:alternate для других языков (если передали)
     removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
     (Object.keys(alts) as Lang[])
       .filter((l) => l !== lang && alts[l])
@@ -127,7 +124,6 @@ export default function SEOHead({
         document.head.appendChild(el);
       });
 
-    // Twitter
     upsertMetaByName('twitter:card', 'summary_large_image');
     upsertMetaByName('twitter:title', title);
     upsertMetaByName('twitter:description', description);

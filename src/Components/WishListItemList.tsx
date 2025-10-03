@@ -21,6 +21,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import {
   Box,
@@ -41,6 +42,9 @@ import {
   CardContent,
   Tooltip,
   Snackbar,
+  Menu,
+  MenuItem,
+  ListItemIcon as MuiListItemIcon,
 } from '@mui/material';
 
 import {
@@ -152,21 +156,35 @@ const WishListItemRow = memo(function WishListItemRow({
   const {t} = useTranslation('wishlist');
   const isLockedForGuest = !canEdit && item.claimed;
 
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(menuAnchor);
+  const openMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setMenuAnchor(e.currentTarget);
+  };
+  const closeMenu = (
+    event?: React.MouseEvent<HTMLElement> | {},
+    _reason?: 'escapeKeyDown' | 'backdropClick' | 'tabKeyDown'
+  ) => {
+    if (event && 'stopPropagation' in event) {
+      (event as React.MouseEvent).stopPropagation();
+    }
+    setMenuAnchor(null);
+  };
+
   const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
     const url = item.link ?? undefined;
     if (!url) return;
-
     logClickAndOpen(url, {id: item.id, name: item.name ?? ''});
   };
 
   return (
     <Paper
       sx={{
-        mb: 2,
-        p: 1,
+        mb: 1.5,
+        p: {xs: 0.5, sm: 1},
         borderRadius: 3,
         border: '1px solid #2c2c2c',
         boxShadow: 'none',
@@ -174,7 +192,7 @@ const WishListItemRow = memo(function WishListItemRow({
         '&:hover': {backgroundColor: '#2a2a2a', transform: 'scale(1.02)'},
       }}
     >
-      <ListItem alignItems="flex-start">
+      <ListItem alignItems="flex-start" sx={{py: {xs: 0.25, sm: 0.5}}}>
         <ListItemButton
           aria-disabled={isLockedForGuest}
           onClick={onRowClick}
@@ -183,23 +201,39 @@ const WishListItemRow = memo(function WishListItemRow({
             ...(isLockedForGuest ? {opacity: 0.6} : {}),
             '&:hover': {backgroundColor: '#3d3d3d'},
             width: '100%',
-            pr: 1.5,
+            px: {xs: 1, sm: 1.5},
+            py: {xs: 0.5, sm: 1},
+            alignItems: 'stretch',
           }}
         >
-          <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 2, flexGrow: 1}}>
-            <CustomCheckbox
-              checked={item.claimed}
-              disabled
-              icon={<RadioButtonUncheckedIcon fontSize="small"/>}
-              checkedIcon={<CheckCircleIcon fontSize="small"/>}
-            />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'stretch',
+              gap: {xs: 0.5, sm: 2},
+              flexGrow: 1,
+              minWidth: 0,
+            }}
+          >
+            <Box sx={{flex: '0 0 auto', display: 'flex', alignItems: 'center'}}>
+              <CustomCheckbox
+                checked={item.claimed}
+                disabled
+                icon={<RadioButtonUncheckedIcon fontSize="small"/>}
+                checkedIcon={<CheckCircleIcon fontSize="small"/>}
+              />
+            </Box>
+
             <ListItemText
+              sx={{minWidth: 0, flex: '1 1 auto'}}
               primary={
                 <Typography
                   variant="h6"
                   sx={{
                     textDecoration: item.claimed ? 'line-through' : 'none',
                     color: item.claimed ? 'gray' : 'inherit',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
                   }}
                 >
                   {item.name}
@@ -223,7 +257,18 @@ const WishListItemRow = memo(function WishListItemRow({
                     </>
                   ) : null}
                   {item.description ? (
-                    <Typography variant="body2" color="text.secondary" component="span">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      component="span"
+                      sx={{
+                        display: 'block',
+                        mt: 0.25,
+                        wordBreak: 'break-word',
+                        overflowWrap: 'anywhere',
+                        whiteSpace: 'pre-wrap',
+                      }}
+                    >
                       {item.description}
                     </Typography>
                   ) : null}
@@ -233,32 +278,84 @@ const WishListItemRow = memo(function WishListItemRow({
           </Box>
 
           {canEdit && (
-            <Box sx={{display: 'flex', gap: 0.5, ml: 1}}>
-              <Tooltip title={t('editTitleTooltip')} arrow>
+            <>
+              <Box
+                sx={{
+                  display: {xs: 'none', sm: 'flex'},
+                  gap: 0.5,
+                  ml: 1,
+                  flex: '0 0 auto',
+                  alignSelf: 'center',
+                }}
+              >
+                <Tooltip title={t('editTitleTooltip')} arrow>
+                  <IconButton
+                    size="small"
+                    aria-label={t('editAria')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditClick();
+                    }}
+                  >
+                    <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={t('deleteTitleTooltip')} arrow>
+                  <IconButton
+                    size="small"
+                    aria-label={t('deleteAria')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteClick();
+                    }}
+                  >
+                    <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              <Box sx={{display: {xs: 'flex', sm: 'none'}, ml: 0.25, alignSelf: 'center'}}>
                 <IconButton
                   size="small"
-                  aria-label={t('editAria')}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditClick();
-                  }}
+                  aria-label={t('moreActionsAria', {defaultValue: 'More actions'})}
+                  onClick={openMenu}
                 >
-                  <EditIcon sx={{fontSize: 18, color: '#bbb'}}/>
+                  <MoreVertIcon sx={{fontSize: 18, color: '#aaa'}}/>
                 </IconButton>
-              </Tooltip>
-              <Tooltip title={t('deleteTitleTooltip')} arrow>
-                <IconButton
-                  size="small"
-                  aria-label={t('deleteAria')}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteClick();
-                  }}
+                <Menu
+                  anchorEl={menuAnchor}
+                  open={menuOpen}
+                  onClose={closeMenu}
+                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
                 >
-                  <DeleteIcon sx={{fontSize: 18, color: '#999'}}/>
-                </IconButton>
-              </Tooltip>
-            </Box>
+                  <MenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeMenu(e);
+                      onEditClick();
+                    }}
+                  >
+                    <MuiListItemIcon>
+                      <EditIcon fontSize="small"/>
+                    </MuiListItemIcon>
+                    {t('editTitleTooltip')}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeMenu(e);
+                      onDeleteClick();
+                    }}
+                  >
+                    <MuiListItemIcon>
+                      <DeleteIcon fontSize="small"/>
+                    </MuiListItemIcon>
+                    {t('deleteTitleTooltip')}
+                  </MenuItem>
+                </Menu>
+              </Box>
+            </>
           )}
         </ListItemButton>
       </ListItem>
@@ -419,18 +516,19 @@ export function WishListItemList() {
   }, [setWishlist]);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const canonicalUrl = typeof window !== 'undefined'
-    ? (() => {
-      try {
-        const u = new URL(window.location.href);
-        u.hash = '';
-        u.search = '';
-        return u.toString();
-      } catch {
-        return window.location.href;
-      }
-    })()
-    : '';
+  const canonicalUrl =
+    typeof window !== 'undefined'
+      ? (() => {
+        try {
+          const u = new URL(window.location.href);
+          u.hash = '';
+          u.search = '';
+          return u.toString();
+        } catch {
+          return window.location.href;
+        }
+      })()
+      : '';
 
   const pageTitle =
     status === 'found' && wishlist
@@ -447,7 +545,7 @@ export function WishListItemList() {
         : t('pageDescriptionLoading');
 
   const ogImage =
-    (wishlist && wishlist.bannerImage) ? wishlist.bannerImage : `${origin}/og-image.webp`;
+    wishlist && wishlist.bannerImage ? wishlist.bannerImage : `${origin}/og-image.webp`;
 
   const handleCopyShareLink = useCallback(async () => {
     const shareUrl =
@@ -474,7 +572,6 @@ export function WishListItemList() {
     }
   }, [canonicalUrl, origin, wishlistId, routeLang, t]);
 
-  // hreflang alternate для этой страницы
   const alternates =
     wishlistId && origin
       ? {

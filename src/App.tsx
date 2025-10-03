@@ -49,7 +49,6 @@ function LocalizedHome({ lng }: { lng: 'ua' | 'en' }) {
   return <HomePage lang={lng} />;
 }
 
-// редирект со старого нелокализованного пути
 function LegacyWishlistRedirect() {
   const nav = useNavigate();
   const { wishlistId } = useParams();

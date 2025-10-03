@@ -154,7 +154,7 @@ export default function HomePage({lang}: Props) {
                 </Typography>
 
                 <Stack spacing={1.5} sx={{pl: 0, m: 0}}>
-                  {(t('whatList', { returnObjects: true }) as string[]).map((item, idx) => (
+                  {(t('whatList', {returnObjects: true}) as string[]).map((item, idx) => (
                     <Typography
                       key={idx}
                       variant="body1"
@@ -239,38 +239,45 @@ export default function HomePage({lang}: Props) {
                         variant="outlined"
                         onClick={() => navigate(`/${lang}/wishlist/${wl.id}`)}
                         sx={{
-                          height: '100%',
                           cursor: 'pointer',
                           display: 'flex',
                           transition: 'transform 120ms ease, box-shadow 120ms ease',
                           '&:hover': {transform: 'translateY(-2px)', boxShadow: 6},
                         }}
                       >
-                        <CardContent sx={{width: '100%'}}>
-                          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-                            <Typography
-                              variant="subtitle1"
-                              sx={{
-                                fontWeight: 700,
-                                pr: 1,
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis'
-                              }}
-                            >
-                              {wl.title || t('untitled')}
-                            </Typography>
-                            <IconButton
-                              aria-label={t('deleteAria')}
-                              size="small"
-                              onClick={e => {
-                                e.stopPropagation();
-                                openDeleteDialog(wl.id, wl.title);
-                              }}
-                            >
-                              <DeleteIcon/>
-                            </IconButton>
-                          </Stack>
+                        <CardContent
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            p: 2,
+                            '&:last-child': {pb: 2},
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              fontWeight: 700,
+                              pr: 1,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {wl.title || t('untitled')}
+                          </Typography>
+                          <IconButton
+                            aria-label={t('deleteAria')}
+                            size="small"
+                            onClick={e => {
+                              e.stopPropagation();
+                              openDeleteDialog(wl.id, wl.title);
+                            }}
+                          >
+                            <DeleteIcon/>
+                          </IconButton>
                         </CardContent>
                       </Card>
                     </Grid>
