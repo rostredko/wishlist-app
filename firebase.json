@@ -6,6 +6,8 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "headers": [
       {
         "source": "**/*.@(js|css|woff2|webp|avif)",
@@ -33,6 +35,13 @@
             "value": "no-cache"
           }
         ]
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/index.html",
+        "destination": "/",
+        "type": 301
       }
     ],
     "rewrites": [

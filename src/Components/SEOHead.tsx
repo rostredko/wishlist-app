@@ -2,6 +2,16 @@ import {useEffect} from 'react';
 
 type Lang = 'en' | 'uk';
 
+type ItemListLD =
+  | { name?: string; items: Array<string> }                 // просто названия
+  | { name?: string; items: Array<{ name: string }> };      // объектная форма
+
+type StructuredProps = {
+  website?: boolean;
+  webapp?: boolean;
+  itemList?: ItemListLD | null;
+};
+
 type SEOHeadProps = {
   title: string;
   description: string;
@@ -9,6 +19,7 @@ type SEOHeadProps = {
   canonical?: string;
   image?: string;
   alternates?: Partial<Record<Lang, string>>;
+  structured?: StructuredProps;
 };
 
 function sanitizeCanonical(rawHref: string) {
@@ -107,6 +118,29 @@ function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
   }
 }
 
+function upsertJsonLd(id: string, data: unknown) {
+  const selector = `script[type="application/ld+json"][data-seo-head="1"][data-jsonld-id="${id}"]`;
+  let el = document.head.querySelector<HTMLScriptElement>(selector);
+  const payload = JSON.stringify(data);
+
+  if (!el) {
+    el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.setAttribute('data-seo-head', '1');
+    el.setAttribute('data-jsonld-id', id);
+    document.head.appendChild(el);
+  }
+  if (el.textContent !== payload) {
+    el.textContent = payload;
+  }
+}
+
+function removeAllJsonLd() {
+  document.head
+    .querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"][data-seo-head="1"]')
+    .forEach(n => n.remove());
+}
+
 export default function SEOHead({
                                   title,
                                   description,
@@ -114,6 +148,7 @@ export default function SEOHead({
                                   canonical,
                                   image,
                                   alternates,
+                                  structured,
                                 }: SEOHeadProps) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -151,7 +186,6 @@ export default function SEOHead({
 
     if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), {hreflang: 'en'});
     if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), {hreflang: 'uk'});
-
     upsertLink('alternate', `${origin}/`, {hreflang: 'x-default'});
 
     upsertMetaByProperty('og:locale', ogLocale);
@@ -177,7 +211,48 @@ export default function SEOHead({
     upsertMetaByName('twitter:title', title);
     upsertMetaByName('twitter:description', description);
     upsertMetaByName('twitter:image', ogImage);
-  }, [title, description, lang, canonical, image, alternates]);
+
+    removeAllJsonLd();
+
+    if (structured?.website) {
+      upsertJsonLd('website', {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'WishList App',
+        url: origin + '/',
+      });
+    }
+
+    if (structured?.webapp) {
+      upsertJsonLd('webapp', {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'WishList App',
+        applicationCategory: 'Productivity',
+        operatingSystem: 'Web',
+        url: origin + '/',
+      });
+    }
+
+    if (structured?.itemList) {
+      const src = structured.itemList;
+      const itemsRaw = Array.isArray((src as any).items) ? (src as any).items : [];
+      const names: string[] = itemsRaw.map((it: any) => (typeof it === 'string' ? it : it?.name)).filter(Boolean);
+
+      if (names.length > 0) {
+        upsertJsonLd('itemlist', {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: src.name ?? 'Wishlist',
+          itemListElement: names.map((n, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: n,
+          })),
+        });
+      }
+    }
+  }, [title, description, lang, canonical, image, alternates, structured]);
 
   return null;
 }

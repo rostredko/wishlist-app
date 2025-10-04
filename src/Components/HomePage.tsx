@@ -130,6 +130,7 @@ export default function HomePage({lang}: Props) {
         description={t('desc')}
         alternates={alternates}
         image={`${origin}/og-image.webp`}
+        structured={{ website: true, webapp: true }}
       />
 
       <Container maxWidth="md">

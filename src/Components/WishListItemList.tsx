@@ -580,6 +580,14 @@ export function WishListItemList() {
       }
       : undefined;
 
+  const itemNames = useMemo(
+    () =>
+      items
+        .map((i) => (i?.name ?? '').trim())
+        .filter((n) => n.length > 0),
+    [items]
+  );
+
   let headerContent;
   if (status === 'loading') {
     headerContent = <Skeleton variant="rectangular" height={200} data-testid="skeleton"/>;
@@ -616,6 +624,14 @@ export function WishListItemList() {
         canonical={canonicalUrl}
         image={ogImage}
         alternates={alternates}
+        structured={{
+          website: true,
+          webapp: true,
+          itemList:
+            status === 'found' && wishlist && itemNames.length > 0
+              ? {name: wishlist.title || 'Wishlist', items: itemNames}
+              : null
+        }}
       />
 
       {headerContent}
