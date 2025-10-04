@@ -16,6 +16,7 @@ function sanitizeCanonical(rawHref: string) {
     const url = new URL(rawHref);
     url.hash = '';
     url.search = '';
+    if (!url.pathname) url.pathname = '/';
     return url.toString();
   } catch {
     return rawHref;
@@ -25,6 +26,14 @@ function sanitizeCanonical(rawHref: string) {
 function currentOrigin() {
   if (typeof window !== 'undefined') return window.location.origin;
   return 'https://wishlistapp.com.ua';
+}
+
+function absoluteUrl(href: string) {
+  try {
+    return new URL(href, currentOrigin()).toString();
+  } catch {
+    return href;
+  }
 }
 
 function upsertMetaByName(name: string, content: string) {
@@ -72,6 +81,32 @@ function removeAllManaged(selector: string) {
 
 const toOgLocale = (l: Lang) => (l === 'uk' ? 'uk_UA' : 'en_US');
 
+function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
+  try {
+    const url = new URL(href);
+    const parts = url.pathname.split('/').filter(Boolean);
+
+    if (parts.length === 0) {
+      return {en: `${url.origin}/en/`, uk: `${url.origin}/uk/`};
+    }
+    const [maybeLang, ...rest] = parts;
+    const restPath = rest.join('/');
+    const withSlash = restPath ? `/${restPath}` : '/';
+    const origin = url.origin;
+
+    if (maybeLang !== 'en' && maybeLang !== 'uk') {
+      return {en: `${origin}/en${withSlash}`, uk: `${origin}/uk${withSlash}`};
+    }
+
+    return {
+      en: `${origin}/en${withSlash}`,
+      uk: `${origin}/uk${withSlash}`,
+    };
+  } catch {
+    return {};
+  }
+}
+
 export default function SEOHead({
                                   title,
                                   description,
@@ -86,10 +121,16 @@ export default function SEOHead({
     document.documentElement.lang = lang;
 
     const origin = currentOrigin();
-    const href =
-      canonical ??
-      (typeof window !== 'undefined' ? sanitizeCanonical(window.location.href) : `${origin}/`);
-    const ogImage = image ?? `${origin}/og-image.webp`;
+
+    const href = sanitizeCanonical(
+      canonical
+        ? absoluteUrl(canonical)
+        : (typeof window !== 'undefined'
+          ? new URL(window.location.pathname, origin).toString()
+          : `${origin}/`)
+    );
+
+    const ogImage = absoluteUrl(image ?? `${origin}/og-image.webp`);
     const ogLocale = toOgLocale(lang);
 
     document.title = title;
@@ -97,13 +138,21 @@ export default function SEOHead({
     upsertMetaByName('description', description);
     upsertMetaByName('robots', 'index,follow');
 
+    removeAllManaged('link[rel="canonical"][data-seo-head="1"]');
     upsertLink('canonical', href);
 
     removeAllManaged('link[rel="alternate"][data-seo-head="1"]');
-    const alts = alternates ?? {};
-    if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'en'});
-    if (alts.uk) upsertLink('alternate', alts.uk, {hreflang: 'uk'});
-    if (alts.en) upsertLink('alternate', alts.en, {hreflang: 'x-default'});
+    const alts = Object.keys(alternates ?? {}).length
+      ? (alternates as Partial<Record<Lang, string>>)
+      : buildAlternatesAuto(href);
+
+    const enHref = alts.en ? absoluteUrl(alts.en) : undefined;
+    const ukHref = alts.uk ? absoluteUrl(alts.uk) : undefined;
+
+    if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), {hreflang: 'en'});
+    if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), {hreflang: 'uk'});
+
+    upsertLink('alternate', `${origin}/`, {hreflang: 'x-default'});
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
@@ -114,8 +163,8 @@ export default function SEOHead({
     upsertMetaByProperty('og:url', href);
 
     removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
-    (Object.keys(alts) as Lang[])
-      .filter((l) => l !== lang && alts[l])
+    (['en', 'uk'] as Lang[])
+      .filter((l) => l !== lang && (l === 'en' ? enHref : ukHref))
       .forEach((l) => {
         const el = document.createElement('meta');
         el.setAttribute('property', 'og:locale:alternate');
