@@ -24,7 +24,9 @@ import {useAuth} from '@hooks/useAuth';
 import {CreateWishListDialog} from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import type {WishList} from '@models/WishList';
-import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
+import type {WishListItem} from '@models/WishListItem';
+import {subscribeMyWishlists, deleteWishlistDeep, createWishlist, addGiftItem, getWishlistById, subscribeWishlistItems} from '@api/wishListService';
+import CardActions from '@mui/material/CardActions';
 
 type WLItem = WishList & { id: string };
 type RouteLang = 'ua' | 'en';
@@ -35,7 +37,7 @@ function toSeoLang(lng: RouteLang): 'uk' | 'en' {
 }
 
 export default function HomePage({lang}: Props) {
-  const {t, i18n} = useTranslation('home');
+  const {t, i18n} = useTranslation(['home', 'examples']);
   const [ready, setReady] = useState(false);
   useLayoutEffect(() => {
     let mounted = true;
@@ -122,6 +124,69 @@ export default function HomePage({lang}: Props) {
     ? deleteDialog.title
     : t('untitled');
 
+  const exampleCards = useMemo(() => {
+    const cards = t('examples:cards', { returnObjects: true }) as Array<{ title: string; emoji: string; wishlistId: string }>;
+    if (!Array.isArray(cards)) {
+      return [];
+    }
+    return cards.map(card => ({
+      path: `/${lang}/wishlist/${card.wishlistId}`,
+      title: card.title,
+      emoji: card.emoji,
+      wishlistId: card.wishlistId
+    }));
+  }, [lang, t]);
+
+  const handleCopyExample = useCallback(async (wishlistId: string) => {
+    if (!user?.uid) return;
+    const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+      | ((...args: any[]) => void)
+      | undefined;
+
+    try {
+     
+      const originalWishlist = await getWishlistById(wishlistId);
+      if (!originalWishlist) {
+        console.error('Failed to get original wishlist');
+        return;
+      }
+   
+      const originalItems = await new Promise<WishListItem[]>((resolve) => {
+        const unsub = subscribeWishlistItems(wishlistId, (items) => {
+          unsub();
+          resolve(items);
+        });
+      });
+
+      const newWishlistId = await createWishlist(originalWishlist.title, user.uid);
+      
+      if (!newWishlistId) {
+        console.error('Failed to create wishlist');
+        return;
+      }
+
+      for (const item of originalItems) {
+        await addGiftItem(newWishlistId, { 
+          name: item.name || '',
+          description: item.description || undefined,
+          link: item.link || undefined
+        });
+      }
+
+      if (g) {
+        g('event', 'copy_example_wishlist', {
+          event_category: 'engagement',
+          original_wishlist_id: wishlistId,
+          new_wishlist_id: newWishlistId,
+        });
+      }
+
+      navigate(`/${lang}/wishlist/${newWishlistId}`);
+    } catch (error) {
+      console.error('Error copying example wishlist:', error);
+    }
+  }, [user?.uid, lang, navigate]);
+
   return (
     <Box component="main" sx={{py: {xs: 6, md: 10}, visibility: ready ? 'visible' : 'hidden'}}>
       <SEOHead
@@ -145,7 +210,7 @@ export default function HomePage({lang}: Props) {
           </Stack>
         </Box>
 
-        <Stack spacing={3} alignItems="flex-start">
+        <Stack spacing={3} alignItems="stretch">
           <Card variant="outlined" sx={{bgcolor: 'background.paper'}}>
             <CardContent>
               <Stack spacing={2}>
@@ -191,6 +256,78 @@ export default function HomePage({lang}: Props) {
                   <li><Typography>{t('li3')}</Typography></li>
                   <li><Typography>{t('li4')}</Typography></li>
                 </Stack>
+
+                <Divider/>
+
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: 24,
+                    textAlign: {xs: 'center', md: 'left'},
+                  }}
+                >
+                  {t('examplesTitle')}
+                </Typography>
+                <Grid container spacing={2}>
+                  {exampleCards.map((ex) => (
+                    <Grid key={ex.path} size={{xs: 12, md: 6}}>
+                      <Card
+                        variant="outlined"
+                        onClick={() => navigate(ex.path)}
+                        sx={{
+                          height: '100%',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          px: {xs: 2, sm: 3},
+                          py: {xs: 1.5, sm: 2},
+                          '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' },
+                          transition: 'all 120ms ease',
+                          gap: 2,
+                        }}
+                      >
+                        <Stack direction="row" spacing={2} alignItems="center" sx={{flex: 1, minWidth: 0}}>
+                          <Typography sx={{fontSize: {xs: 24, sm: 28}, lineHeight: 1}}>{ex.emoji}</Typography>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              fontWeight: 700,
+                              pr: 1,
+                              overflow: 'hidden',
+                              whiteSpace: {xs: 'normal', sm: 'normal'},
+                              display: {sm: '-webkit-box'},
+                              WebkitLineClamp: {sm: 2} as any,
+                              WebkitBoxOrient: {sm: 'vertical'} as any,
+                            }}
+                          >
+                            {ex.title}
+                          </Typography>
+                        </Stack>
+                        <CardActions sx={{p: 0, flex: {xs: '0 0 118px', sm: '0 0 110px'}}} onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => handleCopyExample(ex.wishlistId)}
+                            disabled={!user}
+                            sx={{
+                              width: '100%',
+                              py: {xs: 0.4, sm: 0.45},
+                              px: {xs: 0.75, sm: 0.75},
+                              borderRadius: 1.5,
+                              fontSize: {xs: 12, sm: 12},
+                              lineHeight: 1.2,
+                              minHeight: 'auto',
+                            }}
+                          >
+                            {t('createOwn')}
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
               </Stack>
             </CardContent>
           </Card>
@@ -301,6 +438,7 @@ export default function HomePage({lang}: Props) {
               )}
             </Stack>
           )}
+
         </Stack>
       </Container>
 

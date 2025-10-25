@@ -29,4 +29,132 @@
         <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/"/>
     </url>
 
+    <url>
+        <loc>https://wishlistapp.com.ua/uk/birthday-wishlist</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/birthday-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/birthday-wishlist"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/birthday-wishlist</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/birthday-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/birthday-wishlist"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/uk/christmas-wishlist</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/christmas-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/christmas-wishlist"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/christmas-wishlist</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/christmas-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/christmas-wishlist"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/uk/wedding-registry</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/wedding-registry"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wedding-registry"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wedding-registry</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wedding-registry"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/wedding-registry"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/uk/baby-registry</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/baby-registry"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/baby-registry"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/baby-registry</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/baby-registry"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/baby-registry"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/uk/gift-tracker</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/gift-tracker"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/gift-tracker"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/gift-tracker</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/gift-tracker"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/uk/gift-tracker"/>
+    </url>
+
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID"/>
+    </url>
+
 </urlset>

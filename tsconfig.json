@@ -13,7 +13,8 @@
       "@hooks/*": ["hooks/*"],
       "@api/*": ["services/*"],
       "@lib/*": ["firebase/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@utils/*": ["utils/*"]
     }
   }
 }

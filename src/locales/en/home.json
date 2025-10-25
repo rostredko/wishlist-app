@@ -24,4 +24,13 @@
   "untitled": "Untitled wishlist",
   "confirmDelete": "Delete",
   "cancel": "Cancel"
+  ,
+  "faqTitle": "Frequently asked questions",
+  "faq": [
+    {"q": "How to create a wishlist?", "a": "Sign in with Google, click \"Create wishlist\", add items, then share the private link with friends."},
+    {"q": "Is it free?", "a": "Yes. The app is free and works on any device."},
+    {"q": "Can friends claim gifts?", "a": "Yes, friends can anonymously claim items so everyone sees what’s already taken."}
+  ],
+  "examplesTitle": "🎁 Wishlist examples",
+  "createOwn": "Create own"
 }

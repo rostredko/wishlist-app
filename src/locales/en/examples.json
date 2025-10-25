@@ -1,0 +1,24 @@
+{
+  "cards": [
+    {
+      "title": "Christmas gift list 2026",
+      "emoji": "🎄",
+      "wishlistId": "christmas-list"
+    },
+    {
+      "title": "Secret Santa wishlist",
+      "emoji": "🎅",
+      "wishlistId": "secret-santa-list"
+    },
+    {
+      "title": "Birthday wishlist for kids",
+      "emoji": "🎈",
+      "wishlistId": "birthday-kids-list"
+    },
+    {
+      "title": "Birthday wishlist for adults",
+      "emoji": "🎉",
+      "wishlistId": "birthday-adults-list"
+    }
+  ]
+}

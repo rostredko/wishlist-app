@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react';
-import {Button, Box, Typography, Card, CardContent, Stack, Accordion, AccordionSummary, AccordionDetails} from '@mui/material';
+import {Button, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails} from '@mui/material';
 import {signInWithPopup, signOut} from 'firebase/auth';
 import {useTranslation} from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -51,27 +51,25 @@ export default function Footer() {
         alignItems: 'center',
       }}
     >
-      <Card variant="outlined" sx={{bgcolor: 'background.paper', width: '100%', maxWidth: 'md'}}>
-        <CardContent>
-          <Stack spacing={2}>
-            <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
-              {t('home:faqTitle')}
-            </Typography>
-            <Stack>
-              {(t('home:faq', { returnObjects: true }) as Array<{ q: string; a: string }>).map((item, idx) => (
-                <Accordion key={idx} disableGutters square>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography sx={{fontWeight: 600}}>{item.q}</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography>{item.a}</Typography>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </Stack>
+      <Box sx={{width: '100%', maxWidth: 'md'}}>
+        <Stack spacing={2}>
+          <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+            {t('home:faqTitle')}
+          </Typography>
+          <Stack>
+            {(t('home:faq', { returnObjects: true }) as Array<{ q: string; a: string }>).map((item, idx) => (
+              <Accordion key={idx} disableGutters square>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography sx={{fontWeight: 600}}>{item.q}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography>{item.a}</Typography>
+                </AccordionDetails>
+              </Accordion>
+            ))}
           </Stack>
-        </CardContent>
-      </Card>
+        </Stack>
+      </Box>
 
       <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3}}>
         {user ? (

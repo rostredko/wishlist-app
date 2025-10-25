@@ -3,8 +3,8 @@ import {useEffect} from 'react';
 type Lang = 'en' | 'uk';
 
 type ItemListLD =
-  | { name?: string; items: Array<string> }                 // просто названия
-  | { name?: string; items: Array<{ name: string }> };      // объектная форма
+  | { name?: string; items: Array<string> }
+  | { name?: string; items: Array<{ name: string }> };
 
 type StructuredProps = {
   website?: boolean;

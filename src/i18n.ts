@@ -13,6 +13,8 @@ import enCreate from './locales/en/create.json';
 import uaCreate from './locales/ua/create.json';
 import enAuth from './locales/en/auth.json';
 import uaAuth from './locales/ua/auth.json';
+import enExamples from './locales/en/examples.json';
+import uaExamples from './locales/ua/examples.json';
 
 i18n
   .use(initReactI18next)
@@ -24,7 +26,8 @@ i18n
         wishlist: enWishlist,
         confirm: enConfirm,
         create: enCreate,
-        auth: enAuth
+        auth: enAuth,
+        examples: enExamples
       },
       ua: {
         home: uaHome,
@@ -32,13 +35,14 @@ i18n
         wishlist: uaWishlist,
         confirm: uaConfirm,
         create: uaCreate,
-        auth: uaAuth
+        auth: uaAuth,
+        examples: uaExamples
       }
     },
     lng: 'en',
     supportedLngs: ['en','ua'],
     fallbackLng: 'en',
-    ns: ['home', 'addItem', 'wishlist', 'confirm', 'create', 'auth'],
+    ns: ['home', 'addItem', 'wishlist', 'confirm', 'create', 'auth', 'examples'],
     defaultNS: 'home',
     interpolation: { escapeValue: false },
     returnEmptyString: false

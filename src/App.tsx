@@ -17,7 +17,7 @@ const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
-import LoginControls from '@components/LoginControls';
+import Footer from '@components/Footer';
 
 function FirstVisitGate() {
   const nav = useNavigate();
@@ -79,16 +79,13 @@ function App() {
               <Routes>
                 <Route path="/" element={<FirstVisitGate />} />
 
-                {/* локализованные главные */}
                 <Route path="/ua" element={<LocalizedHome lng="ua" />} />
                 <Route path="/en" element={<LocalizedHome lng="en" />} />
 
-                {/* локализованные страницы вишлиста — БЕЗ regex в параметре */}
                 <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
-                {/* на всякий случай поддержим вариант во множественном числе */}
+
                 <Route path="/:lng/wishlists/:wishlistId" element={<WishListItemList />} />
 
-                {/* легаси без префикса языка */}
                 <Route path="/wishlist/:wishlistId" element={<LegacyWishlistRedirect />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
@@ -96,7 +93,7 @@ function App() {
             </Suspense>
           </Box>
 
-          <LoginControls />
+          <Footer />
         </Box>
       </BrowserRouter>
     </ThemeProvider>
