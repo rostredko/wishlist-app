@@ -136,6 +136,13 @@ export default function HomePage({lang}: Props) {
     }));
   }, [lang, t, i18n.language, ready]);
 
+  const faqData = useMemo(() => {
+    if (!ready) return null;
+    const faq = t('faq', { returnObjects: true }) as Array<{ q: string; a: string }>;
+    if (!Array.isArray(faq) || faq.length === 0) return null;
+    return faq;
+  }, [t, i18n.language, ready]);
+
   return (
     <Box component="main" sx={{py: {xs: 6, md: 10}, visibility: ready ? 'visible' : 'hidden'}}>
       <SEOHead
@@ -144,7 +151,13 @@ export default function HomePage({lang}: Props) {
         description={t('desc')}
         alternates={alternates}
         image={`${origin}/og-image.webp`}
-        structured={{ website: true, webapp: true }}
+        structured={{ 
+          website: true, 
+          webapp: true, 
+          organization: true,
+          faq: faqData,
+          howTo: true
+        }}
         keywords={lang === 'ua' 
           ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
           : 'wishlist, gift list, birthday, christmas, wedding, free, create wishlist, share wishlist'}

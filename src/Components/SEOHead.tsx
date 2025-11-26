@@ -6,10 +6,24 @@ type ItemListLD =
   | { name?: string; items: Array<string> }
   | { name?: string; items: Array<{ name: string }> };
 
+type FAQItem = {
+  q: string;
+  a: string;
+};
+
+type BreadcrumbItem = {
+  name: string;
+  url: string;
+};
+
 type StructuredProps = {
   website?: boolean;
   webapp?: boolean;
   itemList?: ItemListLD | null;
+  organization?: boolean;
+  faq?: FAQItem[] | null;
+  howTo?: boolean;
+  breadcrumbs?: BreadcrumbItem[] | null;
 };
 
 type SEOHeadProps = {
@@ -99,20 +113,20 @@ function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
     const parts = url.pathname.split('/').filter(Boolean);
 
     if (parts.length === 0) {
-      return {en: `${url.origin}/en/`, uk: `${url.origin}/uk/`};
+      return {en: `${url.origin}/en/`, uk: `${url.origin}/ua/`};
     }
     const [maybeLang, ...rest] = parts;
     const restPath = rest.join('/');
     const withSlash = restPath ? `/${restPath}` : '/';
     const origin = url.origin;
 
-    if (maybeLang !== 'en' && maybeLang !== 'uk') {
-      return {en: `${origin}/en${withSlash}`, uk: `${origin}/uk${withSlash}`};
+    if (maybeLang !== 'en' && maybeLang !== 'ua') {
+      return {en: `${origin}/en${withSlash}`, uk: `${origin}/ua${withSlash}`};
     }
 
     return {
       en: `${origin}/en${withSlash}`,
-      uk: `${origin}/uk${withSlash}`,
+      uk: `${origin}/ua${withSlash}`,
     };
   } catch {
     return {};
@@ -204,6 +218,7 @@ export default function SEOHead({
     upsertMetaByProperty('og:image:width', '1200');
     upsertMetaByProperty('og:image:height', '630');
     upsertMetaByProperty('og:image:type', 'image/webp');
+    upsertMetaByProperty('og:image:alt', title);
     upsertMetaByProperty('og:url', href);
 
     removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
@@ -286,6 +301,81 @@ export default function SEOHead({
           })),
         });
       }
+    }
+
+    if (structured?.organization) {
+      upsertJsonLd('organization', {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'WishList App',
+        url: origin + '/',
+        logo: `${origin}/og-image.webp`,
+        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        sameAs: [],
+      });
+    }
+
+    if (structured?.faq && Array.isArray(structured.faq) && structured.faq.length > 0) {
+      upsertJsonLd('faq', {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: structured.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.a,
+          },
+        })),
+      });
+    }
+
+    if (structured?.howTo) {
+      upsertJsonLd('howto', {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: 'How to use WishList App',
+        description: 'Learn how to create and share wishlists with friends using WishList App',
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: 'Create a wishlist',
+            text: 'Sign in with Google and click "Create wishlist" button to start.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: 'Share the link',
+            text: 'Share the private URL with friends. Works from any device and is completely free.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: 'Friends claim gifts',
+            text: 'Friends can anonymously claim gifts so everyone sees what\'s already taken.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 4,
+            name: 'Manage your lists',
+            text: 'Sign in with Google to manage and organize all your wishlists.',
+          },
+        ],
+      });
+    }
+
+    if (structured?.breadcrumbs && Array.isArray(structured.breadcrumbs) && structured.breadcrumbs.length > 0) {
+      upsertJsonLd('breadcrumbs', {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: structured.breadcrumbs.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: absoluteUrl(item.url),
+        })),
+      });
     }
   }, [title, description, lang, canonical, image, alternates, structured, keywords]);
 

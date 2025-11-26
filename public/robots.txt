@@ -1,16 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /wishlist/
 
-# Allow example wishlists for SEO
-Allow: /en/wishlist/christmas-list
-Allow: /en/wishlist/secret-santa-list
-Allow: /en/wishlist/birthday-list
-Allow: /en/wishlist/wedding-list
-Allow: /ua/wishlist/christmas-list-ua
-Allow: /ua/wishlist/secret-santa-list-ua
-Allow: /ua/wishlist/birthday-list-ua
-Allow: /ua/wishlist/wedding-list-ua
+# Allow all wishlist pages - they are public and can be indexed
+# Private wishlists are protected by authentication, so they won't be accessible anyway
+Allow: /en/wishlist/
+Allow: /ua/wishlist/
 
 # Crawl delay to be respectful
 Crawl-delay: 1

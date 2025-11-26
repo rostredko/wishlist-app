@@ -2,16 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
+    <!-- Homepage (root) - redirects to language-specific pages -->
     <url>
         <loc>https://wishlistapp.com.ua/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/"/>
+        <priority>1.0</priority>
         <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/"/>
     </url>
 
+    <!-- Ukrainian homepage -->
     <url>
         <loc>https://wishlistapp.com.ua/ua/</loc>
         <lastmod>2025-11-26</lastmod>
@@ -19,9 +21,10 @@
         <priority>1.0</priority>
         <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/"/>
-        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/"/>
     </url>
 
+    <!-- English homepage -->
     <url>
         <loc>https://wishlistapp.com.ua/en/</loc>
         <lastmod>2025-11-26</lastmod>
@@ -29,153 +32,7 @@
         <priority>1.0</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/"/>
         <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/"/>
-        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/"/>
-    </url>
-
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/birthday-wishlist</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/birthday-wishlist"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/birthday-wishlist"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/birthday-wishlist</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/birthday-wishlist"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/birthday-wishlist"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/christmas-wishlist</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/christmas-wishlist"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/christmas-wishlist"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/christmas-wishlist</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/christmas-wishlist"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/christmas-wishlist"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wedding-registry</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wedding-registry"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wedding-registry"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wedding-registry</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wedding-registry"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wedding-registry"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/baby-registry</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/baby-registry"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/baby-registry"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/baby-registry</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/baby-registry"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/baby-registry"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/gift-tracker</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/gift-tracker"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/gift-tracker"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/gift-tracker</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/gift-tracker"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/gift-tracker"/>
-    </url>
-
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/CHRISTMAS_2025_ID"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/CHRISTMAS_2025_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/SECRET_SANTA_ID"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/SECRET_SANTA_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_KIDS_ID"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_KIDS_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/BIRTHDAY_ADULTS_ID"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/BIRTHDAY_ADULTS_ID"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/"/>
     </url>
 
 </urlset>

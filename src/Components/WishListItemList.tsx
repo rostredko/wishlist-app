@@ -750,7 +750,20 @@ export function WishListItemList() {
           itemList:
             status === 'found' && wishlist && itemNames.length > 0
               ? {name: wishlist.title || 'Wishlist', items: itemNames}
-              : null
+              : null,
+          breadcrumbs:
+            status === 'found' && wishlist && origin
+              ? [
+                  {
+                    name: routeLang === 'ua' ? 'Головна' : 'Home',
+                    url: `${origin}/${routeLang}/`,
+                  },
+                  {
+                    name: wishlist.title || (routeLang === 'ua' ? 'Список бажань' : 'Wishlist'),
+                    url: canonicalUrl,
+                  },
+                ]
+              : null,
         }}
       />
 
