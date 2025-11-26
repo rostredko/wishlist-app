@@ -1,5 +1,5 @@
-import {useCallback, useState, useEffect} from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {useCallback, useState} from 'react';
+import {useLocation} from 'react-router-dom';
 import {Button, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails} from '@mui/material';
 import {signInWithPopup, signInWithRedirect, signOut} from 'firebase/auth';
 import {useTranslation} from 'react-i18next';
@@ -11,7 +11,6 @@ import {shouldUseRedirect} from '@utils/auth';
 
 export default function Footer() {
   const location = useLocation();
-  const navigate = useNavigate();
   const isHomePage = location.pathname === '/ua' || location.pathname === '/en' || location.pathname === '/';
   const {t} = useTranslation(['auth', 'home']);
   const {user, isAdmin} = useAuth();
