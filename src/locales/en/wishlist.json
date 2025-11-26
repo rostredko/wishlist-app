@@ -23,5 +23,8 @@
   "yes": "Yes",
   "no": "No",
   "linkCopied": "Link copied",
-  "copyFallbackPrompt": "Copy this link:"
+  "copyFallbackPrompt": "Copy this link:",
+  "copyWishlist": "Copy wishlist to yourself",
+  "copyWishlistTooltip": "Copy this wishlist to your account",
+  "copyWishlistAria": "Copy wishlist to yourself"
 }

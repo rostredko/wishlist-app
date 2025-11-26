@@ -2,7 +2,7 @@ export const SUPPORTED_LANGS = ['en', 'ua'] as const;
 export type SupportedLang = typeof SUPPORTED_LANGS[number];
 
 export function detectPreferredLang(langHeader: string): SupportedLang {
-  console.log(langHeader)
+  // Language detected from Accept-Language header
   const l = (langHeader || '').toLowerCase();
   if (l.startsWith('uk') || l.startsWith('ua') || l.startsWith('ru')) return 'ua';
   return 'en';

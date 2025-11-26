@@ -11,14 +11,14 @@
       "wishlistId": "secret-santa-list"
     },
     {
-      "title": "Birthday wishlist for kids",
+      "title": "Birthday wishlist",
       "emoji": "🎈",
-      "wishlistId": "birthday-kids-list"
+      "wishlistId": "birthday-list"
     },
     {
-      "title": "Birthday wishlist for adults",
+      "title": "Wedding registry",
       "emoji": "🎉",
-      "wishlistId": "birthday-adults-list"
+      "wishlistId": "wedding-list"
     }
   ]
 }

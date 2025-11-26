@@ -23,5 +23,8 @@
   "yes": "Так",
   "no": "Ні",
   "linkCopied": "Посилання скопійовано",
-  "copyFallbackPrompt": "Скопіюйте це посилання:"
+  "copyFallbackPrompt": "Скопіюйте це посилання:",
+  "copyWishlist": "Копіювати собі вішліст",
+  "copyWishlistTooltip": "Скопіювати цей вішліст до свого акаунту",
+  "copyWishlistAria": "Копіювати собі вішліст"
 }

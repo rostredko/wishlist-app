@@ -22,6 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 import {
   Box,
@@ -55,6 +56,7 @@ import {
   toggleGiftClaimStatus,
   subscribeWishlistItems,
   updateGiftItem,
+  createWishlist,
 } from '@api/wishListService';
 
 type DialogsState = {
@@ -209,7 +211,7 @@ const WishListItemRow = memo(function WishListItemRow({
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'stretch',
+              alignItems: 'center',
               gap: {xs: 0.5, sm: 2},
               flexGrow: 1,
               minWidth: 0,
@@ -225,7 +227,7 @@ const WishListItemRow = memo(function WishListItemRow({
             </Box>
 
             <ListItemText
-              sx={{minWidth: 0, flex: '1 1 auto'}}
+              sx={{minWidth: 0, flex: '1 1 auto', my: 0}}
               primary={
                 <Typography
                   variant="h6"
@@ -367,7 +369,7 @@ type RouteLang = 'ua' | 'en';
 const toSeoLang = (lng: RouteLang): 'uk' | 'en' => (lng === 'ua' ? 'uk' : 'en');
 
 export function WishListItemList() {
-  const {t, i18n} = useTranslation('wishlist');
+  const {t, i18n} = useTranslation(['wishlist', 'examples']);
   const {user, isAdmin} = useAuth();
   const {wishlistId, lng} = useParams();
   const routeLang = (lng === 'ua' || lng === 'en' ? lng : 'en') as RouteLang;
@@ -411,6 +413,14 @@ export function WishListItemList() {
   });
 
   const [copySnackOpen, setCopySnackOpen] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
+  // Локальное состояние для claimed статусов примеров вишлистов (только для текущей сессии)
+  const [exampleClaimedItems, setExampleClaimedItems] = useState<Set<string>>(new Set());
+
+  // Очищаем локальное состояние при смене вишлиста
+  useEffect(() => {
+    setExampleClaimedItems(new Set());
+  }, [wishlistId]);
 
   useEffect(() => {
     if (status === 'found' && wishlist) {
@@ -428,20 +438,71 @@ export function WishListItemList() {
     [status, isAdmin, user, wishlist],
   );
 
+  const isExampleWishlist = useMemo(() => {
+    if (!wishlistId) return false;
+    try {
+      const cards = t('examples:cards', { returnObjects: true }) as Array<{ title: string; emoji: string; wishlistId: string }>;
+      if (!Array.isArray(cards)) return false;
+      return cards.some(card => card.wishlistId === wishlistId);
+    } catch {
+      return false;
+    }
+  }, [wishlistId, t]);
+
+  const canCopyWishlist = useMemo(() => {
+    if (!user || !wishlist) return false;
+    // Показываем кнопку если это пример вишлиста
+    if (isExampleWishlist) return true;
+    // Показываем кнопку если вишлист не принадлежит пользователю (включая админа)
+    return wishlist.ownerUid !== user.uid;
+  }, [user, wishlist, isExampleWishlist]);
+
+  // Функция для получения актуального claimed статуса
+  const getItemClaimedStatus = useCallback(
+    (item: WishListItem): boolean => {
+      if (isExampleWishlist) {
+        // Для примеров вишлистов используем локальное состояние
+        return exampleClaimedItems.has(item.id);
+      }
+      // Для обычных вишлистов используем статус из базы
+      return item.claimed;
+    },
+    [isExampleWishlist, exampleClaimedItems],
+  );
+
   const handleClaimToggle = useCallback(
     async (item: WishListItem) => {
       try {
-        if (!canEdit && item.claimed) return;
+        const currentClaimed = getItemClaimedStatus(item);
+        if (!canEdit && currentClaimed) return;
         if (!wishlistId) return;
-        await toggleGiftClaimStatus(wishlistId, item.id, item.claimed);
-        if (!canEdit && !item.claimed) {
-          confetti({particleCount: 200, spread: 120, gravity: 0.8});
+
+        if (isExampleWishlist) {
+          // Для примеров вишлистов обновляем только локальное состояние
+          setExampleClaimedItems((prev) => {
+            const next = new Set(prev);
+            if (currentClaimed) {
+              next.delete(item.id);
+            } else {
+              next.add(item.id);
+            }
+            return next;
+          });
+          if (!canEdit && !currentClaimed) {
+            confetti({particleCount: 200, spread: 120, gravity: 0.8});
+          }
+        } else {
+          // Для обычных вишлистов сохраняем в базу
+          await toggleGiftClaimStatus(wishlistId, item.id, currentClaimed);
+          if (!canEdit && !currentClaimed) {
+            confetti({particleCount: 200, spread: 120, gravity: 0.8});
+          }
         }
       } catch (error) {
         console.error('Claim toggle error:', error);
       }
     },
-    [canEdit, wishlistId],
+    [canEdit, wishlistId, isExampleWishlist, getItemClaimedStatus],
   );
 
   const handleAddItem = useCallback(
@@ -572,6 +633,56 @@ export function WishListItemList() {
     }
   }, [canonicalUrl, origin, wishlistId, routeLang, t]);
 
+  const handleCopyWishlist = useCallback(async () => {
+    if (!user?.uid || !wishlistId || !wishlist) return;
+    
+    setIsCopying(true);
+    const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
+      | ((...args: any[]) => void)
+      | undefined;
+
+    try {
+      const originalItems = await new Promise<WishListItem[]>((resolve) => {
+        let unsub: (() => void) | null = null;
+        unsub = subscribeWishlistItems(wishlistId, (items) => {
+          if (unsub) {
+            unsub();
+          }
+          resolve(items);
+        });
+      });
+
+      const newWishlistId = await createWishlist(wishlist.title || t('unnamed'), user.uid);
+      
+      if (!newWishlistId) {
+        console.error('Failed to create wishlist');
+        return;
+      }
+
+      for (const item of originalItems) {
+        await addGiftItem(newWishlistId, { 
+          name: item.name || '',
+          description: item.description || undefined,
+          link: item.link || undefined
+        });
+      }
+
+      if (g) {
+        g('event', 'copy_example_wishlist', {
+          event_category: 'engagement',
+          original_wishlist_id: wishlistId,
+          new_wishlist_id: newWishlistId,
+        });
+      }
+
+      navigate(`/${routeLang}/wishlist/${newWishlistId}`);
+    } catch (error) {
+      console.error('Error copying wishlist:', error);
+    } finally {
+      setIsCopying(false);
+    }
+  }, [user?.uid, wishlistId, wishlist, routeLang, navigate, t]);
+
   const alternates =
     wishlistId && origin
       ? {
@@ -593,7 +704,7 @@ export function WishListItemList() {
     headerContent = <Skeleton variant="rectangular" height={200} data-testid="skeleton"/>;
   } else if (status === 'found' && wishlist) {
     headerContent = (
-      <WishlistHeader wishlist={wishlist} canEdit={canEdit} onBannerUpload={handleBannerUpload}/>
+      <WishlistHeader wishlist={wishlist} canEdit={canEdit} isExampleWishlist={isExampleWishlist} isAdmin={isAdmin} onBannerUpload={handleBannerUpload}/>
     );
   } else {
     headerContent = (
@@ -624,6 +735,15 @@ export function WishListItemList() {
         canonical={canonicalUrl}
         image={ogImage}
         alternates={alternates}
+        keywords={
+          status === 'found' && wishlist
+            ? routeLang === 'ua'
+              ? `вішліст, ${wishlist.title || 'список бажань'}, подарунки, день народження, різдво, весілля, безкоштовно`
+              : `wishlist, ${wishlist.title || 'gift list'}, gifts, birthday, christmas, wedding, free`
+            : routeLang === 'ua'
+              ? 'вішліст, список бажань, подарунки'
+              : 'wishlist, gift list, gifts'
+        }
         structured={{
           website: true,
           webapp: true,
@@ -735,11 +855,33 @@ export function WishListItemList() {
                 )}
 
                 {status === 'found' && wishlist && (
-                  <Tooltip title={t('copyLinkTooltip')} arrow>
+                  <>
+                    <Tooltip title={t('copyLinkTooltip')} arrow>
+                      <IconButton
+                        aria-label={t('copyLinkAria')}
+                        size="small"
+                        onClick={handleCopyShareLink}
+                        sx={{
+                          color: 'text.secondary',
+                          opacity: 0.6,
+                          '&:hover': {
+                            opacity: 1,
+                            color: 'text.primary',
+                          },
+                        }}
+                      >
+                        <ContentCopyIcon fontSize="small"/>
+                      </IconButton>
+                    </Tooltip>
+                  </>
+                )}
+                {status === 'found' && wishlist && user && canCopyWishlist && (
+                  <Tooltip title={t('copyWishlistTooltip')} arrow>
                     <IconButton
-                      aria-label={t('copyLinkAria')}
+                      aria-label={t('copyWishlistAria')}
                       size="small"
-                      onClick={handleCopyShareLink}
+                      onClick={handleCopyWishlist}
+                      disabled={isCopying}
                       sx={{
                         color: 'text.secondary',
                         opacity: 0.6,
@@ -747,9 +889,12 @@ export function WishListItemList() {
                           opacity: 1,
                           color: 'text.primary',
                         },
+                        '&:disabled': {
+                          opacity: 0.3,
+                        },
                       }}
                     >
-                      <ContentCopyIcon fontSize="small"/>
+                      <FileCopyIcon fontSize="small"/>
                     </IconButton>
                   </Tooltip>
                 )}
@@ -794,17 +939,24 @@ export function WishListItemList() {
         {status === 'found' && (
           <List>
             {items.map((item) => {
-              const isLockedForGuest = !canEdit && item.claimed;
+              // Получаем актуальный claimed статус (из базы для обычных, из локального состояния для примеров)
+              const actualClaimed = getItemClaimedStatus(item);
+              // Создаем модифицированный item с актуальным claimed статусом
+              const itemWithActualClaimed: WishListItem = {
+                ...item,
+                claimed: actualClaimed,
+              };
+              const isLockedForGuest = !canEdit && actualClaimed;
               return (
                 <WishListItemRow
                   key={item.id}
-                  item={item}
+                  item={itemWithActualClaimed}
                   canEdit={canEdit}
                   onRowClick={() => {
                     if (isLockedForGuest) return;
                     if (canEdit) {
                       handleClaimToggle(item);
-                    } else if (!item.claimed) {
+                    } else if (!actualClaimed) {
                       setSelection((s) => ({...s, selectedItem: item}));
                       setDialogs((d) => ({...d, claimConfirmOpen: true}));
                     }

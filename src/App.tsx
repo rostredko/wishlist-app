@@ -9,9 +9,11 @@ import {
   useParams,
 } from 'react-router-dom';
 import {Box, CssBaseline, ThemeProvider, CircularProgress} from '@mui/material';
+import {getRedirectResult} from 'firebase/auth';
 import {darkTheme} from './theme';
 import Cookies from 'js-cookie';
 import {isProbablyBot, detectPreferredLang, SUPPORTED_LANGS} from './utils/locale';
+import {auth} from '@lib/firebase';
 
 const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
@@ -62,11 +64,51 @@ function LegacyWishlistRedirect() {
   return null;
 }
 
+function AuthRedirectHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Handle redirect result after Google OAuth redirect
+    // This must be called only once per app load, as Firebase clears the result after first call
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          // User successfully signed in via redirect
+          // Auth state will update automatically via onAuthStateChanged
+          // Try to navigate back to the saved URL
+          try {
+            const returnUrl = sessionStorage.getItem('auth_return_url');
+            if (returnUrl && returnUrl !== location.pathname) {
+              navigate(returnUrl);
+            }
+            sessionStorage.removeItem('auth_return_url');
+          } catch {
+            // sessionStorage not available, stay on current page
+          }
+        }
+      })
+      .catch((error) => {
+        // Ignore expected errors (user cancelled, etc.)
+        if (
+          error.code !== 'auth/operation-not-allowed' &&
+          error.code !== 'auth/popup-closed-by-user' &&
+          !error.message?.includes('initial state')
+        ) {
+          console.error('Auth redirect error:', error);
+        }
+      });
+  }, []); // Empty deps - only run once on mount
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
+        <AuthRedirectHandler />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Suspense

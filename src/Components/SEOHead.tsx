@@ -20,6 +20,7 @@ type SEOHeadProps = {
   image?: string;
   alternates?: Partial<Record<Lang, string>>;
   structured?: StructuredProps;
+  keywords?: string;
 };
 
 function sanitizeCanonical(rawHref: string) {
@@ -149,6 +150,7 @@ export default function SEOHead({
                                   image,
                                   alternates,
                                   structured,
+                                  keywords,
                                 }: SEOHeadProps) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -171,7 +173,12 @@ export default function SEOHead({
     document.title = title;
 
     upsertMetaByName('description', description);
-    upsertMetaByName('robots', 'index,follow');
+    if (keywords) {
+      upsertMetaByName('keywords', keywords);
+    }
+    upsertMetaByName('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
+    upsertMetaByName('viewport', 'width=device-width, initial-scale=1');
+    upsertMetaByName('theme-color', '#1976d2');
 
     removeAllManaged('link[rel="canonical"][data-seo-head="1"]');
     upsertLink('canonical', href);
@@ -194,6 +201,9 @@ export default function SEOHead({
     upsertMetaByProperty('og:title', title);
     upsertMetaByProperty('og:description', description);
     upsertMetaByProperty('og:image', ogImage);
+    upsertMetaByProperty('og:image:width', '1200');
+    upsertMetaByProperty('og:image:height', '630');
+    upsertMetaByProperty('og:image:type', 'image/webp');
     upsertMetaByProperty('og:url', href);
 
     removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
@@ -220,6 +230,16 @@ export default function SEOHead({
         '@type': 'WebSite',
         name: 'WishList App',
         url: origin + '/',
+        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        inLanguage: [lang === 'uk' ? 'uk-UA' : 'en-US'],
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: origin + '/?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
       });
     }
 
@@ -228,9 +248,22 @@ export default function SEOHead({
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
         name: 'WishList App',
-        applicationCategory: 'Productivity',
+        applicationCategory: 'ProductivityApplication',
         operatingSystem: 'Web',
         url: origin + '/',
+        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        featureList: [
+          'Create wishlists',
+          'Share private links',
+          'Anonymous gift claiming',
+          'Multi-language support',
+          'Free to use',
+        ],
       });
     }
 
@@ -244,6 +277,8 @@ export default function SEOHead({
           '@context': 'https://schema.org',
           '@type': 'ItemList',
           name: src.name ?? 'Wishlist',
+          description: `Wishlist items: ${names.slice(0, 5).join(', ')}${names.length > 5 ? '...' : ''}`,
+          numberOfItems: names.length,
           itemListElement: names.map((n, i) => ({
             '@type': 'ListItem',
             position: i + 1,
@@ -252,7 +287,7 @@ export default function SEOHead({
         });
       }
     }
-  }, [title, description, lang, canonical, image, alternates, structured]);
+  }, [title, description, lang, canonical, image, alternates, structured, keywords]);
 
   return null;
 }

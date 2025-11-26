@@ -17,11 +17,19 @@ vi.mock('@lib/firebase', () => ({
 }));
 
 const signInWithPopup = vi.fn();
+const signInWithRedirect = vi.fn();
+const getRedirectResult = vi.fn();
 const signOut = vi.fn();
 
 vi.mock('firebase/auth', () => ({
   signInWithPopup: (...args: any[]) => signInWithPopup(...args),
+  signInWithRedirect: (...args: any[]) => signInWithRedirect(...args),
+  getRedirectResult: (...args: any[]) => getRedirectResult(...args),
   signOut: (...args: any[]) => signOut(...args),
+}));
+
+vi.mock('@utils/auth', () => ({
+  shouldUseRedirect: vi.fn(() => false), // Default to popup for tests
 }));
 
 import LoginControls from '@components/LoginControls';
@@ -32,7 +40,11 @@ describe('LoginControls (skeleton behavior)', () => {
     hoisted.authState.isAdmin = false;
 
     signInWithPopup.mockReset();
+    signInWithRedirect.mockReset();
+    getRedirectResult.mockReset();
     signOut.mockReset();
+    
+    getRedirectResult.mockResolvedValue(null); // No pending redirect by default
 
     vi.spyOn(window, 'alert').mockImplementation(() => {
     });

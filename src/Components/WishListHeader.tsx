@@ -10,10 +10,12 @@ import GiftLogo from '@assets/favicon.png';
 type Props = {
   wishlist: WishList | null;
   canEdit: boolean;
+  isExampleWishlist?: boolean;
+  isAdmin?: boolean;
   onBannerUpload: (newUrl: string) => void;
 };
 
-const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
+const WishlistHeader = ({wishlist, canEdit, isExampleWishlist = false, isAdmin = false, onBannerUpload}: Props) => {
   if (!wishlist?.id) return null;
 
   const {id, bannerImage} = wishlist;
@@ -80,7 +82,7 @@ const WishlistHeader = ({wishlist, canEdit, onBannerUpload}: Props) => {
           </Typography>
         </Box>
 
-        {canEdit && (
+        {canEdit && (!isExampleWishlist || isAdmin) && (
           <BannerUploader
             wishlistId={id}
             canEdit={canEdit}
