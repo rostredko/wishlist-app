@@ -11,6 +11,7 @@ import {
   Stack,
 } from '@mui/material';
 import {createWishlist} from '@api/wishListService';
+import {trackEvent} from '@utils/analytics';
 
 type Props = {
   open: boolean;
@@ -53,19 +54,23 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       setIsCreating(true);
       const id = await createWishlist(name, user.uid);
 
-      const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
-        | ((...args: any[]) => void)
-        | undefined;
-      if (g) {
-        g('event', 'wishlist_create', {
-          event_category: 'engagement',
-          event_label: name,
-          wishlist_id: id,
-          user_id: user.uid,
-        });
-      }
+      // Track wishlist creation event with improved parameters
+      trackEvent('wishlist_create', {
+        event_category: 'engagement',
+        event_label: name,
+        wishlist_id: id,
+        user_id: user.uid,
+        value: 1, // Conversion value
+      }).catch((error) => {
+        console.error('Failed to track wishlist_create event:', error);
+      });
 
       safeClose();
+      
+      // Small delay to ensure event is sent before navigation
+      // This helps prevent event loss during page transition
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       navigate(`/${routeLang}/wishlist/${id}`);
     } catch (e) {
       console.error('Failed to create wishlist', e);

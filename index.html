@@ -21,17 +21,21 @@
 
     <script defer src="https://www.googletagmanager.com/gtag/js?id=G-X8QM3ZWMZ8"></script>
     <script>
+        // Initialize dataLayer immediately
+        window.dataLayer = window.dataLayer || [];
+
+        // Define and export gtag function globally
+        function gtag() {
+            window.dataLayer.push(arguments);
+        }
+        window.gtag = gtag;
+
+        // Initialize GA config after page load with low priority (no delay)
         window.addEventListener('load', () => {
             (window.requestIdleCallback || setTimeout)(() => {
-                window.dataLayer = window.dataLayer || [];
-
-                function gtag() {
-                    dataLayer.push(arguments);
-                }
-
                 gtag('js', new Date());
                 gtag('config', 'G-X8QM3ZWMZ8', {send_page_view: false});
-            }, 1200);
+            });
         });
     </script>
 

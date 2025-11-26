@@ -1,4 +1,4 @@
-import {lazy, Suspense, useEffect} from 'react';
+import {lazy, Suspense, useEffect, useRef} from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -14,6 +14,7 @@ import {darkTheme} from './theme';
 import Cookies from 'js-cookie';
 import {isProbablyBot, detectPreferredLang, SUPPORTED_LANGS} from './utils/locale';
 import {auth} from '@lib/firebase';
+import {trackPageView} from './utils/analytics';
 
 const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
@@ -103,12 +104,38 @@ function AuthRedirectHandler() {
   return null;
 }
 
+function RouteTracker() {
+  const location = useLocation();
+  const prevPathRef = useRef<string>('');
+
+  useEffect(() => {
+    // Skip tracking if this is the first page load and path hasn't changed
+    // (to avoid duplicate page_view events)
+    const currentPath = location.pathname + location.search;
+    
+    if (prevPathRef.current === currentPath) {
+      return;
+    }
+
+    // Track page view
+    const pageTitle = typeof document !== 'undefined' ? document.title : '';
+    trackPageView(currentPath, pageTitle).catch((error) => {
+      console.error('Failed to track page view:', error);
+    });
+
+    prevPathRef.current = currentPath;
+  }, [location.pathname, location.search]);
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
         <AuthRedirectHandler />
+        <RouteTracker />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Suspense

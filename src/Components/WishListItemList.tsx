@@ -58,6 +58,7 @@ import {
   updateGiftItem,
   createWishlist,
 } from '@api/wishListService';
+import {trackEvent} from '@utils/analytics';
 
 type DialogsState = {
   claimConfirmOpen: boolean;
@@ -111,11 +112,7 @@ function useWishlistData(wishlistId: string | undefined) {
   return {items, setItems, wishlist, setWishlist, status, setStatus};
 }
 
-function logClickAndOpen(url: string, payload: { id: string; name?: string | null }) {
-  const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
-    | ((...args: any[]) => void)
-    | undefined;
-
+function logClickAndOpen(url: string, payload: { id: string; name?: string | null; user_id?: string }) {
   let opened = false;
   const open = () => {
     if (opened) return;
@@ -123,21 +120,43 @@ function logClickAndOpen(url: string, payload: { id: string; name?: string | nul
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  if (g) {
+  // Check if gtag is ready and can use event_callback for reliable tracking
+  const gtagReady = typeof window !== 'undefined' && 
+                    typeof window.gtag === 'function' && 
+                    Array.isArray(window.dataLayer);
+
+  if (gtagReady && window.gtag) {
+    // Use event_callback to ensure event is sent before opening link
     try {
-      g('event', 'click_gift_link', {
+      window.gtag('event', 'click_gift_link', {
         event_category: 'engagement',
         event_label: payload.name ?? '',
         item_id: payload.id,
         url,
-        event_callback: open,
+        ...(payload.user_id ? { user_id: payload.user_id } : {}),
+        event_callback: open, // Open link only after event is confirmed sent
       });
-      setTimeout(open, 500);
-      return;
-    } catch {
+      return; // event_callback will handle opening
+    } catch (error) {
+      console.error('Failed to track click_gift_link event with callback:', error);
+      // Fall through to fallback approach
     }
   }
-  open();
+
+  // Fallback: Track event and use safer timeout
+  trackEvent('click_gift_link', {
+    event_category: 'engagement',
+    event_label: payload.name ?? '',
+    item_id: payload.id,
+    url,
+    ...(payload.user_id ? { user_id: payload.user_id } : {}), // Add user_id if available
+  }).catch((error) => {
+    console.error('Failed to track click_gift_link event:', error);
+  });
+
+  // Use longer timeout as fallback when callback is not available
+  // This ensures enough time for network requests even on slow connections
+  setTimeout(open, 500);
 }
 
 type RowProps = {
@@ -156,6 +175,7 @@ const WishListItemRow = memo(function WishListItemRow({
                                                         onDeleteClick,
                                                       }: RowProps) {
   const {t} = useTranslation('wishlist');
+  const {user} = useAuth();
   const isLockedForGuest = !canEdit && item.claimed;
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
@@ -179,7 +199,11 @@ const WishListItemRow = memo(function WishListItemRow({
     e.stopPropagation();
     const url = item.link ?? undefined;
     if (!url) return;
-    logClickAndOpen(url, {id: item.id, name: item.name ?? ''});
+    logClickAndOpen(url, {
+      id: item.id,
+      name: item.name ?? '',
+      ...(user?.uid ? { user_id: user.uid } : {}),
+    });
   };
 
   return (
@@ -511,23 +535,23 @@ export function WishListItemList() {
         if (!wishlistId) return;
         await addGiftItem(wishlistId, item);
 
-        const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
-          | ((...args: any[]) => void)
-          | undefined;
-        if (g) {
-          g('event', 'wishlist_item_add', {
-            event_category: 'engagement',
-            event_label: item.name,
-            wishlist_id: wishlistId,
-            item_name: item.name,
-            has_link: Boolean(item.link),
-          });
-        }
+        // Track item addition event with improved parameters
+        trackEvent('wishlist_item_add', {
+          event_category: 'engagement',
+          event_label: item.name,
+          wishlist_id: wishlistId,
+          item_name: item.name,
+          has_link: Boolean(item.link),
+          value: 1, // Micro-conversion value
+          ...(user?.uid ? { user_id: user.uid } : {}), // Add user_id if available
+        }).catch((error) => {
+          console.error('Failed to track wishlist_item_add event:', error);
+        });
       } catch (error) {
         console.error('Error adding item:', error);
       }
     },
-    [wishlistId],
+    [wishlistId, user?.uid],
   );
 
   const handleEditItem = useCallback(
@@ -618,28 +642,24 @@ export function WishListItemList() {
       await navigator.clipboard.writeText(shareUrl);
       setCopySnackOpen(true);
 
-      const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
-        | ((...args: any[]) => void)
-        | undefined;
-      if (g) {
-        g('event', 'wishlist_share_copy', {
-          event_category: 'engagement',
-          wishlist_id: wishlistId,
-          url: shareUrl,
-        });
-      }
+      // Track share link copy event with improved parameters
+      trackEvent('wishlist_share_copy', {
+        event_category: 'engagement',
+        wishlist_id: wishlistId,
+        url: shareUrl,
+        ...(user?.uid ? { user_id: user.uid } : {}), // Add user_id if available
+      }).catch((error) => {
+        console.error('Failed to track wishlist_share_copy event:', error);
+      });
     } catch {
       window.prompt(t('copyFallbackPrompt'), shareUrl);
     }
-  }, [canonicalUrl, origin, wishlistId, routeLang, t]);
+  }, [canonicalUrl, origin, wishlistId, routeLang, t, user?.uid]);
 
   const handleCopyWishlist = useCallback(async () => {
     if (!user?.uid || !wishlistId || !wishlist) return;
     
     setIsCopying(true);
-    const g = (typeof window !== 'undefined' ? (window as any).gtag : undefined) as
-      | ((...args: any[]) => void)
-      | undefined;
 
     try {
       const originalItems = await new Promise<WishListItem[]>((resolve) => {
@@ -667,13 +687,15 @@ export function WishListItemList() {
         });
       }
 
-      if (g) {
-        g('event', 'copy_example_wishlist', {
-          event_category: 'engagement',
-          original_wishlist_id: wishlistId,
-          new_wishlist_id: newWishlistId,
-        });
-      }
+      // Track wishlist copy event
+      trackEvent('copy_example_wishlist', {
+        event_category: 'engagement',
+        original_wishlist_id: wishlistId,
+        new_wishlist_id: newWishlistId,
+        user_id: user.uid,
+      }).catch((error) => {
+        console.error('Failed to track copy_example_wishlist event:', error);
+      });
 
       navigate(`/${routeLang}/wishlist/${newWishlistId}`);
     } catch (error) {
