@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import {useAuth} from '@hooks/useAuth';
 import {auth, googleProvider} from '@lib/firebase';
-import {shouldUseRedirect} from '@utils/auth';
+import {canUseRedirectFlow, shouldUseRedirect} from '@utils/auth';
 
 export default function Footer() {
   const location = useLocation();
@@ -36,48 +36,59 @@ export default function Footer() {
 
   const handleSignIn = useCallback(async () => {
     if (loading) return;
-    
+
+    const redirectSupported = canUseRedirectFlow();
+    const preferRedirect = shouldUseRedirect();
+
+    const triggerRedirect = async () => {
+      if (!redirectSupported) {
+        throw Object.assign(new Error('Redirect sign-in is not supported in this browser'), {
+          code: 'auth/redirect-unsupported',
+        });
+      }
+      await signInWithRedirect(auth, googleProvider);
+    };
+
     try {
       setLoading(true);
-      
-      // Save current URL to return after redirect
-      if (shouldUseRedirect() || typeof window !== 'undefined') {
+
+      if (redirectSupported) {
         try {
           sessionStorage.setItem('auth_return_url', location.pathname + location.search);
         } catch {
           // sessionStorage not available, continue anyway
         }
       }
-      
-      if (shouldUseRedirect()) {
-        // Use redirect for mobile and embedded browsers
-        await signInWithRedirect(auth, googleProvider);
-        // Navigation will happen automatically after redirect
-        return; // Don't set loading to false, page will redirect
-      } else {
-        // Use popup for desktop browsers
-        try {
-          await signInWithPopup(auth, googleProvider);
-        } catch (popupError: any) {
-          // If popup fails (blocked or sessionStorage issue), fallback to redirect
-          if (
+
+      if (preferRedirect && redirectSupported) {
+        await triggerRedirect();
+        return;
+      }
+
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (popupError: any) {
+        const shouldFallbackToRedirect =
+          redirectSupported &&
+          (
             popupError.code === 'auth/popup-blocked' ||
             popupError.code === 'auth/popup-closed-by-user' ||
+            popupError.code === 'auth/operation-not-supported-in-this-environment' ||
             popupError.message?.includes('sessionStorage') ||
             popupError.message?.includes('initial state') ||
             popupError.message?.includes('missing initial state')
-          ) {
-            await signInWithRedirect(auth, googleProvider);
-            return; // Don't set loading to false, page will redirect
-          } else {
-            throw popupError;
-          }
+          );
+
+        if (shouldFallbackToRedirect) {
+          await triggerRedirect();
+          return;
         }
+
+        throw popupError;
       }
     } catch (e: any) {
       console.error('Sign-in error:', e);
-      // Don't show alert for redirect (user will be redirected)
-      if (!e.code || e.code !== 'auth/redirect-cancelled-by-user') {
+      if (!e.code || !String(e.code).startsWith('auth/redirect')) {
         alert(t('auth:signinFailed'));
       }
     } finally {

@@ -30,6 +30,7 @@ vi.mock('firebase/auth', () => ({
 
 vi.mock('@utils/auth', () => ({
   shouldUseRedirect: vi.fn(() => false), // Default to popup for tests
+  canUseRedirectFlow: vi.fn(() => true),
 }));
 
 import LoginControls from '@components/LoginControls';

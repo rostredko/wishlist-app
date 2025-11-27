@@ -1,36 +1,49 @@
+const sessionStorageTestKey = '__auth_test__';
+
+function hasWindow(): boolean {
+  return typeof window !== 'undefined' && typeof navigator !== 'undefined';
+}
+
 /**
- * Determines if we should use signInWithRedirect instead of signInWithPopup
- * This is needed for mobile devices and embedded browsers (Telegram, etc.)
- * where popups may be blocked or sessionStorage is inaccessible
+ * Returns true when we know the current environment routinely blocks popups
+ * (embedded messengers, some webviews, standalone PWAs, etc.). Redirect is only
+ * safe to use when {@link canUseRedirectFlow} also returns true.
  */
 export function shouldUseRedirect(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (!hasWindow()) return false;
 
-  // Check if sessionStorage is accessible
-  try {
-    const testKey = '__auth_test__';
-    sessionStorage.setItem(testKey, 'test');
-    sessionStorage.removeItem(testKey);
-  } catch {
-    // sessionStorage is not accessible, use redirect
-    return true;
-  }
+  const ua = navigator.userAgent?.toLowerCase() ?? '';
 
-  // Check user agent for mobile devices
-  const ua = navigator.userAgent.toLowerCase();
-  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
-  
-  // Check for embedded browsers
-  const isEmbedded = 
+  const isEmbeddedMessenger =
     ua.includes('telegram') ||
     ua.includes('whatsapp') ||
     ua.includes('facebook') ||
     ua.includes('line') ||
     ua.includes('wechat') ||
     ua.includes('instagram') ||
-    (window as any).TelegramWebApp !== undefined;
+    typeof (window as any).TelegramWebApp !== 'undefined';
 
-  // Use redirect on mobile or embedded browsers
-  return isMobile || isEmbedded;
+  const isAndroidWebView = ua.includes('wv;') || (ua.includes('version/') && ua.includes('chrome/'));
+  const isStandalonePwa =
+    (navigator as any).standalone === true ||
+    window.matchMedia?.('(display-mode: standalone)').matches === true;
+
+  return isEmbeddedMessenger || isAndroidWebView || isStandalonePwa;
+}
+
+/**
+ * Redirect-based flows need working sessionStorage to persist auth state across
+ * the full page reload performed by the OAuth handler.
+ */
+export function canUseRedirectFlow(): boolean {
+  if (!hasWindow()) return false;
+
+  try {
+    sessionStorage.setItem(sessionStorageTestKey, 'ok');
+    sessionStorage.removeItem(sessionStorageTestKey);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
