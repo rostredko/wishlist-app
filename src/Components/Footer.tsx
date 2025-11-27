@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import {useAuth} from '@hooks/useAuth';
 import {auth, googleProvider} from '@lib/firebase';
-import {canUseRedirectFlow, shouldUseRedirect} from '@utils/auth';
+import {canUseRedirectFlow, isTelegramWebView, shouldUseRedirect} from '@utils/auth';
 
 export default function Footer() {
   const location = useLocation();
@@ -15,6 +15,7 @@ export default function Footer() {
   const {t} = useTranslation(['auth', 'home']);
   const {user, isAdmin} = useAuth();
   const [loading, setLoading] = useState(false);
+  const isTelegram = isTelegramWebView();
 
   // Note: getRedirectResult is handled in App.tsx (AuthRedirectHandler)
   // to avoid duplicate calls since Firebase clears the result after first call
@@ -37,6 +38,11 @@ export default function Footer() {
 
   const handleSignIn = useCallback(async () => {
     if (loading) return;
+    
+    // Don't attempt sign-in in Telegram webview - show instruction instead
+    if (isTelegram) {
+      return;
+    }
 
     const redirectSupported = canUseRedirectFlow();
     const preferRedirect = shouldUseRedirect();
@@ -95,7 +101,7 @@ export default function Footer() {
     } finally {
       setLoading(false);
     }
-  }, [loading, t, location.pathname, location.search]);
+  }, [loading, t, location.pathname, location.search, isTelegram]);
 
   const handleSignOut = useCallback(
     () => run(() => signOut(auth), t('auth:signoutFailed')),
@@ -146,6 +152,32 @@ export default function Footer() {
               {loading ? t('auth:pleaseWait') : t('auth:signOut')}
             </Button>
           </>
+        ) : isTelegram ? (
+          <Stack spacing={2} alignItems="center" sx={{maxWidth: 420}}>
+            <Typography variant="body1" sx={{fontWeight: 600, textAlign: 'center'}}>
+              {t('auth:telegramInstructionTitle')}
+            </Typography>
+            <Typography variant="body2" sx={{color: '#aaa', textAlign: 'center'}}>
+              {t('auth:telegramInstruction')}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => {
+                // Try to open in external browser (may not work in all Telegram versions)
+                const currentUrl = window.location.href;
+                try {
+                  // Attempt to open in system browser
+                  window.open(currentUrl, '_system');
+                } catch {
+                  // Fallback: just show the URL
+                  alert(`${t('auth:telegramInstructionCta')}: ${currentUrl}`);
+                }
+              }}
+              sx={{mt: 1}}
+            >
+              {t('auth:telegramInstructionCta')}
+            </Button>
+          </Stack>
         ) : (
           <Button variant="outlined" onClick={handleSignIn} disabled={loading}>
             {loading ? t('auth:pleaseWait') : t('auth:signIn')}

@@ -5,6 +5,16 @@ function hasWindow(): boolean {
 }
 
 /**
+ * Detects when the app is opened inside Telegram's in-app browser / webview.
+ * Used only to show a UX hint – we do NOT try to bypass Google auth here.
+ */
+export function isTelegramWebView(): boolean {
+  if (!hasWindow()) return false;
+  const ua = navigator.userAgent?.toLowerCase() ?? '';
+  return ua.includes('telegram') || typeof (window as any).TelegramWebApp !== 'undefined';
+}
+
+/**
  * Returns true when we know the current environment routinely blocks popups
  * (embedded messengers, some webviews, standalone PWAs, etc.). Redirect is only
  * safe to use when {@link canUseRedirectFlow} also returns true.
@@ -15,7 +25,7 @@ export function shouldUseRedirect(): boolean {
   const ua = navigator.userAgent?.toLowerCase() ?? '';
 
   const isEmbeddedMessenger =
-    ua.includes('telegram') ||
+    isTelegramWebView() ||
     ua.includes('whatsapp') ||
     ua.includes('facebook') ||
     ua.includes('line') ||
