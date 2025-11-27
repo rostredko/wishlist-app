@@ -63,24 +63,50 @@ function absoluteUrl(href: string) {
 }
 
 function upsertMetaByName(name: string, content: string) {
+  // First, try to find existing managed tag
   let el = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"][data-seo-head="1"]`);
+  
+  // If not found, try to find static tag (without data-seo-head)
+  if (!el) {
+    el = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]:not([data-seo-head])`);
+    if (el) {
+      // Update existing static tag and mark it as managed
+      el.setAttribute('data-seo-head', '1');
+    }
+  }
+  
+  // If still not found, create new tag
   if (!el) {
     el = document.createElement('meta');
     el.setAttribute('name', name);
     el.setAttribute('data-seo-head', '1');
     document.head.appendChild(el);
   }
+  
   el.setAttribute('content', content);
 }
 
 function upsertMetaByProperty(property: string, content: string) {
+  // First, try to find existing managed tag
   let el = document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"][data-seo-head="1"]`);
+  
+  // If not found, try to find static tag (without data-seo-head)
+  if (!el) {
+    el = document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"]:not([data-seo-head])`);
+    if (el) {
+      // Update existing static tag and mark it as managed
+      el.setAttribute('data-seo-head', '1');
+    }
+  }
+  
+  // If still not found, create new tag
   if (!el) {
     el = document.createElement('meta');
     el.setAttribute('property', property);
     el.setAttribute('data-seo-head', '1');
     document.head.appendChild(el);
   }
+  
   el.setAttribute('content', content);
 }
 
@@ -88,7 +114,21 @@ function upsertLink(rel: string, href: string, extra?: Record<string, string>) {
   const extraSelector = extra
     ? Object.entries(extra).map(([k, v]) => `[${k}="${v}"]`).join('')
     : '';
+  
+  // First, try to find existing managed link
   let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"][data-seo-head="1"]${extraSelector}`);
+  
+  // If not found, try to find static link (without data-seo-head)
+  if (!el) {
+    const staticSelector = `link[rel="${rel}"]:not([data-seo-head])${extraSelector}`;
+    el = document.head.querySelector<HTMLLinkElement>(staticSelector);
+    if (el) {
+      // Update existing static link and mark it as managed
+      el.setAttribute('data-seo-head', '1');
+    }
+  }
+  
+  // If still not found, create new link
   if (!el) {
     el = document.createElement('link');
     el.setAttribute('rel', rel);
@@ -98,11 +138,37 @@ function upsertLink(rel: string, href: string, extra?: Record<string, string>) {
     }
     document.head.appendChild(el);
   }
+  
   el.setAttribute('href', href);
 }
 
 function removeAllManaged(selector: string) {
   document.head.querySelectorAll(selector).forEach(n => n.remove());
+}
+
+function removeStaticMetaTags() {
+  // Remove static OG tags that might conflict (we'll create new managed ones)
+  document.head.querySelectorAll('meta[property^="og:"]:not([data-seo-head])').forEach(n => n.remove());
+  
+  // Remove static Twitter tags that might conflict (we'll create new managed ones)
+  document.head.querySelectorAll('meta[name^="twitter:"]:not([data-seo-head])').forEach(n => n.remove());
+  
+  // Remove static hreflang links that might conflict (we'll create new managed ones)
+  document.head.querySelectorAll('link[rel="alternate"][hreflang]:not([data-seo-head])').forEach(n => n.remove());
+  
+  // Remove static canonical links that might conflict (we'll create new managed ones)
+  document.head.querySelectorAll('link[rel="canonical"]:not([data-seo-head])').forEach(n => n.remove());
+  
+  // For unique meta tags, remove duplicates but keep the first one for upsertMetaByName to update
+  // This ensures we don't have multiple description/viewport/etc tags
+  const uniqueMetaNames = ['description', 'keywords', 'viewport', 'theme-color', 'robots'];
+  uniqueMetaNames.forEach(name => {
+    const existing = document.head.querySelectorAll(`meta[name="${name}"]:not([data-seo-head])`);
+    // Remove all but the first one (upsertMetaByName will update the first one)
+    for (let i = 1; i < existing.length; i++) {
+      existing[i].remove();
+    }
+  });
 }
 
 const toOgLocale = (l: Lang) => (l === 'uk' ? 'uk_UA' : 'en_US');
@@ -169,6 +235,13 @@ export default function SEOHead({
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
+    // Check for existing viewport before removing static tags
+    const existingViewport = document.head.querySelector<HTMLMetaElement>('meta[name="viewport"]:not([data-seo-head])');
+    const hasViewportFit = existingViewport?.content.includes('viewport-fit=cover') ?? false;
+
+    // Remove static tags that might conflict before updating
+    removeStaticMetaTags();
+
     document.documentElement.lang = lang;
 
     const origin = currentOrigin();
@@ -191,7 +264,12 @@ export default function SEOHead({
       upsertMetaByName('keywords', keywords);
     }
     upsertMetaByName('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
-    upsertMetaByName('viewport', 'width=device-width, initial-scale=1');
+    
+    // Update viewport, but preserve viewport-fit=cover if it existed
+    upsertMetaByName('viewport', hasViewportFit 
+      ? 'width=device-width, initial-scale=1, viewport-fit=cover'
+      : 'width=device-width, initial-scale=1');
+    
     upsertMetaByName('theme-color', '#1976d2');
 
     removeAllManaged('link[rel="canonical"][data-seo-head="1"]');
@@ -245,7 +323,7 @@ export default function SEOHead({
         '@type': 'WebSite',
         name: 'WishList App',
         url: origin + '/',
-        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        description: description,
         inLanguage: [lang === 'uk' ? 'uk-UA' : 'en-US'],
         potentialAction: {
           '@type': 'SearchAction',
@@ -266,7 +344,7 @@ export default function SEOHead({
         applicationCategory: 'ProductivityApplication',
         operatingSystem: 'Web',
         url: origin + '/',
-        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        description: description,
         offers: {
           '@type': 'Offer',
           price: '0',
@@ -310,7 +388,7 @@ export default function SEOHead({
         name: 'WishList App',
         url: origin + '/',
         logo: `${origin}/og-image.webp`,
-        description: 'Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what\'s already taken. Simple and free.',
+        description: description,
         sameAs: [],
       });
     }

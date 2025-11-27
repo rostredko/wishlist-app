@@ -1,15 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta name="theme-color" content="#1976d2"/>
     <meta name="color-scheme" content="light dark"/>
     <meta name="verify-admitad" content="7ddfd97b5a"/>
-    <meta name="description" content="Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what's already taken. Simple and free."/>
-    <meta name="keywords" content="wishlist, gift list, birthday, christmas, wedding, free, create wishlist, share wishlist"/>
+    <meta name="description" content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно."/>
+    <meta name="keywords" content="вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст, поділитися вішлістом"/>
     <meta name="author" content="WishList App"/>
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://wishlistapp.com.ua/"/>
+    <meta property="og:title" content="WishList App - створюйте та діліться вішлістами"/>
+    <meta property="og:description" content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно."/>
+    <meta property="og:image" content="https://wishlistapp.com.ua/og-image.webp"/>
+    <meta property="og:locale" content="uk_UA"/>
+    <meta property="og:locale:alternate" content="en_US"/>
+    <meta property="og:site_name" content="WishList App"/>
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="WishList App - створюйте та діліться вішлістами"/>
+    <meta name="twitter:description" content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно."/>
+    <meta name="twitter:image" content="https://wishlistapp.com.ua/og-image.webp"/>
+
+    <!-- Language alternates -->
+    <link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua"/>
+    <link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en"/>
+    <link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/"/>
 
     <link rel="icon" type="image/png" href="/favicon.png"/>
     <link rel="manifest" href="/manifest.json"/>
@@ -89,11 +110,17 @@
         }
     </style>
 
-    <title>WishList App</title>
+    <title>WishList App - створюйте та діліться вішлістами</title>
 </head>
 <body>
 <div id="root"></div>
 <script type="module" src="/src/main.tsx"></script>
-<noscript>Wishlist App requires JavaScript enabled.</noscript>
+<noscript>
+    <div style="padding: 20px; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>WishList App</h1>
+        <p>Для роботи додатку потрібен JavaScript. Будь ласка, увімкніть JavaScript у налаштуваннях браузера.</p>
+        <p>JavaScript is required for this app to work. Please enable JavaScript in your browser settings.</p>
+    </div>
+</noscript>
 </body>
 </html>
