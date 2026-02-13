@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useLayoutEffect, lazy, Suspense } from 'react';
+import { useEffect, useMemo, useState, useCallback, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 

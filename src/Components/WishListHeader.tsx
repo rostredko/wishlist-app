@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +48,6 @@ const WishlistHeader = ({ wishlist, canEdit, isExampleWishlist = false, isAdmin 
             component="img"
             src={bannerImage}
             alt={t('wishlistBanner')}
-            // @ts-expect-error - fetchPriority is available in React 19 but types might lag
             fetchPriority="high"
             sx={{
               position: 'absolute',
