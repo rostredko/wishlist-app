@@ -11,7 +11,7 @@ vi.mock('@hooks/useAuth', () => ({
   useAuth: () => hoisted.authState,
 }));
 
-vi.mock('@lib/firebase', () => ({
+vi.mock('@lib/auth-client', () => ({
   auth: { __tag: 'auth' },
   googleProvider: { __tag: 'google' },
 }));
@@ -22,6 +22,7 @@ const getRedirectResult = vi.fn();
 const signOut = vi.fn();
 
 vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(),
   signInWithPopup: (...args: unknown[]) => signInWithPopup(...args),
   signInWithRedirect: (...args: unknown[]) => signInWithRedirect(...args),
   getRedirectResult: (...args: unknown[]) => getRedirectResult(...args),
