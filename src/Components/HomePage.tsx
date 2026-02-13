@@ -221,13 +221,16 @@ export default function HomePage({ lang }: Props) {
                       <Grid key={ex.path} size={{ xs: 12, md: 6 }}>
                         <Card
                           variant="outlined"
-                          onClick={() => navigate(ex.path)}
+                          component={RouterLink}
+                          to={ex.path}
                           sx={{
                             height: '100%',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
+                            textDecoration: 'none',
+                            color: 'inherit',
                             px: { xs: 2, sm: 3 },
                             py: { xs: 1.5, sm: 2 },
                             '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' },
