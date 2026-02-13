@@ -1,4 +1,4 @@
-import {lazy, Suspense, useEffect, useRef} from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -8,13 +8,13 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import {Box, CssBaseline, ThemeProvider, CircularProgress} from '@mui/material';
-import {getRedirectResult} from 'firebase/auth';
-import {darkTheme} from './theme';
+import { Box, CssBaseline, ThemeProvider, CircularProgress } from '@mui/material';
+import { getRedirectResult } from 'firebase/auth';
+import { darkTheme } from './theme';
 import Cookies from 'js-cookie';
-import {isProbablyBot, detectPreferredLang, SUPPORTED_LANGS} from './utils/locale';
-import {auth} from '@lib/firebase';
-import {trackPageView} from './utils/analytics';
+import { isProbablyBot, detectPreferredLang, SUPPORTED_LANGS } from './utils/locale';
+import { auth } from '@lib/auth-client';
+import { trackPageView } from './utils/analytics';
 
 const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
@@ -112,7 +112,7 @@ function RouteTracker() {
     // Skip tracking if this is the first page load and path hasn't changed
     // (to avoid duplicate page_view events)
     const currentPath = location.pathname + location.search;
-    
+
     if (prevPathRef.current === currentPath) {
       return;
     }

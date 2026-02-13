@@ -1,18 +1,18 @@
-import {useCallback, useState} from 'react';
-import {useLocation} from 'react-router-dom';
-import {Button, Box, Typography, Card, CardContent, Stack, Accordion, AccordionSummary, AccordionDetails} from '@mui/material';
-import {signInWithPopup, signInWithRedirect, signOut} from 'firebase/auth';
-import {useTranslation} from 'react-i18next';
+import { useCallback, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Button, Box, Typography, Card, CardContent, Stack, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import {useAuth} from '@hooks/useAuth';
-import {auth, googleProvider} from '@lib/firebase';
-import {canUseRedirectFlow, isTelegramWebView, shouldUseRedirect} from '@utils/auth';
+import { useAuth } from '@hooks/useAuth';
+import { auth, googleProvider } from '@lib/auth-client';
+import { canUseRedirectFlow, isTelegramWebView, shouldUseRedirect } from '@utils/auth';
 
 export default function Footer() {
   const location = useLocation();
-  const {t} = useTranslation(['auth', 'home']);
-  const {user, isAdmin} = useAuth();
+  const { t } = useTranslation(['auth', 'home']);
+  const { user, isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
   const isTelegram = isTelegramWebView();
 
@@ -37,7 +37,7 @@ export default function Footer() {
 
   const handleSignIn = useCallback(async () => {
     if (loading) return;
-    
+
     // Don't attempt sign-in in Telegram webview - show instruction instead
     if (isTelegram) {
       return;
@@ -120,17 +120,17 @@ export default function Footer() {
         alignItems: 'center',
       }}
     >
-      <Card variant="outlined" sx={{bgcolor: 'background.paper', width: '100%', maxWidth: 'md'}}>
+      <Card variant="outlined" sx={{ bgcolor: 'background.paper', width: '100%', maxWidth: 'md' }}>
         <CardContent>
           <Stack spacing={2}>
-            <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
               {t('home:faqTitle')}
             </Typography>
             <Stack>
               {(t('home:faq', { returnObjects: true }) as Array<{ q: string; a: string }>).map((item, idx) => (
                 <Accordion key={idx} disableGutters square>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography sx={{fontWeight: 600}}>{item.q}</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>{item.q}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Typography>{item.a}</Typography>
@@ -142,10 +142,10 @@ export default function Footer() {
         </CardContent>
       </Card>
 
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3}}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3 }}>
         {user ? (
           <>
-            <Typography variant="body1" sx={{color: '#aaa'}}>
+            <Typography variant="body1" sx={{ color: '#aaa' }}>
               👋&nbsp; {user.displayName} {isAdmin ? t('auth:admin') : ''}
             </Typography>
             <Button variant="outlined" color="secondary" onClick={handleSignOut} disabled={loading}>
@@ -153,11 +153,11 @@ export default function Footer() {
             </Button>
           </>
         ) : isTelegram ? (
-          <Stack spacing={2} alignItems="center" sx={{maxWidth: 420}}>
-            <Typography variant="body1" sx={{fontWeight: 600, textAlign: 'center'}}>
+          <Stack spacing={2} alignItems="center" sx={{ maxWidth: 420 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, textAlign: 'center' }}>
               {t('auth:telegramInstructionTitle')}
             </Typography>
-            <Typography variant="body2" sx={{color: '#aaa', textAlign: 'center'}}>
+            <Typography variant="body2" sx={{ color: '#aaa', textAlign: 'center' }}>
               {t('auth:telegramInstruction')}
             </Typography>
             <Button
@@ -173,7 +173,7 @@ export default function Footer() {
                   alert(`${t('auth:telegramInstructionCta')}: ${currentUrl}`);
                 }
               }}
-              sx={{mt: 1}}
+              sx={{ mt: 1 }}
             >
               {t('auth:telegramInstructionCta')}
             </Button>

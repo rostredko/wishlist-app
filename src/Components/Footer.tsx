@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useAuth } from '@hooks/useAuth';
-import { auth, googleProvider } from '@lib/firebase';
+import { auth, googleProvider } from '@lib/auth-client';
 import { canUseRedirectFlow, isTelegramWebView, shouldUseRedirect } from '@utils/auth';
 
 export default function Footer() {

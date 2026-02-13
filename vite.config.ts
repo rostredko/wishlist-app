@@ -1,12 +1,20 @@
-import {defineConfig} from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-export default defineConfig(({mode}) => ({
+import { visualizer } from 'rollup-plugin-visualizer';
+
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tsconfigPaths({
       projects: ['tsconfig.app.json', 'tsconfig.test.json'],
+    }),
+    mode === 'analyze' && visualizer({
+      open: true,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
 
@@ -36,7 +44,9 @@ export default defineConfig(({mode}) => ({
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-mui': ['@mui/material', '@mui/system', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          'vendor-firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/analytics'],
+          'vendor-firebase-auth': ['firebase/app', 'firebase/auth'],
+          'vendor-firebase-firestore': ['firebase/firestore'],
+          'vendor-firebase-analytics': ['firebase/analytics'],
         },
       },
     },

@@ -202,7 +202,18 @@ export default function HomePage({ lang }: Props) {
 
                 <Divider />
 
-                <Suspense fallback={<Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />}>
+                <Suspense fallback={
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
+                      <Skeleton variant="rectangular" height={0} sx={{ paddingTop: '56.25%', borderRadius: 2 }} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
+                      <Skeleton variant="rectangular" height={0} sx={{ paddingTop: '56.25%', borderRadius: 2 }} />
+                    </Box>
+                  </Stack>
+                }>
                   <VideoTutorialsSection />
                 </Suspense>
 
