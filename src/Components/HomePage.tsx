@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useLayoutEffect } from 'react';
+import { useEffect, useMemo, useState, useCallback, useLayoutEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -25,7 +25,8 @@ import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import type { WishList } from '@models/WishList';
 import { subscribeMyWishlists, deleteWishlistDeep } from '@api/wishListService';
-import VideoTutorialsSection from '@components/VideoTutorialsSection';
+
+const VideoTutorialsSection = lazy(() => import('@components/VideoTutorialsSection'));
 
 type WLItem = WishList & { id: string };
 type RouteLang = 'ua' | 'en';
@@ -37,21 +38,11 @@ function toSeoLang(lng: RouteLang): 'uk' | 'en' {
 
 export default function HomePage({ lang }: Props) {
   const { t, i18n } = useTranslation(['home', 'examples']);
-  const [ready, setReady] = useState(false);
-  useLayoutEffect(() => {
-    let mounted = true;
-    (async () => {
-      if (i18n.language !== lang) {
-        try {
-          await i18n.changeLanguage(lang);
-        } catch { }
-      }
-      if (mounted) setReady(true);
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [lang, i18n]);
+
+  // Translation sync (if needed, but usually redundant with route change)
+  if (i18n.language !== lang) {
+    i18n.changeLanguage(lang).catch(() => { });
+  }
 
   const seoLang = toSeoLang(lang);
   const { user } = useAuth();
@@ -61,23 +52,6 @@ export default function HomePage({ lang }: Props) {
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({ open: false });
   const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const tags: HTMLLinkElement[] = [];
-    const add = (rel: string, href: string, cross = true) => {
-      const link = document.createElement('link');
-      link.rel = rel;
-      link.href = href;
-      if (cross) link.crossOrigin = 'anonymous';
-      document.head.appendChild(link);
-      tags.push(link);
-    };
-    add('preconnect', 'https://firestore.googleapis.com');
-    add('preconnect', 'https://www.gstatic.com');
-    return () => {
-      tags.forEach(t => t.remove());
-    };
-  }, []);
 
   useEffect(() => {
     if (!user?.uid) {
@@ -114,6 +88,8 @@ export default function HomePage({ lang }: Props) {
       ? window.location.origin
       : 'https://wishlistapp.com.ua';
 
+  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}`;
+
   const alternates = {
     en: `${origin}/en`,
     uk: `${origin}/ua`,
@@ -124,7 +100,6 @@ export default function HomePage({ lang }: Props) {
     : t('untitled');
 
   const exampleCards = useMemo(() => {
-    if (!ready) return [];
     const cards = t('examples:cards', { returnObjects: true }) as Array<{ title: string; emoji: string; wishlistId: string }>;
     if (!Array.isArray(cards)) {
       return [];
@@ -135,21 +110,21 @@ export default function HomePage({ lang }: Props) {
       emoji: card.emoji,
       wishlistId: card.wishlistId
     }));
-  }, [lang, t, i18n.language, ready]);
+  }, [lang, t, i18n.language]);
 
   const faqData = useMemo(() => {
-    if (!ready) return null;
     const faq = t('faq', { returnObjects: true }) as Array<{ q: string; a: string }>;
     if (!Array.isArray(faq) || faq.length === 0) return null;
     return faq;
-  }, [t, i18n.language, ready]);
+  }, [t, i18n.language]);
 
   return (
-    <Box component="main" sx={{ py: { xs: 6, md: 10 }, visibility: ready ? 'visible' : 'hidden' }}>
+    <Box component="main" sx={{ py: { xs: 6, md: 10 } }}>
       <SEOHead
         lang={seoLang}
         title={t('title')}
         description={t('desc')}
+        canonical={canonicalUrl}
         alternates={alternates}
         image={`${origin}/og-image.webp`}
         structured={{

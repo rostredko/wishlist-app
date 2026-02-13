@@ -602,17 +602,8 @@ export function WishListItemList() {
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const canonicalUrl =
-    typeof window !== 'undefined'
-      ? (() => {
-        try {
-          const u = new URL(window.location.href);
-          u.hash = '';
-          u.search = '';
-          return u.toString();
-        } catch {
-          return window.location.href;
-        }
-      })()
+    origin && wishlistId
+      ? `${origin}/${routeLang}/wishlist/${wishlistId}`
       : '';
 
   const pageTitle =
