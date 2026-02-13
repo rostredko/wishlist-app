@@ -37,71 +37,71 @@
 
     <!-- Example wishlists (EN + UA) -->
     <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/christmas-list</loc>
+        <loc>https://wishlistapp.com.ua/en/wishlist/christmas-list/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/christmas-list"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/christmas-list/"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua/"/>
     </url>
     <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua</loc>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/christmas-list"/>
-    </url>
-
-    <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/secret-santa-list</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/secret-santa-list"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua"/>
-    </url>
-    <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua</loc>
-        <lastmod>2025-11-26</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/secret-santa-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/christmas-list/"/>
     </url>
 
     <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/birthday-list</loc>
+        <loc>https://wishlistapp.com.ua/en/wishlist/secret-santa-list/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/birthday-list"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/secret-santa-list/"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua/"/>
     </url>
     <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua</loc>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/birthday-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/secret-santa-list/"/>
     </url>
 
     <url>
-        <loc>https://wishlistapp.com.ua/en/wishlist/wedding-list</loc>
+        <loc>https://wishlistapp.com.ua/en/wishlist/birthday-list/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/wedding-list"/>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/birthday-list/"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua/"/>
     </url>
     <url>
-        <loc>https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua</loc>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua/</loc>
         <lastmod>2025-11-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/wedding-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/birthday-list/"/>
+    </url>
+
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/wedding-list/</loc>
+        <lastmod>2025-11-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/wedding-list/"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua/"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua/</loc>
+        <lastmod>2025-11-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/wedding-list/"/>
     </url>
 
 </urlset>
