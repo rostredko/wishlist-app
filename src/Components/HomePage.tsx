@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, lazy } from 'react';
+import { useEffect, useMemo, useState, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -88,11 +88,11 @@ export default function HomePage({ lang }: Props) {
       ? window.location.origin
       : 'https://wishlistapp.com.ua';
 
-  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}`;
+  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}/`;
 
   const alternates = {
-    en: `${origin}/en`,
-    uk: `${origin}/ua`,
+    en: `${origin}/en/`,
+    uk: `${origin}/ua/`,
   };
 
   const deleteName = deleteDialog.title && deleteDialog.title.trim().length > 0
@@ -200,7 +200,13 @@ export default function HomePage({ lang }: Props) {
 
                 <Divider />
 
-                <VideoTutorialsSection />
+                <Divider />
+
+                <Suspense fallback={<Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />}>
+                  <VideoTutorialsSection />
+                </Suspense>
+
+                <Divider />
 
                 <Divider />
 

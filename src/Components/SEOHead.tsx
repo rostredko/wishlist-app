@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 
 type Lang = 'en' | 'uk';
 
@@ -42,7 +42,10 @@ function sanitizeCanonical(rawHref: string) {
     const url = new URL(rawHref);
     url.hash = '';
     url.search = '';
-    if (!url.pathname) url.pathname = '/';
+    // Ensure trailing slash for root paths or subdirectories if not a file
+    if (!url.pathname.endsWith('/') && !url.pathname.includes('.')) {
+      url.pathname += '/';
+    }
     return url.toString();
   } catch {
     return rawHref;
@@ -65,7 +68,7 @@ function absoluteUrl(href: string) {
 function upsertMetaByName(name: string, content: string) {
   // First, try to find existing managed tag
   let el = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"][data-seo-head="1"]`);
-  
+
   // If not found, try to find static tag (without data-seo-head)
   if (!el) {
     el = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]:not([data-seo-head])`);
@@ -74,7 +77,7 @@ function upsertMetaByName(name: string, content: string) {
       el.setAttribute('data-seo-head', '1');
     }
   }
-  
+
   // If still not found, create new tag
   if (!el) {
     el = document.createElement('meta');
@@ -82,14 +85,14 @@ function upsertMetaByName(name: string, content: string) {
     el.setAttribute('data-seo-head', '1');
     document.head.appendChild(el);
   }
-  
+
   el.setAttribute('content', content);
 }
 
 function upsertMetaByProperty(property: string, content: string) {
   // First, try to find existing managed tag
   let el = document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"][data-seo-head="1"]`);
-  
+
   // If not found, try to find static tag (without data-seo-head)
   if (!el) {
     el = document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"]:not([data-seo-head])`);
@@ -98,7 +101,7 @@ function upsertMetaByProperty(property: string, content: string) {
       el.setAttribute('data-seo-head', '1');
     }
   }
-  
+
   // If still not found, create new tag
   if (!el) {
     el = document.createElement('meta');
@@ -106,7 +109,7 @@ function upsertMetaByProperty(property: string, content: string) {
     el.setAttribute('data-seo-head', '1');
     document.head.appendChild(el);
   }
-  
+
   el.setAttribute('content', content);
 }
 
@@ -114,10 +117,10 @@ function upsertLink(rel: string, href: string, extra?: Record<string, string>) {
   const extraSelector = extra
     ? Object.entries(extra).map(([k, v]) => `[${k}="${v}"]`).join('')
     : '';
-  
+
   // First, try to find existing managed link
   let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"][data-seo-head="1"]${extraSelector}`);
-  
+
   // If not found, try to find static link (without data-seo-head)
   if (!el) {
     const staticSelector = `link[rel="${rel}"]:not([data-seo-head])${extraSelector}`;
@@ -127,7 +130,7 @@ function upsertLink(rel: string, href: string, extra?: Record<string, string>) {
       el.setAttribute('data-seo-head', '1');
     }
   }
-  
+
   // If still not found, create new link
   if (!el) {
     el = document.createElement('link');
@@ -138,7 +141,7 @@ function upsertLink(rel: string, href: string, extra?: Record<string, string>) {
     }
     document.head.appendChild(el);
   }
-  
+
   el.setAttribute('href', href);
 }
 
@@ -149,16 +152,16 @@ function removeAllManaged(selector: string) {
 function removeStaticMetaTags() {
   // Remove static OG tags that might conflict (we'll create new managed ones)
   document.head.querySelectorAll('meta[property^="og:"]:not([data-seo-head])').forEach(n => n.remove());
-  
+
   // Remove static Twitter tags that might conflict (we'll create new managed ones)
   document.head.querySelectorAll('meta[name^="twitter:"]:not([data-seo-head])').forEach(n => n.remove());
-  
+
   // Remove static hreflang links that might conflict (we'll create new managed ones)
   document.head.querySelectorAll('link[rel="alternate"][hreflang]:not([data-seo-head])').forEach(n => n.remove());
-  
+
   // Remove static canonical links that might conflict (we'll create new managed ones)
   document.head.querySelectorAll('link[rel="canonical"]:not([data-seo-head])').forEach(n => n.remove());
-  
+
   // For unique meta tags, remove duplicates but keep the first one for upsertMetaByName to update
   // This ensures we don't have multiple description/viewport/etc tags
   const uniqueMetaNames = ['description', 'keywords', 'viewport', 'theme-color', 'robots'];
@@ -179,7 +182,7 @@ function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
     const parts = url.pathname.split('/').filter(Boolean);
 
     if (parts.length === 0) {
-      return {en: `${url.origin}/en/`, uk: `${url.origin}/ua/`};
+      return { en: `${url.origin}/en/`, uk: `${url.origin}/ua/` };
     }
     const [maybeLang, ...rest] = parts;
     const restPath = rest.join('/');
@@ -187,7 +190,7 @@ function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
     const origin = url.origin;
 
     if (maybeLang !== 'en' && maybeLang !== 'ua') {
-      return {en: `${origin}/en${withSlash}`, uk: `${origin}/ua${withSlash}`};
+      return { en: `${origin}/en${withSlash}`, uk: `${origin}/ua${withSlash}` };
     }
 
     return {
@@ -223,15 +226,15 @@ function removeAllJsonLd() {
 }
 
 export default function SEOHead({
-                                  title,
-                                  description,
-                                  lang,
-                                  canonical,
-                                  image,
-                                  alternates,
-                                  structured,
-                                  keywords,
-                                }: SEOHeadProps) {
+  title,
+  description,
+  lang,
+  canonical,
+  image,
+  alternates,
+  structured,
+  keywords,
+}: SEOHeadProps) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
@@ -264,12 +267,12 @@ export default function SEOHead({
       upsertMetaByName('keywords', keywords);
     }
     upsertMetaByName('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
-    
+
     // Update viewport, but preserve viewport-fit=cover if it existed
-    upsertMetaByName('viewport', hasViewportFit 
+    upsertMetaByName('viewport', hasViewportFit
       ? 'width=device-width, initial-scale=1, viewport-fit=cover'
       : 'width=device-width, initial-scale=1');
-    
+
     upsertMetaByName('theme-color', '#1976d2');
 
     removeAllManaged('link[rel="canonical"][data-seo-head="1"]');
@@ -283,9 +286,9 @@ export default function SEOHead({
     const enHref = alts.en ? absoluteUrl(alts.en) : undefined;
     const ukHref = alts.uk ? absoluteUrl(alts.uk) : undefined;
 
-    if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), {hreflang: 'en'});
-    if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), {hreflang: 'uk'});
-    upsertLink('alternate', `${origin}/`, {hreflang: 'x-default'});
+    if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), { hreflang: 'en' });
+    if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), { hreflang: 'uk' });
+    upsertLink('alternate', `${origin}/`, { hreflang: 'x-default' });
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
