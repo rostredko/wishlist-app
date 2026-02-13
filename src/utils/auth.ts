@@ -1,5 +1,14 @@
 const sessionStorageTestKey = '__auth_test__';
 
+declare global {
+  interface Window {
+    TelegramWebApp?: unknown;
+  }
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
+
 function hasWindow(): boolean {
   return typeof window !== 'undefined' && typeof navigator !== 'undefined';
 }
@@ -11,7 +20,7 @@ function hasWindow(): boolean {
 export function isTelegramWebView(): boolean {
   if (!hasWindow()) return false;
   const ua = navigator.userAgent?.toLowerCase() ?? '';
-  return ua.includes('telegram') || typeof (window as any).TelegramWebApp !== 'undefined';
+  return ua.includes('telegram') || typeof window.TelegramWebApp !== 'undefined';
 }
 
 /**
@@ -31,11 +40,11 @@ export function shouldUseRedirect(): boolean {
     ua.includes('line') ||
     ua.includes('wechat') ||
     ua.includes('instagram') ||
-    typeof (window as any).TelegramWebApp !== 'undefined';
+    typeof window.TelegramWebApp !== 'undefined';
 
   const isAndroidWebView = ua.includes('wv;') || (ua.includes('version/') && ua.includes('chrome/'));
   const isStandalonePwa =
-    (navigator as any).standalone === true ||
+    navigator.standalone === true ||
     window.matchMedia?.('(display-mode: standalone)').matches === true;
 
   return isEmbeddedMessenger || isAndroidWebView || isStandalonePwa;

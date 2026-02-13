@@ -1,22 +1,22 @@
-import {describe, it, expect, vi, beforeEach} from 'vitest';
-import {customRender as render, screen} from '../test/render';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { customRender as render, screen } from '../test/render';
 import userEvent from '@testing-library/user-event';
 import BannerUploader from '@components/BannerUploader';
 
 const uploadWishlistBanner = vi.fn();
 
 vi.mock('@api/wishListService', () => ({
-  uploadWishlistBanner: (...args: any[]) => uploadWishlistBanner(...args),
+  uploadWishlistBanner: (...args: unknown[]) => uploadWishlistBanner(...args),
 }));
 
 function makeFile({
-                    name = 'pic.png',
-                    type = 'image/png',
-                    size,
-                  }: { name?: string; type?: string; size?: number }) {
-  const file = new File(['x'], name, {type});
+  name = 'pic.png',
+  type = 'image/png',
+  size,
+}: { name?: string; type?: string; size?: number }) {
+  const file = new File(['x'], name, { type });
   if (size !== undefined) {
-    Object.defineProperty(file, 'size', {value: size});
+    Object.defineProperty(file, 'size', { value: size });
   }
   return file;
 }
@@ -34,21 +34,21 @@ describe('BannerUploader (skeleton behavior)', () => {
   });
 
   it('does not render when canEdit=false', () => {
-    const {container} = render(
+    const { container } = render(
       <BannerUploader wishlistId="wl-1" canEdit={false} onUpload={() => {
-      }}/>
+      }} />
     );
     expect(container).toBeTruthy();
-    expect(screen.queryByRole('button', {name: /upload banner/i})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /upload banner/i })).not.toBeInTheDocument();
   });
 
   it('happy path: uploads image, shows loader, calls onUpload', async () => {
     const onUpload = vi.fn();
-    const {container, findByRole} = render(
-      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload}/>
+    const { container, findByRole } = render(
+      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
 
-    const button = screen.getByRole('button', {name: /upload banner/i});
+    const button = screen.getByRole('button', { name: /upload banner/i });
 
     let resolve!: (v: string) => void;
     const url = 'https://cdn.example/banner.jpg';
@@ -60,7 +60,7 @@ describe('BannerUploader (skeleton behavior)', () => {
     );
 
     const input = getHiddenInput(container);
-    const file = makeFile({type: 'image/jpeg', size: 1024});
+    const file = makeFile({ type: 'image/jpeg', size: 1024 });
 
     await userEvent.upload(input, file);
 
@@ -78,14 +78,14 @@ describe('BannerUploader (skeleton behavior)', () => {
 
   it('rejects non-image file types and shows alert', async () => {
     const onUpload = vi.fn();
-    const {container} = render(
-      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload}/>
+    const { container } = render(
+      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
 
-    const bad = makeFile({name: 'doc.txt', type: 'text/plain', size: 50});
+    const bad = makeFile({ name: 'doc.txt', type: 'text/plain', size: 50 });
     const input = getHiddenInput(container);
 
-    await userEvent.upload(input, bad, {applyAccept: false});
+    await userEvent.upload(input, bad, { applyAccept: false });
 
     expect(window.alert).toHaveBeenCalledWith('Please select an image file.');
     expect(uploadWishlistBanner).not.toHaveBeenCalled();
@@ -94,10 +94,10 @@ describe('BannerUploader (skeleton behavior)', () => {
 
   it('rejects files larger than limit and shows alert', async () => {
     const onUpload = vi.fn();
-    const {container} = render(
-      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload}/>
+    const { container } = render(
+      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
-    const tooBig = makeFile({type: 'image/png', size: 10 * 1024 * 1024 + 1});
+    const tooBig = makeFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 });
     const input = getHiddenInput(container);
 
     await userEvent.upload(input, tooBig);
@@ -109,14 +109,14 @@ describe('BannerUploader (skeleton behavior)', () => {
 
   it('handles upload failure: alerts and clears loader', async () => {
     const onUpload = vi.fn();
-    const {container} = render(
-      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload}/>
+    const { container } = render(
+      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
 
     uploadWishlistBanner.mockRejectedValueOnce(new Error('boom'));
 
     const input = getHiddenInput(container);
-    const file = makeFile({type: 'image/png', size: 1234});
+    const file = makeFile({ type: 'image/png', size: 1234 });
 
     await userEvent.upload(input, file);
 
@@ -124,7 +124,7 @@ describe('BannerUploader (skeleton behavior)', () => {
       expect(window.alert).toHaveBeenCalledWith(
         'Failed to upload banner. Please try again.'
       );
-      expect(screen.getByRole('button', {name: /upload banner/i})).toBeEnabled();
+      expect(screen.getByRole('button', { name: /upload banner/i })).toBeEnabled();
     });
 
     expect(onUpload).not.toHaveBeenCalled();
@@ -132,20 +132,20 @@ describe('BannerUploader (skeleton behavior)', () => {
 
   it('resets input after every attempt (we can upload again)', async () => {
     const onUpload = vi.fn();
-    const {container} = render(
-      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload}/>
+    const { container } = render(
+      <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
 
     uploadWishlistBanner.mockResolvedValueOnce('https://ok');
 
     const input = getHiddenInput(container);
-    const file1 = makeFile({type: 'image/png', size: 100});
+    const file1 = makeFile({ type: 'image/png', size: 100 });
     await userEvent.upload(input, file1);
 
     await vi.waitFor(() => expect(onUpload).toHaveBeenCalledWith('https://ok'));
     onUpload.mockReset();
 
-    const file2 = makeFile({type: 'image/png', size: 100});
+    const file2 = makeFile({ type: 'image/png', size: 100 });
     await userEvent.upload(input, file2);
 
     await vi.waitFor(() => expect(onUpload).toHaveBeenCalled());

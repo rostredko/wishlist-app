@@ -1,9 +1,9 @@
-import {describe, it, expect, vi, beforeEach} from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import {Routes, Route} from 'react-router-dom';
-import {customRender as render, screen, waitFor} from '../test/render';
+import { Routes, Route } from 'react-router-dom';
+import { customRender as render, screen, waitFor } from '../test/render';
 import '../../src/i18n';
-import {WishListItemList} from '@components/WishListItemList';
+import { WishListItemList } from '@components/WishListItemList';
 
 vi.mock('canvas-confetti', () => ({
   __esModule: true,
@@ -13,7 +13,7 @@ vi.mock('canvas-confetti', () => ({
 
 vi.mock('@components/WishListHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="header-stub"/>,
+  default: () => <div data-testid="header-stub" />,
 }));
 vi.mock('@components/BannerUploader', () => ({
   __esModule: true,
@@ -25,14 +25,12 @@ vi.mock('@components/SEOHead', () => ({
 }));
 
 vi.mock('@hooks/useAuth', () => ({
-  useAuth: () => ({user: {uid: 'u1', displayName: 'Test User'}, isAdmin: false}),
+  useAuth: () => ({ user: { uid: 'u1', displayName: 'Test User' }, isAdmin: false }),
 }));
 
 import {
   getWishlistById,
   updateWishlistTitle,
-  addGiftItem,
-  deleteGiftItem,
   toggleGiftClaimStatus,
   subscribeWishlistItems,
 } from '@api/wishListService';
@@ -50,14 +48,14 @@ function renderAt(path: string) {
   window.history.pushState({}, '', path);
   return render(
     <Routes>
-      <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList/>}/>
+      <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
     </Routes>
   );
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
+  (subscribeWishlistItems as Mock).mockImplementation((_id: string, cb: (items: unknown[]) => void) => {
     cb([]);
     return () => {
     };
@@ -66,13 +64,13 @@ beforeEach(() => {
 
 describe('WishListItemList (skeleton logic)', () => {
   it('renders loading skeleton first', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce(null);
+    (getWishlistById as Mock).mockResolvedValueOnce(null);
     renderAt('/en/wishlist/wl1');
     expect(screen.getByTestId('skeleton')).toBeInTheDocument();
   });
 
   it('renders wishlist not found if API returns null', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce(null);
+    (getWishlistById as Mock).mockResolvedValueOnce(null);
     renderAt('/en/wishlist/wl1');
     await waitFor(() =>
       expect(screen.getByText(/wishlist not found/i)).toBeInTheDocument()
@@ -80,7 +78,7 @@ describe('WishListItemList (skeleton logic)', () => {
   });
 
   it('renders wishlist title when found', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Birthday',
       ownerUid: 'u1',
@@ -90,7 +88,7 @@ describe('WishListItemList (skeleton logic)', () => {
   });
 
   it('allows editing title for owner', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Old Title',
       ownerUid: 'u1',
@@ -110,7 +108,7 @@ describe('WishListItemList (skeleton logic)', () => {
   });
 
   it('opens Add Item dialog when "Add Gift" clicked', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'My List',
       ownerUid: 'u1',
@@ -118,18 +116,18 @@ describe('WishListItemList (skeleton logic)', () => {
     renderAt('/en/wishlist/wl1');
     await screen.findByText(/my list/i);
 
-    await userEvent.click(screen.getByRole('button', {name: /add gift/i}));
+    await userEvent.click(screen.getByRole('button', { name: /add gift/i }));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
   it('clicking item as non-owner (guest) opens claim confirm dialog', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Guest List',
       ownerUid: 'owner123',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
-      cb([{id: 'i1', name: 'Book', claimed: false}]);
+    (subscribeWishlistItems as Mock).mockImplementation((_id: string, cb: (items: unknown[]) => void) => {
+      cb([{ id: 'i1', name: 'Book', claimed: false }]);
       return () => {
       };
     });
@@ -142,13 +140,13 @@ describe('WishListItemList (skeleton logic)', () => {
   });
 
   it('delete item as owner shows confirm dialog', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Delete List',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
-      cb([{id: 'i2', name: 'Pen', claimed: false}]);
+    (subscribeWishlistItems as Mock).mockImplementation((_id: string, cb: (items: unknown[]) => void) => {
+      cb([{ id: 'i2', name: 'Pen', claimed: false }]);
       return () => {
       };
     });
@@ -156,18 +154,18 @@ describe('WishListItemList (skeleton logic)', () => {
     renderAt('/en/wishlist/wl1');
     await screen.findByText(/pen/i);
 
-    await userEvent.click(screen.getByRole('button', {name: /delete/i}));
+    await userEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(await screen.findByText(/confirm deletion of "pen"\?/i)).toBeInTheDocument();
   });
 
   it('toggling claim calls API when owner clicks item', async () => {
-    (getWishlistById as vi.Mock).mockResolvedValueOnce({
+    (getWishlistById as Mock).mockResolvedValueOnce({
       id: 'wl1',
       title: 'Owner List',
       ownerUid: 'u1',
     });
-    (subscribeWishlistItems as vi.Mock).mockImplementation((_id: string, cb: any) => {
-      cb([{id: 'i3', name: 'Game', claimed: false}]);
+    (subscribeWishlistItems as Mock).mockImplementation((_id: string, cb: (items: unknown[]) => void) => {
+      cb([{ id: 'i3', name: 'Game', claimed: false }]);
       return () => {
       };
     });

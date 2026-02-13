@@ -4,15 +4,15 @@
 
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
-    dataLayer?: any[];
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
 
 type EventParams = {
   event_category?: string;
   event_label?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type QueuedEvent = {
@@ -35,9 +35,9 @@ const GTAG_CHECK_INTERVAL = 50;
  * Checks if gtag is available and initialized
  */
 function isGtagReady(): boolean {
-  return typeof window !== 'undefined' && 
-         typeof window.gtag === 'function' && 
-         Array.isArray(window.dataLayer);
+  return typeof window !== 'undefined' &&
+    typeof window.gtag === 'function' &&
+    Array.isArray(window.dataLayer);
 }
 
 /**
@@ -111,7 +111,7 @@ export async function trackEvent(
   try {
     // Try to wait for gtag (non-blocking if it takes too long)
     const gtagReady = isGtagReady();
-    
+
     if (gtagReady && window.gtag) {
       try {
         window.gtag('event', eventName, params);
@@ -148,10 +148,10 @@ export async function trackPageView(
 ): Promise<void> {
   try {
     const pageTitle = title || (typeof document !== 'undefined' ? document.title : '');
-    
+
     // Try to wait for gtag (non-blocking if it takes too long)
     const gtagReady = isGtagReady();
-    
+
     if (gtagReady && window.gtag) {
       try {
         window.gtag('event', 'page_view', {

@@ -1,13 +1,13 @@
-import {initializeApp, getApps, getApp, type FirebaseApp} from 'firebase/app';
-import {getFirestore} from 'firebase/firestore';
-import {getStorage} from 'firebase/storage';
-import {getAuth, GoogleAuthProvider} from 'firebase/auth';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const isTest =
   process.env.NODE_ENV === 'test' ||
   (typeof import.meta !== 'undefined' &&
-    (import.meta as any).env &&
-    (import.meta as any).env.MODE === 'test');
+    import.meta.env &&
+    import.meta.env.MODE === 'test');
 
 const firebaseConfig = {
   apiKey:
