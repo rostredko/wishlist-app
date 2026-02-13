@@ -1,6 +1,6 @@
-import {useEffect, useMemo, useState, useCallback, useLayoutEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {useTranslation} from 'react-i18next';
+import { useEffect, useMemo, useState, useCallback, useLayoutEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -20,11 +20,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import SEOHead from '@components/SEOHead';
-import {useAuth} from '@hooks/useAuth';
-import {CreateWishListDialog} from '@components/CreateWishListDialog';
+import { useAuth } from '@hooks/useAuth';
+import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
-import type {WishList} from '@models/WishList';
-import {subscribeMyWishlists, deleteWishlistDeep} from '@api/wishListService';
+import type { WishList } from '@models/WishList';
+import { subscribeMyWishlists, deleteWishlistDeep } from '@api/wishListService';
+import VideoTutorialsSection from '@components/VideoTutorialsSection';
 
 type WLItem = WishList & { id: string };
 type RouteLang = 'ua' | 'en';
@@ -34,8 +35,8 @@ function toSeoLang(lng: RouteLang): 'uk' | 'en' {
   return lng === 'ua' ? 'uk' : 'en';
 }
 
-export default function HomePage({lang}: Props) {
-  const {t, i18n} = useTranslation(['home', 'examples']);
+export default function HomePage({ lang }: Props) {
+  const { t, i18n } = useTranslation(['home', 'examples']);
   const [ready, setReady] = useState(false);
   useLayoutEffect(() => {
     let mounted = true;
@@ -43,7 +44,7 @@ export default function HomePage({lang}: Props) {
       if (i18n.language !== lang) {
         try {
           await i18n.changeLanguage(lang);
-        } catch {}
+        } catch { }
       }
       if (mounted) setReady(true);
     })();
@@ -53,12 +54,12 @@ export default function HomePage({lang}: Props) {
   }, [lang, i18n]);
 
   const seoLang = toSeoLang(lang);
-  const {user} = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({open: false});
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({ open: false });
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -93,9 +94,9 @@ export default function HomePage({lang}: Props) {
   const handleCloseCreate = useCallback(() => setCreateOpen(false), []);
 
   const openDeleteDialog = useCallback((id: string, title?: string) => {
-    setDeleteDialog({open: true, id, title});
+    setDeleteDialog({ open: true, id, title });
   }, []);
-  const closeDeleteDialog = useCallback(() => setDeleteDialog({open: false}), []);
+  const closeDeleteDialog = useCallback(() => setDeleteDialog({ open: false }), []);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteDialog.id) return;
@@ -144,66 +145,66 @@ export default function HomePage({lang}: Props) {
   }, [t, i18n.language, ready]);
 
   return (
-    <Box component="main" sx={{py: {xs: 6, md: 10}, visibility: ready ? 'visible' : 'hidden'}}>
+    <Box component="main" sx={{ py: { xs: 6, md: 10 }, visibility: ready ? 'visible' : 'hidden' }}>
       <SEOHead
         lang={seoLang}
         title={t('title')}
         description={t('desc')}
         alternates={alternates}
         image={`${origin}/og-image.webp`}
-        structured={{ 
-          website: true, 
-          webapp: true, 
+        structured={{
+          website: true,
+          webapp: true,
           organization: true,
           faq: faqData,
           howTo: true
         }}
-        keywords={lang === 'ua' 
+        keywords={lang === 'ua'
           ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
           : 'wishlist, gift list, birthday, christmas, wedding, free, create wishlist, share wishlist'}
       />
 
       <Container maxWidth="md">
-        <Box className="hero" sx={{width: '100%'}}>
-          <Stack spacing={3} alignItems="flex-start" sx={{width: '100%'}}>
-            <Typography variant="h3" component="h1" sx={{fontWeight: 800, display: 'flex', gap: 1}}>
+        <Box className="hero" sx={{ width: '100%' }}>
+          <Stack spacing={3} alignItems="flex-start" sx={{ width: '100%' }}>
+            <Typography variant="h3" component="h1" sx={{ fontWeight: 800, display: 'flex', gap: 1 }}>
               {t('heroH1')}
             </Typography>
-            <Typography variant="h4" sx={{opacity: 0.8, pb: 3}}>
+            <Typography variant="h4" component="p" sx={{ opacity: 0.8, pb: 3 }}>
               {t('heroH2')}
             </Typography>
           </Stack>
         </Box>
 
         <Stack spacing={3} alignItems="stretch">
-          <Card variant="outlined" sx={{bgcolor: 'background.paper'}}>
+          <Card variant="outlined" sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Stack spacing={2}>
-                <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+                <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
                   {t('what')}
                 </Typography>
 
                 <Stack
                   spacing={2}
                   sx={{
-                    pl: {xs: 2, sm: 4, md: 4},
+                    pl: { xs: 2, sm: 4, md: 4 },
                     m: 0,
                   }}
                 >
-                  {(t('whatList', {returnObjects: true}) as string[]).map((item, idx) => (
+                  {(t('whatList', { returnObjects: true }) as string[]).map((item, idx) => (
                     <Typography
                       key={idx}
                       variant="body1"
-                      sx={{fontSize: 18, display: 'flex', alignItems: 'flex-start', gap: 1}}
+                      sx={{ fontSize: 18, display: 'flex', alignItems: 'flex-start', gap: 1 }}
                     >
                       {item}
                     </Typography>
                   ))}
                 </Stack>
 
-                <Divider/>
+                <Divider />
 
-                <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+                <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
                   {t('how')}
                 </Typography>
 
@@ -211,7 +212,7 @@ export default function HomePage({lang}: Props) {
                   component="ul"
                   spacing={1.5}
                   sx={{
-                    pl: {xs: 3, sm: 5, md: 6},
+                    pl: { xs: 3, sm: 5, md: 6 },
                     m: 0,
                     listStylePosition: 'outside',
                   }}
@@ -222,15 +223,21 @@ export default function HomePage({lang}: Props) {
                   <li><Typography>{t('li4')}</Typography></li>
                 </Stack>
 
-                <Divider/>
+                <Divider />
 
-                <Typography variant="subtitle1" sx={{fontWeight: 700, fontSize: 24}}>
+                <VideoTutorialsSection />
+
+                <Divider />
+
+
+
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
                   {t('examplesTitle')}
                 </Typography>
-                <Box sx={{mb: 8}}>
+                <Box sx={{ mb: 8 }}>
                   <Grid container spacing={2}>
                     {exampleCards.map((ex) => (
-                      <Grid key={ex.path} size={{xs: 12, md: 6}}>
+                      <Grid key={ex.path} size={{ xs: 12, md: 6 }}>
                         <Card
                           variant="outlined"
                           onClick={() => navigate(ex.path)}
@@ -240,25 +247,25 @@ export default function HomePage({lang}: Props) {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            px: {xs: 2, sm: 3},
-                            py: {xs: 1.5, sm: 2},
+                            px: { xs: 2, sm: 3 },
+                            py: { xs: 1.5, sm: 2 },
                             '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' },
                             transition: 'all 120ms ease',
                             gap: 2,
                           }}
                         >
-                          <Stack direction="row" spacing={2} alignItems="center" sx={{flex: 1, minWidth: 0}}>
-                            <Typography sx={{fontSize: {xs: 24, sm: 28}, lineHeight: 1}}>{ex.emoji}</Typography>
+                          <Stack direction="row" spacing={2} alignItems="center" sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography sx={{ fontSize: { xs: 24, sm: 28 }, lineHeight: 1 }}>{ex.emoji}</Typography>
                             <Typography
                               variant="subtitle1"
                               sx={{
                                 fontWeight: 700,
                                 pr: 1,
                                 overflow: 'hidden',
-                                whiteSpace: {xs: 'normal', sm: 'normal'},
-                                display: {sm: '-webkit-box'},
-                                WebkitLineClamp: {sm: 2} as any,
-                                WebkitBoxOrient: {sm: 'vertical'} as any,
+                                whiteSpace: { xs: 'normal', sm: 'normal' },
+                                display: { sm: '-webkit-box' },
+                                WebkitLineClamp: { sm: 2 } as any,
+                                WebkitBoxOrient: { sm: 'vertical' } as any,
                               }}
                             >
                               {ex.title}
@@ -274,7 +281,7 @@ export default function HomePage({lang}: Props) {
           </Card>
 
           <Tooltip title={user ? '' : t('createTooltip')} placement="top">
-            <Box sx={{width: {xs: '100%', sm: 'auto'}, display: 'flex', justifyContent: 'center'}}>
+            <Box sx={{ width: { xs: '100%', sm: 'auto' }, display: 'flex', justifyContent: 'center' }}>
               <Button
                 size="large"
                 variant="contained"
@@ -289,13 +296,13 @@ export default function HomePage({lang}: Props) {
           </Tooltip>
 
           {user && (
-            <Stack sx={{width: '100%', mt: 4}} spacing={2}>
+            <Stack sx={{ width: '100%', mt: 4 }} spacing={2}>
               <Typography
                 variant="h5"
                 sx={{
                   fontWeight: 700,
                   fontSize: 24,
-                  textAlign: {xs: 'center', md: 'left'},
+                  textAlign: { xs: 'center', md: 'left' },
                 }}
               >
                 {t('your')}
@@ -303,9 +310,9 @@ export default function HomePage({lang}: Props) {
 
               {isLoading && (
                 <Grid container spacing={2}>
-                  {Array.from({length: 6}).map((_, i) => (
-                    <Grid key={i} size={{xs: 12, md: 6, lg: 4}}>
-                      <Skeleton variant="rounded" height={96}/>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Grid key={i} size={{ xs: 12, md: 6, lg: 4 }}>
+                      <Skeleton variant="rounded" height={96} />
                     </Grid>
                   ))}
                 </Grid>
@@ -327,7 +334,7 @@ export default function HomePage({lang}: Props) {
               {!isLoading && myLists && myLists.length > 0 && (
                 <Grid container spacing={2}>
                   {myLists.map(wl => (
-                    <Grid key={wl.id} size={{xs: 12, md: 6, lg: 4}}>
+                    <Grid key={wl.id} size={{ xs: 12, md: 6, lg: 4 }}>
                       <Card
                         variant="outlined"
                         onClick={() => navigate(`/${lang}/wishlist/${wl.id}`)}
@@ -335,7 +342,7 @@ export default function HomePage({lang}: Props) {
                           cursor: 'pointer',
                           display: 'flex',
                           transition: 'transform 120ms ease, box-shadow 120ms ease',
-                          '&:hover': {transform: 'translateY(-2px)', boxShadow: 6},
+                          '&:hover': { transform: 'translateY(-2px)', boxShadow: 6 },
                         }}
                       >
                         <CardContent
@@ -346,7 +353,7 @@ export default function HomePage({lang}: Props) {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             p: 2,
-                            '&:last-child': {pb: 2},
+                            '&:last-child': { pb: 2 },
                           }}
                         >
                           <Typography
@@ -369,7 +376,7 @@ export default function HomePage({lang}: Props) {
                               openDeleteDialog(wl.id, wl.title);
                             }}
                           >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                           </IconButton>
                         </CardContent>
                       </Card>
@@ -384,13 +391,13 @@ export default function HomePage({lang}: Props) {
       </Container>
 
       <CreateWishListDialog
-        user={user ? {uid: user.uid} : null}
+        user={user ? { uid: user.uid } : null}
         open={createOpen}
         onClose={handleCloseCreate}
       />
       <ConfirmDialog
         open={deleteDialog.open}
-        title={t('deleteTitle', {name: deleteName})}
+        title={t('deleteTitle', { name: deleteName })}
         onClose={closeDeleteDialog}
         onConfirm={handleConfirmDelete}
         confirmText={t('confirmDelete')}
@@ -400,8 +407,8 @@ export default function HomePage({lang}: Props) {
         disableBackdropClose={isDeleting}
       />
 
-      <Backdrop open={isDeleting} sx={{color: '#fff', zIndex: 9999}}>
-        <CircularProgress color="inherit"/>
+      <Backdrop open={isDeleting} sx={{ color: '#fff', zIndex: 9999 }}>
+        <CircularProgress color="inherit" />
       </Backdrop>
     </Box>
   );

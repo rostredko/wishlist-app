@@ -1,5 +1,5 @@
 {
-  "title": "WishList App - create and share wishlists",
+  "title": "WishList App - Free, Simple & Anonymous Gift Lists",
   "desc": "Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.",
   "heroH1": "🎁 WishList App",
   "heroH2": "Minimal wishlist app with only what matters.",
@@ -14,6 +14,9 @@
   "li2": "Share a private URL with friends. From any device. Free.",
   "li3": "Friends anonymously claim gifts - everyone sees what’s taken.",
   "li4": "Sign in with Google to manage your lists.",
+  "videoSectionTitle": "📺 Video Tutorials",
+  "video1Title": "How to create a wishlist",
+  "video2Title": "How to pick a gift",
   "your": "📚 Your wishlists",
   "noLists": "No wishlists yet.",
   "createOne": "Create one",
@@ -23,13 +26,21 @@
   "deleteTitle": "Delete “{{name}}”?",
   "untitled": "Untitled wishlist",
   "confirmDelete": "Delete",
-  "cancel": "Cancel"
-  ,
+  "cancel": "Cancel",
   "faqTitle": "Frequently asked questions",
   "faq": [
-    {"q": "How to create a wishlist?", "a": "Sign in with Google, click \"Create wishlist\", add items, then share the private link with friends."},
-    {"q": "Is it free?", "a": "Yes. The app is free and works on any device."},
-    {"q": "Can friends claim gifts?", "a": "Yes, friends can anonymously claim items so everyone sees what’s already taken."}
+    {
+      "q": "How to create a wishlist?",
+      "a": "Sign in with Google, click \"Create wishlist\", add items, then share the private link with friends."
+    },
+    {
+      "q": "Is it free?",
+      "a": "Yes. The app is free and works on any device."
+    },
+    {
+      "q": "Can friends claim gifts?",
+      "a": "Yes, friends can anonymously claim items so everyone sees what’s already taken."
+    }
   ],
   "examplesTitle": "🎁 Wishlist examples",
   "createOwn": "Create own"

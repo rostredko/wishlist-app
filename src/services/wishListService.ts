@@ -1,4 +1,4 @@
-import {db, storage} from '@lib/firebase';
+import { db, storage } from '@lib/firebase';
 import {
   addDoc,
   collection,
@@ -15,10 +15,10 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import {getDownloadURL, ref, uploadBytes, deleteObject} from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
 
-import type {WishList} from '@models/WishList';
-import type {WishListItem} from '@models/WishListItem';
+import type { WishList } from '@models/WishList';
+import type { WishListItem } from '@models/WishListItem';
 
 type FirestoreWishListData = {
   title?: string;
@@ -47,9 +47,74 @@ export async function createWishlist(title: string, ownerUid: string): Promise<s
   return docRef.id;
 }
 
+const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
+  'christmas-list': {
+    title: 'Christmas Wishlist',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'christmas-list-ua': {
+    title: 'Мій вішліст до Різдва',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'birthday-list': {
+    title: 'My Birthday Wishlist',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1530103862676-de3c9a59af57?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'birthday-list-ua': {
+    title: 'Мій вішліст на День Народження',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1530103862676-de3c9a59af57?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'secret-santa-list': {
+    title: 'Secret Santa',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1512474932049-782b70437cae?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'secret-santa-list-ua': {
+    title: 'Таємний Санта',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1512474932049-782b70437cae?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'wedding-list': {
+    title: 'Wedding Registry',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+  'wedding-list-ua': {
+    title: 'Весільний вішліст',
+    ownerUid: 'demo',
+    bannerImage: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80',
+    isHidden: false,
+  },
+};
+
 export async function getWishlistById(wishlistId: string): Promise<WishList | null> {
   const snap = await getDoc(doc(db, 'wishlists', wishlistId));
-  if (!snap.exists()) return null;
+
+  if (!snap.exists()) {
+    if (DEMO_WISHLISTS[wishlistId]) {
+      return {
+        id: wishlistId,
+        title: DEMO_WISHLISTS[wishlistId].title!,
+        ownerUid: 'demo',
+        bannerImage: DEMO_WISHLISTS[wishlistId].bannerImage!,
+        isHidden: false,
+        createdAt: Timestamp.now(),
+      };
+    }
+    return null;
+  }
+
   const data = snap.data() as FirestoreWishListData;
   return {
     id: snap.id,
@@ -62,7 +127,7 @@ export async function getWishlistById(wishlistId: string): Promise<WishList | nu
 }
 
 export async function updateWishlistTitle(wishlistId: string, newTitle: string): Promise<void> {
-  await updateDoc(doc(db, 'wishlists', wishlistId), {title: newTitle.trim()});
+  await updateDoc(doc(db, 'wishlists', wishlistId), { title: newTitle.trim() });
 }
 
 export function subscribeMyWishlists(
@@ -147,7 +212,7 @@ export function subscribeWishlistItems(
   return onSnapshot(colRef, (snapshot) => {
     const items = snapshot.docs.map((docSnap) => {
       const data = docSnap.data() as FirestoreWishListItemData;
-      return {id: docSnap.id, ...data};
+      return { id: docSnap.id, ...data };
     });
     cb(items);
   });
@@ -161,7 +226,7 @@ export async function uploadWishlistBanner(wishlistId: string, file: File): Prom
     cacheControl: 'public,max-age=31536000,immutable',
   });
   const url = await getDownloadURL(storageRef);
-  await updateDoc(doc(db, 'wishlists', wishlistId), {bannerImage: url});
+  await updateDoc(doc(db, 'wishlists', wishlistId), { bannerImage: url });
   return url;
 }
 
@@ -171,9 +236,9 @@ export async function updateGiftItem(
   patch: { name?: string; description?: string; link?: string }
 ): Promise<void> {
   const normalized = {
-    ...(patch.name !== undefined ? {name: patch.name.trim()} : {}),
-    ...(patch.description !== undefined ? {description: patch.description.trim()} : {}),
-    ...(patch.link !== undefined ? {link: patch.link.trim()} : {}),
+    ...(patch.name !== undefined ? { name: patch.name.trim() } : {}),
+    ...(patch.description !== undefined ? { description: patch.description.trim() } : {}),
+    ...(patch.link !== undefined ? { link: patch.link.trim() } : {}),
   };
   await updateDoc(doc(db, 'wishlists', wishlistId, 'items', itemId), normalized);
 }
