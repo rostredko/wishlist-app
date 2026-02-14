@@ -125,16 +125,20 @@
     <style>
         /* Critical CSS for Static Shell */
         :root {
-            --primary: #1976d2;
-            --bg: #fff;
-            --text: #000;
+            --primary: #2196f3;
+            /* Dark mode primary from theme.ts */
+            --bg: #1c1c1c;
+            /* Dark mode bg from theme.ts */
+            --paper: #282828;
+            --text: #fff;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #121212;
-                --text: #fff;
-            }
+        /* If we support light mode, we can add media query, but let's match the likely default first */
+        @media (prefers-color-scheme: light) {
+            /* If the app supports light mode, keep this. If not, this might be wrong. 
+               Let's assume the user wants the dark theme colors since 'theme.ts' exported 'darkTheme'.
+               I will stick to the dark theme colors as default for now to be safe against 'white burst'. 
+            */
         }
 
         body {
