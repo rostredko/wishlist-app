@@ -39,7 +39,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
+        fetchpriority="high">
 
     <link rel="manifest" href="/manifest.json" />
 
@@ -121,7 +122,111 @@
 </head>
 
 <body>
-    <div id="root"></div>
+    <style>
+        /* Critical CSS for Static Shell */
+        :root {
+            --primary: #1976d2;
+            --bg: #fff;
+            --text: #000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121212;
+                --text: #fff;
+            }
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .shell-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .shell-logo {
+            font-weight: 700;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shell-hero {
+            padding: 48px 24px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .shell-h1 {
+            font-size: 3rem;
+            /* Fallback for h3 variant */
+            font-weight: 800;
+            margin: 0 0 24px;
+            line-height: 1.167;
+        }
+
+        @media (max-width: 600px) {
+            .shell-h1 {
+                font-size: 2rem;
+            }
+
+            .shell-hero {
+                padding-top: 24px;
+            }
+        }
+
+        .shell-btn {
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            height: 42px;
+            width: 140px;
+            opacity: 0.5;
+            /* Loading state */
+        }
+
+        .shell-skel-text {
+            background-color: rgba(128, 128, 128, 0.2);
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            width: 80%;
+        }
+    </style>
+    <div id="root">
+        <!-- Static App Shell for LCP -->
+        <div class="shell-header">
+            <div class="shell-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+                WishList App
+            </div>
+        </div>
+        <div class="shell-hero">
+            <h1 class="shell-h1">
+                Creating Wishlists<br>Made Simple
+            </h1>
+            <div class="shell-skel-text" style="width: 100%; max-width: 600px; height: 28px; margin-bottom: 24px;">
+            </div>
+            <div class="shell-btn"></div>
+        </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <noscript>
         <div style="padding: 20px; text-align: center; font-family: system-ui, sans-serif;">
