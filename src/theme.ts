@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 
-export const darkTheme = createTheme({
+/** Base theme for breakpoint keys (mobile-first typography scales up from default / xs). */
+const foundation = createTheme({
   palette: {
     mode: "dark",
     primary: {
@@ -11,11 +12,31 @@ export const darkTheme = createTheme({
       paper: "#282828",
     },
   },
+});
+
+export const darkTheme = createTheme(foundation, {
   typography: {
     fontFamily: 'Inter, Roboto, sans-serif',
     h3: {
       fontWeight: 500,
-      fontSize: '2.5rem',
+      fontSize: '1.65rem',
+      lineHeight: 1.25,
+      [foundation.breakpoints.up('sm')]: {
+        fontSize: '2rem',
+      },
+      [foundation.breakpoints.up('md')]: {
+        fontSize: '2.5rem',
+      },
     },
-  }
+    h4: {
+      fontSize: '1.2rem',
+      lineHeight: 1.35,
+      [foundation.breakpoints.up('sm')]: {
+        fontSize: '1.35rem',
+      },
+      [foundation.breakpoints.up('md')]: {
+        fontSize: '2.125rem',
+      },
+    },
+  },
 });

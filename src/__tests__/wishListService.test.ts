@@ -181,4 +181,45 @@ describe('wishListService', () => {
       link: 'l',
     });
   });
+
+  describe('DEMO_WISHLISTS fallback', () => {
+    it('returns demo wishlist for known example ID when not in Firestore', async () => {
+      (getDoc as Mock).mockResolvedValue({ exists: () => false });
+      const result = await getWishlistById('christmas-list');
+      expect(result).not.toBeNull();
+      expect(result?.title).toBe('Christmas Wish List 2026');
+      expect(result?.ownerUid).toBe('demo');
+    });
+
+    it('returns null for unknown ID not in DEMO_WISHLISTS', async () => {
+      (getDoc as Mock).mockResolvedValue({ exists: () => false });
+      const result = await getWishlistById('not-a-demo-wishlist');
+      expect(result).toBeNull();
+    });
+
+    it('all 8 example IDs fall back with ownerUid=demo (cannot be claimed by regular users)', async () => {
+      const exampleIds = [
+        'christmas-list', 'christmas-list-ua',
+        'birthday-list', 'birthday-list-ua',
+        'secret-santa-list', 'secret-santa-list-ua',
+        'wedding-list', 'wedding-list-ua',
+      ];
+      for (const id of exampleIds) {
+        (getDoc as Mock).mockResolvedValue({ exists: () => false });
+        const result = await getWishlistById(id);
+        expect(result?.ownerUid).toBe('demo');
+      }
+    });
+
+    it('Firestore record takes precedence over DEMO_WISHLISTS when it exists', async () => {
+      (getDoc as Mock).mockResolvedValue({
+        exists: () => true,
+        id: 'christmas-list',
+        data: () => ({ title: 'Custom Override', ownerUid: 'u99', bannerImage: '', isHidden: false }),
+      });
+      const result = await getWishlistById('christmas-list');
+      expect(result?.title).toBe('Custom Override');
+      expect(result?.ownerUid).toBe('u99');
+    });
+  });
 });

@@ -24,6 +24,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
+import type { MenuProps } from '@mui/material/Menu';
 import {
   Box,
   TextField,
@@ -184,14 +185,15 @@ const WishListItemRow = memo(function WishListItemRow({
     e.stopPropagation();
     setMenuAnchor(e.currentTarget);
   };
-  const closeMenu = (
-    event?: React.MouseEvent<HTMLElement> | {},
-    _reason?: 'escapeKeyDown' | 'backdropClick' | 'tabKeyDown'
-  ) => {
-    if (event && 'stopPropagation' in event) {
+  const settleCloseMenu = (event?: unknown) => {
+    if (event && typeof event === 'object' && 'stopPropagation' in event) {
       (event as React.MouseEvent).stopPropagation();
     }
     setMenuAnchor(null);
+  };
+
+  const closeMenu: MenuProps['onClose'] = (event) => {
+    settleCloseMenu(event);
   };
 
   const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -358,7 +360,7 @@ const WishListItemRow = memo(function WishListItemRow({
                   <MenuItem
                     onClick={(e) => {
                       e.stopPropagation();
-                      closeMenu(e);
+                      settleCloseMenu(e);
                       onEditClick();
                     }}
                   >
@@ -370,7 +372,7 @@ const WishListItemRow = memo(function WishListItemRow({
                   <MenuItem
                     onClick={(e) => {
                       e.stopPropagation();
-                      closeMenu(e);
+                      settleCloseMenu(e);
                       onDeleteClick();
                     }}
                   >
@@ -391,6 +393,41 @@ const WishListItemRow = memo(function WishListItemRow({
 
 type RouteLang = 'ua' | 'en';
 const toSeoLang = (lng: RouteLang): 'uk' | 'en' => (lng === 'ua' ? 'uk' : 'en');
+
+const EXAMPLE_SEO: Record<string, { title: string; description: string }> = {
+  'christmas-list': {
+    title: 'Christmas Wish List 2026 - Free Holiday Gift List | WishList App',
+    description: 'Browse a Christmas wish list example. Create your own free holiday gift list and share it with family - friends can anonymously claim gifts.',
+  },
+  'christmas-list-ua': {
+    title: 'Вішліст на Новий Рік та Різдво 2026 - Безкоштовний | WishList App',
+    description: 'Перегляньте приклад новорічного вішліста. Зробіть свій список бажань безкоштовно та поділіться з друзями.',
+  },
+  'birthday-list': {
+    title: 'Birthday Wishlist Example - Free Gift List Maker | WishList App',
+    description: 'Browse a birthday wishlist example. Create your own free birthday gift list and share the private link with friends.',
+  },
+  'birthday-list-ua': {
+    title: 'Вішліст на День Народження - Безкоштовний Приклад | WishList App',
+    description: 'Перегляньте приклад вішліста на день народження. Зробіть свій список побажань безкоштовно.',
+  },
+  'secret-santa-list': {
+    title: 'Secret Santa Wishlist Example - Free Gift List | WishList App',
+    description: 'Browse a Secret Santa wishlist example. Create your own free Secret Santa gift list and share it with your group.',
+  },
+  'secret-santa-list-ua': {
+    title: 'Вішліст Таємного Санти - Безкоштовний Приклад | WishList App',
+    description: 'Перегляньте приклад вішліста для Таємного Санти. Зробіть свій список подарунків безкоштовно.',
+  },
+  'wedding-list': {
+    title: 'Wedding Wishlist Example - Free Wedding Gift Registry | WishList App',
+    description: 'Browse a wedding wishlist example. Create your free wedding gift registry and share it with guests.',
+  },
+  'wedding-list-ua': {
+    title: 'Весільний Вішліст - Безкоштовний Приклад | WishList App',
+    description: 'Перегляньте приклад весільного вішліста. Зробіть свій список побажань до весілля безкоштовно.',
+  },
+};
 
 export function WishListItemList() {
   const { t, i18n } = useTranslation(['wishlist', 'examples']);
@@ -606,19 +643,25 @@ export function WishListItemList() {
       ? `${origin}/${routeLang}/wishlist/${wishlistId}`
       : '';
 
+  const exampleSeo = !canEdit && wishlistId ? EXAMPLE_SEO[wishlistId] : undefined;
+
   const pageTitle =
-    status === 'found' && wishlist
-      ? `${wishlist.title} - WishList App`
-      : status === 'not_found'
-        ? `${t('notFoundTitle')} - WishList App`
-        : 'WishList App';
+    exampleSeo
+      ? exampleSeo.title
+      : status === 'found' && wishlist
+        ? `${wishlist.title} - WishList App`
+        : status === 'not_found'
+          ? `${t('notFoundTitle')} - WishList App`
+          : 'WishList App';
 
   const pageDescription =
-    status === 'found' && wishlist
-      ? t('pageDescriptionView', { name: wishlist.title })
-      : status === 'not_found'
-        ? t('pageDescriptionNotFound')
-        : t('pageDescriptionLoading');
+    exampleSeo
+      ? exampleSeo.description
+      : status === 'found' && wishlist
+        ? t('pageDescriptionView', { name: wishlist.title })
+        : status === 'not_found'
+          ? t('pageDescriptionNotFound')
+          : t('pageDescriptionLoading');
 
   const ogImage =
     wishlist && wishlist.bannerImage ? wishlist.bannerImage : `${origin}/og-image.webp`;

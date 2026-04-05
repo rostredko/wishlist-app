@@ -12,9 +12,14 @@ import { Box, CssBaseline, ThemeProvider, CircularProgress } from '@mui/material
 import { getRedirectResult } from 'firebase/auth';
 import { darkTheme } from './theme';
 import Cookies from 'js-cookie';
-import { isProbablyBot, detectPreferredLang, SUPPORTED_LANGS } from './utils/locale';
+import { isProbablyBot, detectPreferredLang, SUPPORTED_LANGS, type SupportedLang } from './utils/locale';
 import { auth } from '@lib/auth-client';
+import { useAuth } from '@hooks/useAuth';
 import { trackPageView } from './utils/analytics';
+
+function scrollWindowToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+}
 
 const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
@@ -30,7 +35,7 @@ function FirstVisitGate() {
     if (isProbablyBot(navigator.userAgent)) return;
 
     const cookieLang = Cookies.get('lng');
-    if (cookieLang && SUPPORTED_LANGS.includes(cookieLang as any)) {
+    if (cookieLang && SUPPORTED_LANGS.includes(cookieLang as SupportedLang)) {
       if (loc.pathname === '/') nav(`/${cookieLang}`, { replace: true });
       return;
     }
@@ -129,11 +134,37 @@ function RouteTracker() {
   return null;
 }
 
+/** SPA: keep window scroll at top on navigation; also after sign-in so focus/footer does not leave the viewport at the bottom. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const { user } = useAuth();
+  const hadUserRef = useRef<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    scrollWindowToTop();
+  }, [pathname]);
+
+  useEffect(() => {
+    const signedIn = user != null;
+    if (hadUserRef.current === undefined) {
+      hadUserRef.current = signedIn;
+      return;
+    }
+    if (!hadUserRef.current && signedIn) {
+      scrollWindowToTop();
+    }
+    hadUserRef.current = signedIn;
+  }, [user]);
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
+        <ScrollToTop />
         <AuthRedirectHandler />
         <RouteTracker />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

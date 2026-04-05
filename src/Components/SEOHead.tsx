@@ -328,14 +328,6 @@ export default function SEOHead({
         url: origin + '/',
         description: description,
         inLanguage: [lang === 'uk' ? 'uk-UA' : 'en-US'],
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: origin + '/?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
       });
     }
 
@@ -412,37 +404,67 @@ export default function SEOHead({
     }
 
     if (structured?.howTo) {
+      const isUk = lang === 'uk';
       upsertJsonLd('howto', {
         '@context': 'https://schema.org',
         '@type': 'HowTo',
-        name: 'How to use WishList App',
-        description: 'Learn how to create and share wishlists with friends using WishList App',
-        step: [
-          {
-            '@type': 'HowToStep',
-            position: 1,
-            name: 'Create a wishlist',
-            text: 'Sign in with Google and click "Create wishlist" button to start.',
-          },
-          {
-            '@type': 'HowToStep',
-            position: 2,
-            name: 'Share the link',
-            text: 'Share the private URL with friends. Works from any device and is completely free.',
-          },
-          {
-            '@type': 'HowToStep',
-            position: 3,
-            name: 'Friends claim gifts',
-            text: 'Friends can anonymously claim gifts so everyone sees what\'s already taken.',
-          },
-          {
-            '@type': 'HowToStep',
-            position: 4,
-            name: 'Manage your lists',
-            text: 'Sign in with Google to manage and organize all your wishlists.',
-          },
-        ],
+        name: isUk ? 'Як користуватися WishList App' : 'How to use WishList App',
+        description: isUk
+          ? 'Дізнайтеся як створити вішліст та поділитися ним із друзями за допомогою WishList App'
+          : 'Learn how to create and share wishlists with friends using WishList App',
+        step: isUk
+          ? [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Зробіть вішліст',
+                text: 'Увійдіть через Google та натисніть «Створити вішліст», щоб розпочати.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Поділіться посиланням',
+                text: 'Надішліть приватне посилання друзям. Працює з будь-якого пристрою, безкоштовно.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Друзі бронюють подарунки',
+                text: 'Друзі анонімно бронюють подарунки - усі бачать, що вже зайнято.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 4,
+                name: 'Керуйте своїми списками',
+                text: 'Увійдіть через Google, щоб керувати та організовувати всі свої вішлісти.',
+              },
+            ]
+          : [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Create a wishlist',
+                text: 'Sign in with Google and click "Create wishlist" button to start.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Share the link',
+                text: 'Share the private URL with friends. Works from any device and is completely free.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Friends claim gifts',
+                text: 'Friends can anonymously claim gifts so everyone sees what\'s already taken.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 4,
+                name: 'Manage your lists',
+                text: 'Sign in with Google to manage and organize all your wishlists.',
+              },
+            ],
       });
     }
 

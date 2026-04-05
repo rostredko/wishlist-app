@@ -3,16 +3,19 @@ import { customRender as render, screen } from '../test/render';
 
 vi.mock('react-i18next', async (orig) => {
   const actual = await (orig() as Promise<unknown>);
+  const tMap: Record<string, string> = {
+    brandName: 'WishList App',
+    wishlistBanner: 'Wishlist banner',
+    backToHome: 'Back to Home',
+  };
   return {
     ...actual,
     useTranslation: () => ({
-      t: (key: string) => key,
+      t: (key: string) => tMap[key] ?? key,
       i18n: { changeLanguage: () => Promise.resolve(), language: 'en' },
     }),
   };
 });
-
-vi.mock('@assets/favicon.png', () => ({ default: 'mock-logo.png' }));
 
 const onUploadClick = vi.fn();
 
@@ -58,14 +61,14 @@ describe('WishlistHeader (skeleton behavior)', () => {
     expect(c2.firstChild).toBeNull();
   });
 
-  it('renders logo, title and home link', () => {
+  it('renders gift emoji brand and home link', () => {
     render(<WishlistHeader wishlist={baseWishlist()} canEdit={false} onBannerUpload={onUploadClick} />);
 
-    const homeLink = screen.getByRole('link', { name: /backToHome/i });
+    const homeLink = screen.getByRole('link', { name: /back to home/i });
     expect(homeLink).toHaveAttribute('href', '/');
 
-    expect(screen.getByAltText(/wishlist logo/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /mywishlist app/i, level: 1 })).toBeInTheDocument();
+    expect(homeLink).toHaveTextContent('🎁');
+    expect(homeLink).toHaveTextContent('WishList App');
   });
 
   it('does not render BannerUploader when canEdit=false', () => {
@@ -92,7 +95,7 @@ describe('WishlistHeader (skeleton behavior)', () => {
         onBannerUpload={onUploadClick}
       />
     );
-    expect(screen.getByRole('link', { name: /backToHome/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /back to home/i })).toBeInTheDocument();
     expect(screen.getByTestId('mock-uploader')).toBeInTheDocument();
   });
 });

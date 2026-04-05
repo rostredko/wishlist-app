@@ -1,15 +1,16 @@
 {
-  "title": "WishList App - Free, Simple & Anonymous Gift Lists",
-  "desc": "Create and share wishlists for any occasion. Friends can anonymously claim gifts so everyone sees what’s already taken. Simple and free.",
-  "heroH1": "🎁 WishList App",
-  "heroH2": "Minimal wishlist app with only what matters.",
+  "brandName": "WishList App",
+  "title": "Create a Wishlist Free Online | Gift List Maker - WishList App",
+  "desc": "Create a wishlist in 30 seconds - free. Share with friends who anonymously claim gifts. Build your wish list for any birthday, Christmas, or wedding →",
+  "heroH1": "Create a Wishlist - Free Gift List Maker Online",
+  "heroH2": "Share your wishlist link - friends reserve gifts anonymously. Simple, fast, and free.",
   "what": "✨ What is it?",
   "whatList": [
     "🎯 A clean, distraction-free wishlist app with only the core features that you need.",
     "🆓 Free and accessible from any device.",
     "🎉 Create a wishlist for Birthday, New Year, Secret Santa, Christmas, Wedding, or any other occasion."
   ],
-  "how": "🧭 How it works",
+  "how": "🧭 How it works?",
   "li1": "Create a wishlist in seconds. Button below.",
   "li2": "Share a private URL with friends. From any device. Free.",
   "li3": "Friends anonymously claim gifts - everyone sees what’s taken.",
@@ -30,16 +31,40 @@
   "faqTitle": "Frequently asked questions",
   "faq": [
     {
-      "q": "How to create a wishlist?",
-      "a": "Sign in with Google, click \"Create wishlist\", add items, then share the private link with friends."
-    },
-    {
       "q": "Is it free?",
       "a": "Yes. The app is free and works on any device."
     },
     {
       "q": "Can friends claim gifts?",
       "a": "Yes, friends can anonymously claim items so everyone sees what’s already taken."
+    },
+    {
+      "q": "How to create a wishlist?",
+      "a": "Sign in with Google, click \"Create wishlist\", add items, share the private link."
+    },
+    {
+      "q": "Where can I create a free wish list?",
+      "a": "Just right here. On wishlistapp.com.ua - free, no ads, no signup required to view."
+    },
+    {
+      "q": "What is a wishlist?",
+      "a": "A wishlist is a list of gifts you share with friends so they know what to get you."
+    },
+    {
+      "q": "How to share a wishlist with friends?",
+      "a": "Copy the private link and send it via any messenger or social network."
+    },
+    {
+      "q": "Do I need to sign up?",
+      "a": "To view and claim gifts - no. To create a list - sign in with Google."
+    },
+    {
+      "q": "Where can I see my wishlists?",
+      "a": "Sign in with Google, then scroll down on this same page. Under the heading \"📚 Your wishlists\" your lists show up as cards - click a card to open that wishlist."
+    },
+    {
+      "q": "Can I add a banner image to my wishlist?",
+      "a": "Yes. Open your wishlist while signed in as the owner (you must be able to edit it). At the top, next to the banner area, click the \"Upload\" button, pick an image from your device, and wait until the upload finishes. The banner appears at the top of the page for everyone who opens your link."
     }
   ],
   "examplesTitle": "🎁 Wishlist examples",

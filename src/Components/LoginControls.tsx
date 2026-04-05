@@ -120,7 +120,15 @@ export default function Footer() {
         alignItems: 'center',
       }}
     >
-      <Card variant="outlined" sx={{ bgcolor: 'background.paper', width: '100%', maxWidth: 'md' }}>
+      <Card
+        variant="outlined"
+        sx={{
+          bgcolor: 'background.paper',
+          width: '100%',
+          maxWidth: (theme) => theme.breakpoints.values.md,
+          alignSelf: 'stretch',
+        }}
+      >
         <CardContent>
           <Stack spacing={2}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>

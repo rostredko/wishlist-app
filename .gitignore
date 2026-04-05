@@ -13,6 +13,12 @@ dist-ssr
 *.local
 .env
 
+# Local docs only (not for repo) - includes ui-kit, plans, notes
+docs/
+
+# Claude Code local settings (machine-specific, not for repo)
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

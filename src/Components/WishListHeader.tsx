@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 
 import BannerUploader from '@components/BannerUploader';
 import type { WishList } from '@models/WishList';
-import GiftLogo from '@assets/favicon.png';
 
 type Props = {
   wishlist: WishList | null;
@@ -16,11 +15,12 @@ type Props = {
 };
 
 const WishlistHeader = ({ wishlist, canEdit, isExampleWishlist = false, isAdmin = false, onBannerUpload }: Props) => {
+  const { lng } = useParams();
+  const { t } = useTranslation('wishlist');
+
   if (!wishlist?.id) return null;
 
   const { id, bannerImage } = wishlist;
-  const { lng } = useParams();
-  const { t } = useTranslation('wishlist');
 
   const homeHref =
     lng === 'ua' || lng === 'en'
@@ -111,9 +111,18 @@ const WishlistHeader = ({ wishlist, canEdit, isExampleWishlist = false, isAdmin 
             },
           }}
         >
-          <img src={GiftLogo} alt="WishList Logo" width={70} height={70} />
-          <Typography variant="h3" component="h1" sx={{ m: 0, fontWeight: 800 }}>
-            MyWishList App
+          <Box
+            aria-hidden
+            sx={{
+              fontSize: { xs: '3rem', sm: '3.5rem' },
+              lineHeight: 1,
+              userSelect: 'none',
+            }}
+          >
+            🎁
+          </Box>
+          <Typography variant="h3" component="span" sx={{ m: 0, fontWeight: 800 }}>
+            {t('brandName')}
           </Typography>
         </Box>
 

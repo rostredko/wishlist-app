@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails, Container } from '@mui/material';
-import { signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useAuth } from '@hooks/useAuth';
-import { auth, googleProvider } from '@lib/auth-client';
-import { canUseRedirectFlow, isTelegramWebView, shouldUseRedirect } from '@utils/auth';
+import { useGoogleSignIn } from '@hooks/useGoogleSignIn';
+import { auth } from '@lib/auth-client';
 
 export default function Footer() {
   const location = useLocation();
@@ -15,7 +15,7 @@ export default function Footer() {
   const { t } = useTranslation(['auth', 'home']);
   const { user, isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
-  const isTelegram = isTelegramWebView();
+  const { signIn: handleSignIn, loading: signInLoading, isTelegram } = useGoogleSignIn();
 
   // Note: getRedirectResult is handled in App.tsx (AuthRedirectHandler)
   // to avoid duplicate calls since Firebase clears the result after first call
@@ -35,73 +35,6 @@ export default function Footer() {
     },
     [loading],
   );
-
-  const handleSignIn = useCallback(async () => {
-    if (loading) return;
-
-    // Don't attempt sign-in in Telegram webview - show instruction instead
-    if (isTelegram) {
-      return;
-    }
-
-    const redirectSupported = canUseRedirectFlow();
-    const preferRedirect = shouldUseRedirect();
-
-    const triggerRedirect = async () => {
-      if (!redirectSupported) {
-        throw Object.assign(new Error('Redirect sign-in is not supported in this browser'), {
-          code: 'auth/redirect-unsupported',
-        });
-      }
-      await signInWithRedirect(auth, googleProvider);
-    };
-
-    try {
-      setLoading(true);
-
-      if (redirectSupported) {
-        try {
-          sessionStorage.setItem('auth_return_url', location.pathname + location.search);
-        } catch {
-          // sessionStorage not available, continue anyway
-        }
-      }
-
-      if (preferRedirect && redirectSupported) {
-        await triggerRedirect();
-        return;
-      }
-
-      try {
-        await signInWithPopup(auth, googleProvider);
-      } catch (popupError: any) {
-        const shouldFallbackToRedirect =
-          redirectSupported &&
-          (
-            popupError.code === 'auth/popup-blocked' ||
-            popupError.code === 'auth/popup-closed-by-user' ||
-            popupError.code === 'auth/operation-not-supported-in-this-environment' ||
-            popupError.message?.includes('sessionStorage') ||
-            popupError.message?.includes('initial state') ||
-            popupError.message?.includes('missing initial state')
-          );
-
-        if (shouldFallbackToRedirect) {
-          await triggerRedirect();
-          return;
-        }
-
-        throw popupError;
-      }
-    } catch (e: any) {
-      console.error('Sign-in error:', e);
-      if (!e.code || !String(e.code).startsWith('auth/redirect')) {
-        alert(t('auth:signinFailed'));
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [loading, t, location.pathname, location.search, isTelegram]);
 
   const handleSignOut = useCallback(
     () => run(() => signOut(auth), t('auth:signoutFailed')),
@@ -157,7 +90,7 @@ export default function Footer() {
             <Typography variant="body1" sx={{ color: '#aaa' }}>
               👋&nbsp; {user.displayName} {isAdmin ? t('auth:admin') : ''}
             </Typography>
-            <Button variant="outlined" color="secondary" onClick={handleSignOut} disabled={loading}>
+            <Button variant="outlined" color="secondary" onClick={handleSignOut} disabled={loading || signInLoading}>
               {loading ? t('auth:pleaseWait') : t('auth:signOut')}
             </Button>
           </>
@@ -188,8 +121,8 @@ export default function Footer() {
             </Button>
           </Stack>
         ) : (
-          <Button variant="outlined" onClick={handleSignIn} disabled={loading}>
-            {loading ? t('auth:pleaseWait') : t('auth:signIn')}
+          <Button variant="outlined" onClick={handleSignIn} disabled={signInLoading}>
+            {signInLoading ? t('auth:pleaseWait') : t('auth:signIn')}
           </Button>
         )}
       </Box>

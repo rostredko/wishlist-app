@@ -4,6 +4,8 @@ import { Routes, Route } from 'react-router-dom';
 import { customRender as render, screen, waitFor } from '../test/render';
 import '../../src/i18n';
 import { WishListItemList } from '@components/WishListItemList';
+import SEOHead from '@components/SEOHead';
+import { useAuth } from '@hooks/useAuth';
 
 vi.mock('canvas-confetti', () => ({
   __esModule: true,
@@ -21,11 +23,11 @@ vi.mock('@components/BannerUploader', () => ({
 }));
 vi.mock('@components/SEOHead', () => ({
   __esModule: true,
-  default: () => null,
+  default: vi.fn(() => null),
 }));
 
 vi.mock('@hooks/useAuth', () => ({
-  useAuth: () => ({ user: { uid: 'u1', displayName: 'Test User' }, isAdmin: false }),
+  useAuth: vi.fn(() => ({ user: { uid: 'u1', displayName: 'Test User' }, isAdmin: false })),
 }));
 
 import {
@@ -55,6 +57,7 @@ function renderAt(path: string) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(useAuth).mockReturnValue({ user: { uid: 'u1', displayName: 'Test User' }, isAdmin: false });
   (subscribeWishlistItems as Mock).mockImplementation((_id: string, cb: (items: unknown[]) => void) => {
     cb([]);
     return () => {
@@ -175,6 +178,59 @@ describe('WishListItemList (skeleton logic)', () => {
 
     await waitFor(() =>
       expect(toggleGiftClaimStatus).toHaveBeenCalledWith('wl1', 'i3', false)
+    );
+  });
+});
+
+describe('WishListItemList - EXAMPLE_SEO title override', () => {
+  it('uses keyword-rich SEO title for known example wishlist ID', async () => {
+    (getWishlistById as Mock).mockResolvedValueOnce({
+      id: 'christmas-list',
+      title: 'Christmas Wish List 2026',
+      ownerUid: 'demo',
+    });
+    renderAt('/en/wishlist/christmas-list');
+    await waitFor(() =>
+      expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Christmas Wish List 2026 - Free Holiday Gift List | WishList App',
+        }),
+        undefined
+      )
+    );
+  });
+
+  it('uses regular title for non-example wishlist IDs', async () => {
+    (getWishlistById as Mock).mockResolvedValueOnce({
+      id: 'wl-custom',
+      title: 'My Custom List',
+      ownerUid: 'u1',
+    });
+    renderAt('/en/wishlist/wl-custom');
+    await waitFor(() =>
+      expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'My Custom List - WishList App' }),
+        undefined
+      )
+    );
+  });
+
+  it('admin (canEdit=true) on example wishlist sees regular title, not SEO override', async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { uid: 'admin-uid', displayName: 'Admin' },
+      isAdmin: true,
+    });
+    (getWishlistById as Mock).mockResolvedValueOnce({
+      id: 'birthday-list',
+      title: 'Birthday Wishlist Example',
+      ownerUid: 'demo',
+    });
+    renderAt('/en/wishlist/birthday-list');
+    await waitFor(() =>
+      expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Birthday Wishlist Example - WishList App' }),
+        undefined
+      )
     );
   });
 });

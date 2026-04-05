@@ -74,8 +74,8 @@ describe('HomePage – delete wishlist flow', () => {
     emitLists([]);
     render(<HomePage lang="en" />);
 
-    const btn = screen.getByRole('button', { name: /create wishlist/i });
-    await userEvent.click(btn);
+    const createBtns = screen.getAllByRole('button', { name: /create wishlist/i });
+    await userEvent.click(createBtns[createBtns.length - 1]);
 
     expect(await screen.findByText(/new wishlist/i)).toBeInTheDocument();
   });

@@ -8,7 +8,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="verify-admitad" content="7ddfd97b5a" />
     <meta name="description"
-        content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно." />
+        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
     <meta name="keywords"
         content="вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст, поділитися вішлістом" />
     <meta name="author" content="WishList App" />
@@ -17,9 +17,9 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://wishlistapp.com.ua/" />
-    <meta property="og:title" content="WishList App - створюйте та діліться вішлістами" />
+    <meta property="og:title" content="Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App" />
     <meta property="og:description"
-        content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно." />
+        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
     <meta property="og:image" content="https://wishlistapp.com.ua/og-image.webp" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:locale:alternate" content="en_US" />
@@ -27,9 +27,9 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="WishList App - створюйте та діліться вішлістами" />
+    <meta name="twitter:title" content="Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App" />
     <meta name="twitter:description"
-        content="Створюйте та діліться списками бажань для будь-якої події. Друзі можуть анонімно бронювати подарунки — усі бачать, що вже зайнято. Просто й безкоштовно." />
+        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
     <meta name="twitter:image" content="https://wishlistapp.com.ua/og-image.webp" />
 
     <!-- Language alternates -->
@@ -42,6 +42,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
         fetchpriority="high">
 
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <link rel="manifest" href="/manifest.json" />
 
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
@@ -88,19 +91,20 @@
         }
 
 
+        /* Mobile-first: tight shell hero on small viewports, roomier from sm up */
         .hero {
             display: grid;
             align-content: start;
             justify-items: start;
-            row-gap: 8px;
-            padding: 24px 0 8px;
+            row-gap: 6px;
+            padding: 16px 0 4px;
             min-height: 0;
         }
 
-        @media (max-width: 599px) {
+        @media (min-width: 600px) {
             .hero {
-                padding: 16px 0 4px;
-                row-gap: 6px;
+                row-gap: 8px;
+                padding: 24px 0 8px;
             }
         }
 
@@ -118,7 +122,7 @@
         }
     </style>
 
-    <title>WishList App — Створюйте та Діліться Вішлістами</title>
+    <title>Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App</title>
 </head>
 
 <body>
@@ -224,7 +228,7 @@
         </div>
         <div class="shell-hero">
             <h1 class="shell-h1">
-                Creating Wishlists<br>Made Simple
+                Зробіть Вішліст - Список Бажань Онлайн
             </h1>
             <div class="shell-skel-text" style="width: 100%; max-width: 600px; height: 28px; margin-bottom: 24px;">
             </div>
