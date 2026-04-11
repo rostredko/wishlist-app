@@ -30,6 +30,14 @@ beforeEach(() => {
 });
 
 describe('HomePage – delete wishlist flow', () => {
+  it('renders Ukrainian copy on the ua route', async () => {
+    emitLists([]);
+    render(<HomePage lang="ua" />);
+
+    expect(await screen.findByRole('heading', { name: /зробіть вішліст/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /створити вішліст/i }).length).toBeGreaterThan(0);
+  });
+
   it('opens confirm, shows loading (disabled button), calls deleteWishlistDeep', async () => {
     emitLists([{ id: 'wl1', title: 'My wishlist' }]);
 

@@ -212,7 +212,7 @@ const WishListItemRow = memo(function WishListItemRow({
     <Paper
       sx={{
         mb: 1.5,
-        p: { xs: 0.5, sm: 1 },
+        p: { xs: 1, sm: 1.5 },
         borderRadius: 3,
         border: '1px solid #2c2c2c',
         boxShadow: 'none',
@@ -220,7 +220,7 @@ const WishListItemRow = memo(function WishListItemRow({
         '&:hover': { backgroundColor: '#2a2a2a', transform: 'scale(1.02)' },
       }}
     >
-      <ListItem alignItems="flex-start" sx={{ py: { xs: 0.25, sm: 0.5 } }}>
+      <ListItem alignItems="flex-start" sx={{ py: { xs: 0.5, sm: 0.75 } }}>
         <ListItemButton
           aria-disabled={isLockedForGuest}
           onClick={onRowClick}
@@ -230,7 +230,7 @@ const WishListItemRow = memo(function WishListItemRow({
             '&:hover': { backgroundColor: '#3d3d3d' },
             width: '100%',
             px: { xs: 1, sm: 1.5 },
-            py: { xs: 0.5, sm: 1 },
+            py: { xs: 1, sm: 1 },
             alignItems: 'stretch',
           }}
         >
@@ -238,7 +238,7 @@ const WishListItemRow = memo(function WishListItemRow({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: { xs: 0.5, sm: 2 },
+              gap: { xs: 1, sm: 2 },
               flexGrow: 1,
               minWidth: 0,
             }}
@@ -347,8 +347,9 @@ const WishListItemRow = memo(function WishListItemRow({
                   size="small"
                   aria-label={t('moreActionsAria', { defaultValue: 'More actions' })}
                   onClick={openMenu}
+                  sx={{ p: 1 }}
                 >
-                  <MoreVertIcon sx={{ fontSize: 18, color: '#aaa' }} />
+                  <MoreVertIcon sx={{ fontSize: 20, color: '#aaa' }} />
                 </IconButton>
                 <Menu
                   anchorEl={menuAnchor}
@@ -429,17 +430,23 @@ const EXAMPLE_SEO: Record<string, { title: string; description: string }> = {
   },
 };
 
+const EXAMPLE_WISHLIST_ALTERNATES: Record<string, { en: string; uk: string }> = {
+  'christmas-list': { en: 'christmas-list', uk: 'christmas-list-ua' },
+  'christmas-list-ua': { en: 'christmas-list', uk: 'christmas-list-ua' },
+  'birthday-list': { en: 'birthday-list', uk: 'birthday-list-ua' },
+  'birthday-list-ua': { en: 'birthday-list', uk: 'birthday-list-ua' },
+  'secret-santa-list': { en: 'secret-santa-list', uk: 'secret-santa-list-ua' },
+  'secret-santa-list-ua': { en: 'secret-santa-list', uk: 'secret-santa-list-ua' },
+  'wedding-list': { en: 'wedding-list', uk: 'wedding-list-ua' },
+  'wedding-list-ua': { en: 'wedding-list', uk: 'wedding-list-ua' },
+};
+
 export function WishListItemList() {
-  const { t, i18n } = useTranslation(['wishlist', 'examples']);
+  const { t } = useTranslation(['wishlist', 'examples']);
   const { user, isAdmin } = useAuth();
   const { wishlistId, lng } = useParams();
   const routeLang = (lng === 'ua' || lng === 'en' ? lng : 'en') as RouteLang;
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (i18n.language !== routeLang) i18n.changeLanguage(routeLang).catch(() => {
-    });
-  }, [routeLang, i18n]);
 
   useEffect(() => {
     if (!wishlistId) return;
@@ -741,10 +748,13 @@ export function WishListItemList() {
 
   const alternates =
     wishlistId && origin
-      ? {
-        en: `${origin}/en/wishlist/${wishlistId}`,
-        uk: `${origin}/ua/wishlist/${wishlistId}`,
-      }
+      ? (() => {
+        const localizedIds = EXAMPLE_WISHLIST_ALTERNATES[wishlistId];
+        return {
+          en: `${origin}/en/wishlist/${localizedIds?.en ?? wishlistId}`,
+          uk: `${origin}/ua/wishlist/${localizedIds?.uk ?? wishlistId}`,
+        };
+      })()
       : undefined;
 
   const itemNames = useMemo(
@@ -754,6 +764,31 @@ export function WishListItemList() {
         .filter((n) => n.length > 0),
     [items]
   );
+
+  const structuredData =
+    status === 'not_found'
+      ? undefined
+      : {
+          website: true,
+          webapp: true,
+          itemList:
+            status === 'found' && wishlist && itemNames.length > 0
+              ? { name: wishlist.title || 'Wishlist', items: itemNames }
+              : null,
+          breadcrumbs:
+            status === 'found' && wishlist && origin
+              ? [
+                  {
+                    name: routeLang === 'ua' ? 'Головна' : 'Home',
+                    url: `${origin}/${routeLang}`,
+                  },
+                  {
+                    name: wishlist.title || (routeLang === 'ua' ? 'Список бажань' : 'Wishlist'),
+                    url: canonicalUrl,
+                  },
+                ]
+              : null,
+        };
 
   let headerContent;
   if (status === 'loading') {
@@ -791,6 +826,7 @@ export function WishListItemList() {
         canonical={canonicalUrl}
         image={ogImage}
         alternates={alternates}
+        robots={status === 'not_found' ? 'noindex,follow' : undefined}
         keywords={
           status === 'found' && wishlist
             ? routeLang === 'ua'
@@ -800,27 +836,7 @@ export function WishListItemList() {
               ? 'вішліст, список бажань, подарунки'
               : 'wishlist, gift list, gifts'
         }
-        structured={{
-          website: true,
-          webapp: true,
-          itemList:
-            status === 'found' && wishlist && itemNames.length > 0
-              ? { name: wishlist.title || 'Wishlist', items: itemNames }
-              : null,
-          breadcrumbs:
-            status === 'found' && wishlist && origin
-              ? [
-                {
-                  name: routeLang === 'ua' ? 'Головна' : 'Home',
-                  url: `${origin}/${routeLang}/`,
-                },
-                {
-                  name: wishlist.title || (routeLang === 'ua' ? 'Список бажань' : 'Wishlist'),
-                  url: canonicalUrl,
-                },
-              ]
-              : null,
-        }}
+        structured={structuredData}
       />
 
       {headerContent}

@@ -16,8 +16,12 @@ import Skeleton from '@mui/material/Skeleton';
 import IconButton from '@mui/material/IconButton';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import SEOHead from '@components/SEOHead';
 import { useAuth } from '@hooks/useAuth';
@@ -72,14 +76,9 @@ function toSeoLang(lng: RouteLang): 'uk' | 'en' {
 }
 
 export default function HomePage({ lang }: Props) {
-  const { t, i18n } = useTranslation(['home', 'examples']);
-  const { t: tAuth } = useTranslation('auth');
+  const { t } = useTranslation(['home', 'examples'], { lng: lang });
+  const { t: tAuth } = useTranslation('auth', { lng: lang });
   const { signIn, loading: signInLoading, isTelegram } = useGoogleSignIn();
-
-  // Translation sync (if needed, but usually redundant with route change)
-  if (i18n.language !== lang) {
-    i18n.changeLanguage(lang).catch(() => { });
-  }
 
   const seoLang = toSeoLang(lang);
   const { user } = useAuth();
@@ -158,11 +157,11 @@ export default function HomePage({ lang }: Props) {
       ? window.location.origin
       : 'https://wishlistapp.com.ua';
 
-  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}/`;
+  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}`;
 
   const alternates = {
-    en: `${origin}/en/`,
-    uk: `${origin}/ua/`,
+    en: `${origin}/en`,
+    uk: `${origin}/ua`,
   };
 
   const deleteName = deleteDialog.title && deleteDialog.title.trim().length > 0
@@ -180,13 +179,13 @@ export default function HomePage({ lang }: Props) {
       emoji: card.emoji,
       wishlistId: card.wishlistId
     }));
-  }, [lang, t, i18n.language]);
+  }, [lang, t]);
 
   const faqData = useMemo(() => {
     const faq = t('faq', { returnObjects: true }) as Array<{ q: string; a: string }>;
     if (!Array.isArray(faq) || faq.length === 0) return null;
     return faq;
-  }, [t, i18n.language]);
+  }, [t]);
 
   return (
     <Box component="main" sx={{ pt: { xs: 6, md: 10 }, pb: 2 }}>
@@ -202,7 +201,6 @@ export default function HomePage({ lang }: Props) {
           webapp: true,
           organization: true,
           faq: faqData,
-          howTo: true
         }}
         keywords={lang === 'ua'
           ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
@@ -398,7 +396,7 @@ export default function HomePage({ lang }: Props) {
                     </Box>
                   </Stack>
                 }>
-                  <VideoTutorialsSection />
+                    <VideoTutorialsSection lang={lang} />
                 </Suspense>
 
                 <Divider />
@@ -597,6 +595,47 @@ export default function HomePage({ lang }: Props) {
           )}
 
         </Stack>
+
+        {faqData && (
+          <Box sx={{ mt: 8, mb: 4 }}>
+            <Typography variant="h2" sx={{ fontWeight: 700, fontSize: 32, mb: 3, textAlign: 'center' }}>
+              {t('faqTitle')}
+            </Typography>
+            <Box>
+              {faqData.map((item, idx) => (
+                <Accordion
+                  key={idx}
+                  disableGutters
+                  elevation={0}
+                  sx={{
+                    '&:before': { display: 'none' },
+                    mb: 1,
+                    border: '1px solid #333',
+                    borderRadius: '8px !important',
+                    overflow: 'hidden',
+                    bgcolor: 'transparent',
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls={`faq-panel${idx}-content`}
+                    id={`faq-panel${idx}-header`}
+                    sx={{ '& .MuiAccordionSummary-content': { my: 2 } }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {item.q}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="body1" color="text.secondary">
+                      {item.a}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Box>
+          </Box>
+        )}
       </Container>
 
       <CreateWishListDialog

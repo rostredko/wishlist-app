@@ -1,0 +1,22 @@
+{
+  "title": "Privacy Policy",
+  "lastUpdated": "Updated: April 2026",
+  "intro": "This policy describes what data WishList App collects and how we use it.",
+  "dataTitle": "What data we collect",
+  "dataItems": [
+    "Your name and email from your Google account - only when signing in via Google",
+    "The contents of your wishlists and added items",
+    "Anonymous usage statistics via Google Analytics"
+  ],
+  "useTitle": "How we use your data",
+  "useText": "Your data is used solely to operate the service: to identify your account and store your wishlists. We do not sell or share your personal data with third parties.",
+  "storageTitle": "Where data is stored",
+  "storageText": "Data is stored in Firebase (Google Cloud, European servers). Google Analytics only collects anonymised visit data.",
+  "rightsTitle": "Your rights",
+  "rightsText": "You can delete your account and all associated data at any time - email us at rost.redko@gmail.com. Wishlists you have shared become inaccessible after deletion.",
+  "contactTitle": "Contact",
+  "contactText": "For privacy enquiries, email us at",
+  "contactEmail": "rost.redko@gmail.com",
+  "backHome": "Back to home"
+}
+

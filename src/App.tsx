@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -13,6 +13,7 @@ import { getRedirectResult } from 'firebase/auth';
 import { darkTheme } from './theme';
 import Cookies from 'js-cookie';
 import { isProbablyBot, detectPreferredLang, SUPPORTED_LANGS, type SupportedLang } from './utils/locale';
+import i18n from './i18n';
 import { auth } from '@lib/auth-client';
 import { useAuth } from '@hooks/useAuth';
 import { trackPageView } from './utils/analytics';
@@ -25,7 +26,28 @@ const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
+const PrivacyPage = lazy(() => import('@components/PrivacyPage'));
 import Footer from '@components/Footer';
+
+function getRouteLanguage(pathname: string): SupportedLang | undefined {
+  const maybeLang = pathname.split('/').filter(Boolean)[0];
+  if (maybeLang === 'ua' || maybeLang === 'en') return maybeLang;
+  return undefined;
+}
+
+function RouteLanguageSync() {
+  const location = useLocation();
+
+  useLayoutEffect(() => {
+    const routeLang = getRouteLanguage(location.pathname);
+    if (!routeLang) return;
+    if (i18n.language === routeLang) return;
+    i18n.changeLanguage(routeLang).catch(() => {
+    });
+  }, [location.pathname]);
+
+  return null;
+}
 
 function FirstVisitGate() {
   const nav = useNavigate();
@@ -164,11 +186,12 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
+        <RouteLanguageSync />
         <ScrollToTop />
         <AuthRedirectHandler />
         <RouteTracker />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Box component="main" sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1 }}>
             <Suspense
               fallback={
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
@@ -181,6 +204,8 @@ function App() {
 
                 <Route path="/ua" element={<LocalizedHome lng="ua" />} />
                 <Route path="/en" element={<LocalizedHome lng="en" />} />
+
+                <Route path="/:lng/privacy" element={<PrivacyPage />} />
 
                 <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
 

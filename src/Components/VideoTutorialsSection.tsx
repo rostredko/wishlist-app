@@ -3,8 +3,12 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useTranslation } from 'react-i18next';
 
-const VideoTutorialsSection = () => {
-    const { t } = useTranslation('home');
+type Props = {
+    lang: 'ua' | 'en';
+};
+
+const VideoTutorialsSection = ({ lang }: Props) => {
+    const { t } = useTranslation('home', { lng: lang });
 
     return (
         <Box sx={{ width: '100%', mt: 4, mb: 4 }}>
@@ -39,7 +43,8 @@ const VideoTutorialsSection = () => {
                                 border: 0,
                             }}
                             src="https://www.youtube.com/embed/npDaaf1rS2k?si=UfNbDR2kvn-LcfKf"
-                            title="YouTube video player"
+                            title={t('video1Title')}
+                            loading="lazy"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                         />
@@ -72,7 +77,8 @@ const VideoTutorialsSection = () => {
                                 border: 0,
                             }}
                             src="https://www.youtube.com/embed/iM0W6UvTm8c?si=nwWeTtqSQN1kZ1YE"
-                            title="YouTube video player"
+                            title={t('video2Title')}
+                            loading="lazy"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                         />

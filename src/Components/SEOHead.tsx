@@ -22,7 +22,6 @@ type StructuredProps = {
   itemList?: ItemListLD | null;
   organization?: boolean;
   faq?: FAQItem[] | null;
-  howTo?: boolean;
   breadcrumbs?: BreadcrumbItem[] | null;
 };
 
@@ -35,6 +34,7 @@ type SEOHeadProps = {
   alternates?: Partial<Record<Lang, string>>;
   structured?: StructuredProps;
   keywords?: string;
+  robots?: string;
 };
 
 function sanitizeCanonical(rawHref: string) {
@@ -42,9 +42,8 @@ function sanitizeCanonical(rawHref: string) {
     const url = new URL(rawHref);
     url.hash = '';
     url.search = '';
-    // Ensure trailing slash for root paths or subdirectories if not a file
-    if (!url.pathname.endsWith('/') && !url.pathname.includes('.')) {
-      url.pathname += '/';
+    if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
+      url.pathname = url.pathname.replace(/\/+$/, '');
     }
     return url.toString();
   } catch {
@@ -180,22 +179,24 @@ function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
   try {
     const url = new URL(href);
     const parts = url.pathname.split('/').filter(Boolean);
+    const buildLocalizedHref = (lang: 'en' | 'ua', rest: string[]) =>
+      rest.length > 0 ? `${url.origin}/${lang}/${rest.join('/')}` : `${url.origin}/${lang}`;
 
     if (parts.length === 0) {
-      return { en: `${url.origin}/en/`, uk: `${url.origin}/ua/` };
+      return { en: `${url.origin}/en`, uk: `${url.origin}/ua` };
     }
     const [maybeLang, ...rest] = parts;
-    const restPath = rest.join('/');
-    const withSlash = restPath ? `/${restPath}` : '/';
-    const origin = url.origin;
 
     if (maybeLang !== 'en' && maybeLang !== 'ua') {
-      return { en: `${origin}/en${withSlash}`, uk: `${origin}/ua${withSlash}` };
+      return {
+        en: buildLocalizedHref('en', parts),
+        uk: buildLocalizedHref('ua', parts),
+      };
     }
 
     return {
-      en: `${origin}/en${withSlash}`,
-      uk: `${origin}/ua${withSlash}`,
+      en: buildLocalizedHref('en', rest),
+      uk: buildLocalizedHref('ua', rest),
     };
   } catch {
     return {};
@@ -234,6 +235,7 @@ export default function SEOHead({
   alternates,
   structured,
   keywords,
+  robots,
 }: SEOHeadProps) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -256,6 +258,13 @@ export default function SEOHead({
           ? new URL(window.location.pathname, origin).toString()
           : `${origin}/`)
     );
+    const canonicalOrigin = (() => {
+      try {
+        return new URL(href).origin;
+      } catch {
+        return origin;
+      }
+    })();
 
     const ogImage = absoluteUrl(image ?? `${origin}/og-image.webp`);
     const ogLocale = toOgLocale(lang);
@@ -266,7 +275,10 @@ export default function SEOHead({
     if (keywords) {
       upsertMetaByName('keywords', keywords);
     }
-    upsertMetaByName('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
+    upsertMetaByName(
+      'robots',
+      robots ?? 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+    );
 
     // Update viewport, but preserve viewport-fit=cover if it existed
     upsertMetaByName('viewport', hasViewportFit
@@ -288,7 +300,7 @@ export default function SEOHead({
 
     if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), { hreflang: 'en' });
     if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), { hreflang: 'uk' });
-    upsertLink('alternate', `${origin}/`, { hreflang: 'x-default' });
+    upsertLink('alternate', `${canonicalOrigin}/ua`, { hreflang: 'x-default' });
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
@@ -327,7 +339,7 @@ export default function SEOHead({
         name: 'WishList App',
         url: origin + '/',
         description: description,
-        inLanguage: [lang === 'uk' ? 'uk-UA' : 'en-US'],
+        inLanguage: lang === 'uk' ? 'uk-UA' : 'en-US',
       });
     }
 
@@ -343,7 +355,7 @@ export default function SEOHead({
         offers: {
           '@type': 'Offer',
           price: '0',
-          priceCurrency: 'USD',
+          priceCurrency: 'UAH',
         },
         featureList: [
           'Create wishlists',
@@ -382,7 +394,12 @@ export default function SEOHead({
         '@type': 'Organization',
         name: 'WishList App',
         url: origin + '/',
-        logo: `${origin}/og-image.webp`,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${origin}/android-chrome-512x512.png`,
+          width: 512,
+          height: 512,
+        },
         description: description,
         sameAs: [],
       });
@@ -403,71 +420,6 @@ export default function SEOHead({
       });
     }
 
-    if (structured?.howTo) {
-      const isUk = lang === 'uk';
-      upsertJsonLd('howto', {
-        '@context': 'https://schema.org',
-        '@type': 'HowTo',
-        name: isUk ? 'Як користуватися WishList App' : 'How to use WishList App',
-        description: isUk
-          ? 'Дізнайтеся як створити вішліст та поділитися ним із друзями за допомогою WishList App'
-          : 'Learn how to create and share wishlists with friends using WishList App',
-        step: isUk
-          ? [
-              {
-                '@type': 'HowToStep',
-                position: 1,
-                name: 'Зробіть вішліст',
-                text: 'Увійдіть через Google та натисніть «Створити вішліст», щоб розпочати.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 2,
-                name: 'Поділіться посиланням',
-                text: 'Надішліть приватне посилання друзям. Працює з будь-якого пристрою, безкоштовно.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 3,
-                name: 'Друзі бронюють подарунки',
-                text: 'Друзі анонімно бронюють подарунки - усі бачать, що вже зайнято.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 4,
-                name: 'Керуйте своїми списками',
-                text: 'Увійдіть через Google, щоб керувати та організовувати всі свої вішлісти.',
-              },
-            ]
-          : [
-              {
-                '@type': 'HowToStep',
-                position: 1,
-                name: 'Create a wishlist',
-                text: 'Sign in with Google and click "Create wishlist" button to start.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 2,
-                name: 'Share the link',
-                text: 'Share the private URL with friends. Works from any device and is completely free.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 3,
-                name: 'Friends claim gifts',
-                text: 'Friends can anonymously claim gifts so everyone sees what\'s already taken.',
-              },
-              {
-                '@type': 'HowToStep',
-                position: 4,
-                name: 'Manage your lists',
-                text: 'Sign in with Google to manage and organize all your wishlists.',
-              },
-            ],
-      });
-    }
-
     if (structured?.breadcrumbs && Array.isArray(structured.breadcrumbs) && structured.breadcrumbs.length > 0) {
       upsertJsonLd('breadcrumbs', {
         '@context': 'https://schema.org',
@@ -480,7 +432,7 @@ export default function SEOHead({
         })),
       });
     }
-  }, [title, description, lang, canonical, image, alternates, structured, keywords]);
+  }, [title, description, lang, canonical, image, alternates, structured, keywords, robots]);
 
   return null;
 }
