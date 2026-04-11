@@ -1,12 +1,19 @@
 User-agent: *
 Allow: /
 
-# Allow all wishlist pages - they are public and can be indexed
-# Private wishlists are protected by authentication, so they won't be accessible anyway
-Allow: /en/wishlist/
-Allow: /ua/wishlist/
+User-agent: GPTBot
+Allow: /
 
-# Crawl delay to be respectful
-Crawl-delay: 1
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
 
 Sitemap: https://wishlistapp.com.ua/sitemap.xml

@@ -18,5 +18,5 @@ export function isProbablyBot(ua: string | undefined): boolean {
   if (navigator.webdriver) return true;
   if (!ua) return false;
   const s = ua.toLowerCase();
-  return /\b(bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegrambot|embedly|quora link preview|discordbot|ia_archiver)\b/.test(s);
+  return /\b(bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegrambot|embedly|quora link preview|discordbot|ia_archiver|gptbot|oai-searchbot|perplexitybot|claudebot|google-extended)\b/.test(s);
 }

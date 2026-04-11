@@ -72,14 +72,9 @@ function toSeoLang(lng: RouteLang): 'uk' | 'en' {
 }
 
 export default function HomePage({ lang }: Props) {
-  const { t, i18n } = useTranslation(['home', 'examples']);
-  const { t: tAuth } = useTranslation('auth');
+  const { t } = useTranslation(['home', 'examples'], { lng: lang });
+  const { t: tAuth } = useTranslation('auth', { lng: lang });
   const { signIn, loading: signInLoading, isTelegram } = useGoogleSignIn();
-
-  // Translation sync (if needed, but usually redundant with route change)
-  if (i18n.language !== lang) {
-    i18n.changeLanguage(lang).catch(() => { });
-  }
 
   const seoLang = toSeoLang(lang);
   const { user } = useAuth();
@@ -158,11 +153,11 @@ export default function HomePage({ lang }: Props) {
       ? window.location.origin
       : 'https://wishlistapp.com.ua';
 
-  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}/`;
+  const canonicalUrl = `${origin}/${lang === 'ua' ? 'ua' : 'en'}`;
 
   const alternates = {
-    en: `${origin}/en/`,
-    uk: `${origin}/ua/`,
+    en: `${origin}/en`,
+    uk: `${origin}/ua`,
   };
 
   const deleteName = deleteDialog.title && deleteDialog.title.trim().length > 0
@@ -180,13 +175,13 @@ export default function HomePage({ lang }: Props) {
       emoji: card.emoji,
       wishlistId: card.wishlistId
     }));
-  }, [lang, t, i18n.language]);
+  }, [lang, t]);
 
   const faqData = useMemo(() => {
     const faq = t('faq', { returnObjects: true }) as Array<{ q: string; a: string }>;
     if (!Array.isArray(faq) || faq.length === 0) return null;
     return faq;
-  }, [t, i18n.language]);
+  }, [t]);
 
   return (
     <Box component="main" sx={{ pt: { xs: 6, md: 10 }, pb: 2 }}>
@@ -202,7 +197,6 @@ export default function HomePage({ lang }: Props) {
           webapp: true,
           organization: true,
           faq: faqData,
-          howTo: true
         }}
         keywords={lang === 'ua'
           ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
@@ -398,7 +392,7 @@ export default function HomePage({ lang }: Props) {
                     </Box>
                   </Stack>
                 }>
-                  <VideoTutorialsSection />
+                    <VideoTutorialsSection lang={lang} />
                 </Suspense>
 
                 <Divider />

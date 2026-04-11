@@ -233,4 +233,37 @@ describe('WishListItemList - EXAMPLE_SEO title override', () => {
       )
     );
   });
+
+  it('passes noindex robots to SEOHead when wishlist is not found', async () => {
+    (getWishlistById as Mock).mockResolvedValueOnce(null);
+    renderAt('/en/wishlist/missing-list');
+
+    await waitFor(() =>
+      expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
+        expect.objectContaining({ robots: 'noindex,follow' }),
+        undefined
+      )
+    );
+  });
+
+  it('uses the mapped UA alternate for known example wishlists', async () => {
+    (getWishlistById as Mock).mockResolvedValueOnce({
+      id: 'christmas-list',
+      title: 'Christmas Wish List 2026',
+      ownerUid: 'demo',
+    });
+    renderAt('/en/wishlist/christmas-list');
+
+    await waitFor(() =>
+      expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alternates: {
+            en: `${window.location.origin}/en/wishlist/christmas-list`,
+            uk: `${window.location.origin}/ua/wishlist/christmas-list-ua`,
+          },
+        }),
+        undefined
+      )
+    );
+  });
 });

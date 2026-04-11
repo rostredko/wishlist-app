@@ -12,7 +12,8 @@ import { auth } from '@lib/auth-client';
 export default function Footer() {
   const location = useLocation();
   const isHomePage = location.pathname === '/ua' || location.pathname === '/en' || location.pathname === '/';
-  const { t } = useTranslation(['auth', 'home']);
+  const routeLang = location.pathname.startsWith('/ua') ? 'ua' : location.pathname.startsWith('/en') ? 'en' : undefined;
+  const { t } = useTranslation(['auth', 'home'], routeLang ? { lng: routeLang } : undefined);
   const { user, isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
   const { signIn: handleSignIn, loading: signInLoading, isTelegram } = useGoogleSignIn();
