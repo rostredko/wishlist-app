@@ -339,7 +339,7 @@ export default function SEOHead({
         name: 'WishList App',
         url: origin + '/',
         description: description,
-        inLanguage: [lang === 'uk' ? 'uk-UA' : 'en-US'],
+        inLanguage: lang === 'uk' ? 'uk-UA' : 'en-US',
       });
     }
 
@@ -355,7 +355,7 @@ export default function SEOHead({
         offers: {
           '@type': 'Offer',
           price: '0',
-          priceCurrency: 'USD',
+          priceCurrency: 'UAH',
         },
         featureList: [
           'Create wishlists',
@@ -394,7 +394,12 @@ export default function SEOHead({
         '@type': 'Organization',
         name: 'WishList App',
         url: origin + '/',
-        logo: `${origin}/og-image.webp`,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${origin}/android-chrome-512x512.png`,
+          width: 512,
+          height: 512,
+        },
         description: description,
         sameAs: [],
       });

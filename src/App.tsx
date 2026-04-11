@@ -26,6 +26,7 @@ const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
+const PrivacyPage = lazy(() => import('@components/PrivacyPage'));
 import Footer from '@components/Footer';
 
 function getRouteLanguage(pathname: string): SupportedLang | undefined {
@@ -190,7 +191,7 @@ function App() {
         <AuthRedirectHandler />
         <RouteTracker />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Box component="main" sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1 }}>
             <Suspense
               fallback={
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
@@ -203,6 +204,8 @@ function App() {
 
                 <Route path="/ua" element={<LocalizedHome lng="ua" />} />
                 <Route path="/en" element={<LocalizedHome lng="en" />} />
+
+                <Route path="/:lng/privacy" element={<PrivacyPage />} />
 
                 <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
 

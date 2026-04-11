@@ -15,6 +15,8 @@ import enAuth from './locales/en/auth.json';
 import uaAuth from './locales/ua/auth.json';
 import enExamples from './locales/en/examples.json';
 import uaExamples from './locales/ua/examples.json';
+import enPrivacy from './locales/en/privacy.json';
+import uaPrivacy from './locales/ua/privacy.json';
 
 i18n
   .use(initReactI18next)
@@ -27,7 +29,8 @@ i18n
         confirm: enConfirm,
         create: enCreate,
         auth: enAuth,
-        examples: enExamples
+        examples: enExamples,
+        privacy: enPrivacy
       },
       ua: {
         home: uaHome,
@@ -36,13 +39,14 @@ i18n
         confirm: uaConfirm,
         create: uaCreate,
         auth: uaAuth,
-        examples: uaExamples
+        examples: uaExamples,
+        privacy: uaPrivacy
       }
     },
     lng: 'en',
     supportedLngs: ['en','ua'],
     fallbackLng: 'en',
-    ns: ['home', 'addItem', 'wishlist', 'confirm', 'create', 'auth', 'examples'],
+    ns: ['home', 'addItem', 'wishlist', 'confirm', 'create', 'auth', 'examples', 'privacy'],
     defaultNS: 'home',
     interpolation: { escapeValue: false },
     returnEmptyString: false

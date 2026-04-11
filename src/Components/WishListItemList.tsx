@@ -212,7 +212,7 @@ const WishListItemRow = memo(function WishListItemRow({
     <Paper
       sx={{
         mb: 1.5,
-        p: { xs: 0.5, sm: 1 },
+        p: { xs: 1, sm: 1.5 },
         borderRadius: 3,
         border: '1px solid #2c2c2c',
         boxShadow: 'none',
@@ -220,7 +220,7 @@ const WishListItemRow = memo(function WishListItemRow({
         '&:hover': { backgroundColor: '#2a2a2a', transform: 'scale(1.02)' },
       }}
     >
-      <ListItem alignItems="flex-start" sx={{ py: { xs: 0.25, sm: 0.5 } }}>
+      <ListItem alignItems="flex-start" sx={{ py: { xs: 0.5, sm: 0.75 } }}>
         <ListItemButton
           aria-disabled={isLockedForGuest}
           onClick={onRowClick}
@@ -230,7 +230,7 @@ const WishListItemRow = memo(function WishListItemRow({
             '&:hover': { backgroundColor: '#3d3d3d' },
             width: '100%',
             px: { xs: 1, sm: 1.5 },
-            py: { xs: 0.5, sm: 1 },
+            py: { xs: 1, sm: 1 },
             alignItems: 'stretch',
           }}
         >
@@ -238,7 +238,7 @@ const WishListItemRow = memo(function WishListItemRow({
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: { xs: 0.5, sm: 2 },
+              gap: { xs: 1, sm: 2 },
               flexGrow: 1,
               minWidth: 0,
             }}
@@ -347,8 +347,9 @@ const WishListItemRow = memo(function WishListItemRow({
                   size="small"
                   aria-label={t('moreActionsAria', { defaultValue: 'More actions' })}
                   onClick={openMenu}
+                  sx={{ p: 1 }}
                 >
-                  <MoreVertIcon sx={{ fontSize: 18, color: '#aaa' }} />
+                  <MoreVertIcon sx={{ fontSize: 20, color: '#aaa' }} />
                 </IconButton>
                 <Menu
                   anchorEl={menuAnchor}
