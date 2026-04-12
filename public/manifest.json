@@ -4,7 +4,7 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#6c2bd9",
+  "background_color": "#1c1c1c",
   "theme_color": "#1c1c1c",
   "description": "Create and share wishlists. Friends can anonymously claim gifts. Simple and free.",
   "icons": [
