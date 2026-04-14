@@ -27,5 +27,12 @@
   "copyFallbackPrompt": "Copy this link:",
   "copyWishlist": "Copy wishlist to yourself",
   "copyWishlistTooltip": "Copy this wishlist to your account",
-  "copyWishlistAria": "Copy wishlist to yourself"
+  "copyWishlistAria": "Copy wishlist to yourself",
+  "bannerUploadTooltip": "Upload banner",
+  "bannerUploadAria": "Upload banner",
+  "bannerUploading": "Uploading…",
+  "bannerUpload": "Upload",
+  "bannerErrorNotImage": "Please select an image file.",
+  "bannerErrorTooLarge": "Image is too large. Max {{max}}MB.",
+  "bannerErrorFailed": "Failed to upload banner. Please try again."
 }

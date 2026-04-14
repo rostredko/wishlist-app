@@ -13,7 +13,7 @@
   "how": "🧭 How it works?",
   "li1": "Create a wishlist in seconds. Button below.",
   "li2": "Share a private URL with friends. From any device. Free.",
-  "li3": "Friends anonymously claim gifts - everyone sees what’s taken.",
+  "li3": "Friends anonymously claim gifts - everyone sees what's taken.",
   "li4": "Sign in with Google to manage your lists.",
   "videoSectionTitle": "📺 Video Tutorials",
   "video1Title": "How to create a wishlist",
@@ -24,23 +24,35 @@
   "createBtn": "Create wishlist",
   "createTooltip": "Sign in with Google to create a wishlist",
   "deleteAria": "Delete wishlist",
-  "deleteTitle": "Delete “{{name}}”?",
+  "deleteTitle": "Delete \"{{name}}\"?",
   "untitled": "Untitled wishlist",
   "confirmDelete": "Delete",
   "cancel": "Cancel",
   "faqTitle": "Frequently asked questions",
   "faq": [
     {
-      "q": "Is it free?",
-      "a": "Yes. The app is free and works on any device."
-    },
-    {
-      "q": "Can friends claim gifts?",
-      "a": "Yes, friends can anonymously claim items so everyone sees what’s already taken."
+      "q": "What is WishList App?",
+      "a": "WishList App (wishlistapp.com.ua) is a free online wishlist maker for birthdays, Christmas, weddings, Secret Santa, and any other occasion. You create a wishlist in 30 seconds: sign in with Google, add gift ideas with names, prices, and shop links, then share a private URL with friends and family. Friends open your link without registering and can anonymously claim gifts - everyone sees what is already reserved so there are no duplicate presents. The service is completely free, shows no ads, works on any device, and supports both Ukrainian and English. You do not need to register to view or claim gifts on someone else's wishlist."
     },
     {
       "q": "How to create a wishlist?",
-      "a": "Sign in with Google, click \"Create wishlist\", add items, share the private link."
+      "a": "Creating a wishlist takes about 30 seconds. Click the \"Create wishlist\" button on this page and sign in with your Google account - no separate registration is needed. A dialog appears where you enter a name for your wishlist, for example \"My Birthday Wishlist 2026\". After creating it, open the wishlist page and start adding gift ideas: each item can have a name, an optional price, a link to the shop or product page, and a brief note. When your list is ready, copy the private share link and send it to friends via any messenger, email, or social network. That is all - your wishlist is live and ready to share."
+    },
+    {
+      "q": "Is it free?",
+      "a": "Yes, WishList App is completely free for everyone. There are no subscription fees, no premium tiers, no hidden charges, and no advertisements anywhere on the site. You can create an unlimited number of wishlists, add as many items as you like, and share them with as many people as you want - all at no cost. Friends who receive your wishlist link can view and claim gifts without signing up or paying anything. The service is supported by the creator as a free tool for the community, with no monetization."
+    },
+    {
+      "q": "Can friends claim gifts?",
+      "a": "Yes. Anyone who opens your wishlist link can anonymously claim (reserve) a gift by clicking on it. Once an item is claimed, it appears as reserved to everyone viewing the list - but the name of the person who claimed it stays private so surprises are not spoiled. This prevents duplicate gifts: if two friends want to give you the same present, the second person will see the item is already taken and can pick something else. The wishlist owner never sees who claimed which item, only that it has been reserved."
+    },
+    {
+      "q": "Can I use WishList App for a birthday wishlist?",
+      "a": "Yes, WishList App is a great way to create a birthday wishlist. Sign in with Google, create a new wishlist, and name it something like \"My Birthday Wishlist 2026\". Add the gifts you would like - each item can include a name, price, a shop link, and a short note. Once your birthday gift list is ready, copy the private link and send it to friends and family via any messenger or social network. Recipients open the link without registering and can anonymously claim birthday gifts so there are no duplicate presents. Everyone sees which items are already reserved, but nobody sees who reserved them - surprises stay intact. You can create as many birthday wishlists as you like, completely free with no ads."
+    },
+    {
+      "q": "Can I use WishList App for Christmas, Secret Santa, or a wedding?",
+      "a": "Yes, WishList App works for any occasion. For a Christmas wish list, name your list something like \"Christmas Wishlist 2026\", add gift ideas with shop links, and share the private link with family. For a Secret Santa wishlist, each participant creates their own list and shares it with the group organizer - givers see what each person wants and anonymously reserve a gift. For a wedding wishlist or gift registry, the couple creates a list of desired gifts that guests can claim before the celebration. In all cases the anonymous claiming feature prevents duplicates: once someone reserves an item, it shows as taken for everyone else. All wishlist types are free, require no subscription, and guests never need to register to view or claim gifts."
     },
     {
       "q": "Where can I create a free wish list?",

@@ -66,11 +66,6 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
       });
 
       safeClose();
-      
-      // Small delay to ensure event is sent before navigation
-      // This helps prevent event loss during page transition
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       navigate(`/${routeLang}/wishlist/${id}`);
     } catch (e) {
       console.error('Failed to create wishlist', e);
@@ -90,7 +85,7 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
         {t('title')}
       </DialogTitle>
 
-      <DialogContent sx={{px: 3, pt: 2}}>
+      <DialogContent sx={{px: 3, pt: '20px !important'}}>
         <Stack spacing={2}>
           <TextField
             label={t('labelName')}
@@ -99,6 +94,7 @@ export function CreateWishListDialog({open, onClose, user}: Props) {
             autoFocus
             fullWidth
             disabled={isCreating}
+
             onKeyDown={e => {
               if (e.key === 'Enter') handleCreate();
             }}

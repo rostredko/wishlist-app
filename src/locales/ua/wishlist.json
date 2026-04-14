@@ -27,5 +27,12 @@
   "copyFallbackPrompt": "Скопіюйте це посилання:",
   "copyWishlist": "Копіювати собі вішліст",
   "copyWishlistTooltip": "Скопіювати цей вішліст до свого акаунту",
-  "copyWishlistAria": "Копіювати собі вішліст"
+  "copyWishlistAria": "Копіювати собі вішліст",
+  "bannerUploadTooltip": "Завантажити банер",
+  "bannerUploadAria": "Завантажити банер",
+  "bannerUploading": "Завантаження…",
+  "bannerUpload": "Завантажити",
+  "bannerErrorNotImage": "Будь ласка, виберіть файл зображення.",
+  "bannerErrorTooLarge": "Зображення завелике. Максимум {{max}}МБ.",
+  "bannerErrorFailed": "Не вдалося завантажити банер. Спробуйте ще раз."
 }

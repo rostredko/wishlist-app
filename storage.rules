@@ -1,21 +1,20 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Разрешаем чтение всех баннеров (публичный доступ)
+    // Public read for banner images
     match /banners/{fileName} {
       allow read: if true;
-      
-      // Разрешаем запись только аутентифицированным пользователям
+
+      // Write only for signed-in users; size and type limits
       allow write: if request.auth != null
-                   && request.resource.size < 10 * 1024 * 1024  // Максимум 10MB
+                   && request.resource.size < 10 * 1024 * 1024  // max 10MB
                    && request.resource.contentType.matches('image/.*');
     }
-    
-    // Блокируем доступ ко всем остальным путям
+
+    // Deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;
     }
   }
 }
-
 

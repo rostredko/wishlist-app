@@ -16,8 +16,9 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
+import { DEMO_WISHLISTS } from '@constants/exampleWishlists';
 import type { WishList } from '@models/WishList';
 import type { WishListItem } from '@models/WishListItem';
 
@@ -47,57 +48,6 @@ export async function createWishlist(title: string, ownerUid: string): Promise<s
   });
   return docRef.id;
 }
-
-const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
-  'christmas-list': {
-    title: 'Christmas Wish List 2026',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'christmas-list-ua': {
-    title: 'Вішліст на Новий Рік 2026',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'birthday-list': {
-    title: 'Birthday Wishlist Example',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1530103862676-de3c9a59af57?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'birthday-list-ua': {
-    title: 'Вішліст на День Народження',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1530103862676-de3c9a59af57?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'secret-santa-list': {
-    title: 'Secret Santa Wishlist',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1512474932049-782b70437cae?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'secret-santa-list-ua': {
-    title: 'Вішліст Таємного Санти',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1512474932049-782b70437cae?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'wedding-list': {
-    title: 'Wedding Wishlist & Gift Registry',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-  'wedding-list-ua': {
-    title: 'Весільний Вішліст',
-    ownerUid: 'demo',
-    bannerImage: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80',
-    isHidden: false,
-  },
-};
 
 export async function getWishlistById(wishlistId: string): Promise<WishList | null> {
   const snap = await getDoc(doc(db, 'wishlists', wishlistId));
@@ -186,11 +136,11 @@ export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
 
   await deleteDoc(wlRef);
 
-  if (bannerUrl) {
+  if (bannerUrl && bannerUrl.includes('firebasestorage.googleapis.com')) {
     try {
       await deleteObject(ref(storage, bannerUrl));
-    } catch (err) {
-      console.warn('Failed to delete banner from Storage:', err);
+    } catch {
+      // Invalid URL, wrong bucket, or object already removed
     }
   }
 }
@@ -210,7 +160,8 @@ export function subscribeWishlistItems(
   cb: (items: WishListItem[]) => void
 ): Unsubscribe {
   const colRef = collection(db, 'wishlists', wishlistId, 'items');
-  return onSnapshot(colRef, (snapshot) => {
+  const itemsQuery = query(colRef, orderBy('createdAt', 'asc'));
+  return onSnapshot(itemsQuery, (snapshot) => {
     const items = snapshot.docs.map((docSnap) => {
       const data = docSnap.data() as FirestoreWishListItemData;
       return { id: docSnap.id, ...data };

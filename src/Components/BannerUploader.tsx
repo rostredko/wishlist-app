@@ -1,6 +1,7 @@
 import {useRef, useState} from 'react';
 import {Box, Button, CircularProgress, Tooltip} from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
+import {useTranslation} from 'react-i18next';
 import {uploadWishlistBanner} from '@api/wishListService';
 
 type Props = {
@@ -18,6 +19,7 @@ const TARGET_KB = 300;
 const MIN_QUALITY = 0.5;
 
 export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
+  const {t} = useTranslation('wishlist');
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,12 +38,12 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
       return;
     }
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file.');
+      alert(t('bannerErrorNotImage'));
       resetInput();
       return;
     }
     if (file.size > MAX_SOURCE_SIZE_MB * 1024 * 1024) {
-      alert(`Image is too large. Max ${MAX_SOURCE_SIZE_MB}MB.`);
+      alert(t('bannerErrorTooLarge', { max: MAX_SOURCE_SIZE_MB }));
       resetInput();
       return;
     }
@@ -69,7 +71,7 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
       onUpload?.(url);
     } catch (err) {
       console.error('Failed to upload banner', err);
-      alert('Failed to upload banner. Please try again.');
+      alert(t('bannerErrorFailed'));
     } finally {
       setLoading(false);
       resetInput();
@@ -85,7 +87,7 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
         style={{display: 'none'}}
         onChange={handleFileChange}
       />
-      <Tooltip title="Upload banner">
+      <Tooltip title={t('bannerUploadTooltip')}>
         <span>
           <Button
             size="small"
@@ -93,9 +95,9 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
             onClick={handlePick}
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16}/> : <UploadIcon/>}
-            aria-label="Upload banner"
+            aria-label={t('bannerUploadAria')}
           >
-            {loading ? 'Uploading…' : 'Upload'}
+            {loading ? t('bannerUploading') : t('bannerUpload')}
           </Button>
         </span>
       </Tooltip>
@@ -110,6 +112,16 @@ type CoverOpts = {
   minQuality: number;
 };
 
+function getImageDimensions(src: ImageBitmap | HTMLImageElement): { w: number; h: number } {
+  if (src instanceof ImageBitmap) {
+    return { w: src.width, h: src.height };
+  }
+  return {
+    w: src.naturalWidth || src.width,
+    h: src.naturalHeight || src.height,
+  };
+}
+
 async function compressBannerCover(file: File, opts: CoverOpts): Promise<Blob> {
   const src = await loadImage(file);
   const canvas = document.createElement('canvas');
@@ -119,14 +131,15 @@ async function compressBannerCover(file: File, opts: CoverOpts): Promise<Blob> {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  const scale = Math.max(opts.width / (src as any).width, opts.height / (src as any).height);
-  const drawW = Math.round((src as any).width * scale);
-  const drawH = Math.round((src as any).height * scale);
+  const { w: srcW, h: srcH } = getImageDimensions(src);
+  const scale = Math.max(opts.width / srcW, opts.height / srcH);
+  const drawW = Math.round(srcW * scale);
+  const drawH = Math.round(srcH * scale);
   const dx = Math.round((opts.width - drawW) / 2);
   const dy = Math.round((opts.height - drawH) / 2);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(src as any, dx, dy, drawW, drawH);
+  ctx.drawImage(src, dx, dy, drawW, drawH);
 
   const targetBytes = opts.targetKB * 1024;
 
@@ -168,7 +181,9 @@ async function loadImage(file: File): Promise<ImageBitmap | HTMLImageElement> {
   if ('createImageBitmap' in window) {
     try {
       return await createImageBitmap(file, {imageOrientation: 'from-image'});
-    } catch {}
+    } catch {
+      /* fall through to HTMLImageElement path */
+    }
   }
   let url: string | null = null;
   try {
@@ -193,7 +208,11 @@ async function loadImage(file: File): Promise<ImageBitmap | HTMLImageElement> {
     return img;
   } finally {
     if (url && url.startsWith('blob:')) {
-      try { URL.revokeObjectURL(url); } catch {}
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* ignore */
+      }
     }
   }
 }

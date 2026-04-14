@@ -126,7 +126,9 @@ function AuthRedirectHandler() {
           console.error('Auth redirect error:', error);
         }
       });
-  }, []); // Empty deps - only run once on mount
+    // Intentionally once per mount: getRedirectResult must not be called again after Firebase consumes the redirect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see above
+  }, []);
 
   return null;
 }

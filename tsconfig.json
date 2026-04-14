@@ -14,7 +14,8 @@
       "@api/*": ["services/*"],
       "@lib/*": ["firebase/*"],
       "@assets/*": ["assets/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@constants/*": ["constants/*"]
     }
   }
 }

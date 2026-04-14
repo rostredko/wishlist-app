@@ -5,7 +5,8 @@ const foundation = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#2196f3",
+      main: "#1565c0",
+      contrastText: "#fff",
     },
     background: {
       default: "#1c1c1c",
