@@ -12,6 +12,24 @@ import {useTranslation} from 'react-i18next';
 
 type GiftValues = { name: string; description?: string; link?: string };
 
+function ensureProtocol(value: string): string {
+  if (!value) return value;
+  if (/^https?:\/\//i.test(value)) return value;
+  if (/^[\w-]+(\.[\w-]+)+/i.test(value)) return `https://${value}`;
+  return value;
+}
+
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const test = ensureProtocol(value.trim());
+    if (!test) return false;
+    const u = new URL(test);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -41,24 +59,6 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
     setDescription('');
     setLink('');
     setLinkError(null);
-  };
-
-  const ensureProtocol = (value: string): string => {
-    if (!value) return value;
-    if (/^https?:\/\//i.test(value)) return value;
-    if (/^[\w-]+(\.[\w-]+)+/i.test(value)) return `https://${value}`;
-    return value;
-  };
-
-  const isValidHttpUrl = (value: string): boolean => {
-    try {
-      const test = ensureProtocol(value.trim());
-      if (!test) return false;
-      const u = new URL(test);
-      return u.protocol === 'http:' || u.protocol === 'https:';
-    } catch {
-      return false;
-    }
   };
 
   const validateLinkLive = (value: string) => {
@@ -116,7 +116,7 @@ const AddItemDialog = ({open, onClose, onSubmit, initialValues}: Props) => {
       <DialogTitle sx={{px: 3, pt: 2, pb: 2}}>
         {isEdit ? t('titleEdit') : t('titleAdd')}
       </DialogTitle>
-      <DialogContent sx={{px: 3, pt: 2, pb: 0}}>
+      <DialogContent sx={{px: 3, pt: '20px !important', pb: 0}}>
         <Stack spacing={2}>
           <TextField
             label={t('labelName')}

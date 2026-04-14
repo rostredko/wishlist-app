@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FirebaseError } from 'firebase/app';
 import { signInWithPopup, signInWithRedirect } from 'firebase/auth';
 
 import { auth, googleProvider } from '@lib/auth-client';
@@ -54,15 +55,21 @@ export function useGoogleSignIn() {
         await signInWithPopup(auth, googleProvider);
         return 'signed_in';
       } catch (popupError: unknown) {
-        const e = popupError as { code?: string; message?: string };
+        const code = popupError instanceof FirebaseError ? popupError.code : undefined;
+        const message =
+          popupError instanceof FirebaseError
+            ? popupError.message
+            : popupError instanceof Error
+              ? popupError.message
+              : '';
         const shouldFallbackToRedirect =
           redirectSupported &&
-          (e.code === 'auth/popup-blocked' ||
-            e.code === 'auth/popup-closed-by-user' ||
-            e.code === 'auth/operation-not-supported-in-this-environment' ||
-            e.message?.includes('sessionStorage') ||
-            e.message?.includes('initial state') ||
-            e.message?.includes('missing initial state'));
+          (code === 'auth/popup-blocked' ||
+            code === 'auth/popup-closed-by-user' ||
+            code === 'auth/operation-not-supported-in-this-environment' ||
+            message.includes('sessionStorage') ||
+            message.includes('initial state') ||
+            message.includes('missing initial state'));
 
         if (shouldFallbackToRedirect) {
           await triggerRedirect();
@@ -72,9 +79,9 @@ export function useGoogleSignIn() {
         throw popupError;
       }
     } catch (e: unknown) {
-      const err = e as { code?: string };
       console.error('Sign-in error:', e);
-      if (!err.code || !String(err.code).startsWith('auth/redirect')) {
+      const code = e instanceof FirebaseError ? e.code : undefined;
+      if (!code || !String(code).startsWith('auth/redirect')) {
         alert(t('signinFailed'));
       }
       return 'cancelled';

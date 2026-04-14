@@ -20,7 +20,7 @@ import {
   onSnapshot,
   updateDoc,
 } from 'firebase/firestore';
-import { uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { uploadBytes, getDownloadURL, deleteObject, ref } from 'firebase/storage';
 import { vi, type Mock } from 'vitest';
 
 vi.mock('firebase/firestore', async () => {
@@ -125,10 +125,12 @@ describe('wishListService', () => {
     expect(deleteDoc).toHaveBeenCalledWith(expect.any(Object));
   });
 
-  it('deleteWishlistDeep deletes items, wishlist, and banner', async () => {
+  it('deleteWishlistDeep deletes items, wishlist, and firebase banner URL', async () => {
+    const bannerUrl =
+      'https://firebasestorage.googleapis.com/v0/b/test-bucket/o/banners%2Fx.png?alt=media';
     (getDoc as Mock).mockResolvedValue({
       exists: () => true,
-      data: () => ({ bannerImage: 'banner.jpg' }),
+      data: () => ({ bannerImage: bannerUrl }),
     });
     (getDocs as Mock).mockResolvedValue({
       empty: false,
@@ -137,7 +139,19 @@ describe('wishListService', () => {
 
     await deleteWishlistDeep('wid');
     expect(deleteDoc).toHaveBeenCalledTimes(3);
-    expect(deleteObject).toHaveBeenCalled();
+    expect(ref).toHaveBeenCalledWith(expect.anything(), bannerUrl);
+    expect(deleteObject).toHaveBeenCalledWith({ _ref: true });
+  });
+
+  it('deleteWishlistDeep skips Storage delete for non-Firebase banner URLs', async () => {
+    (getDoc as Mock).mockResolvedValue({
+      exists: () => true,
+      data: () => ({ bannerImage: 'https://images.unsplash.com/photo-1' }),
+    });
+    (getDocs as Mock).mockResolvedValue({ empty: true, docs: [] });
+
+    await deleteWishlistDeep('wid');
+    expect(deleteObject).not.toHaveBeenCalled();
   });
 
   it('toggleGiftClaimStatus flips claimed', async () => {

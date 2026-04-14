@@ -100,10 +100,10 @@ export default function Footer() {
           to={`/${privacyLang}/privacy`}
           variant="body2"
           sx={{
-            color: 'text.disabled',
+            color: 'text.secondary',
             textDecoration: 'none',
             transition: 'color 150ms',
-            '&:hover': { color: 'text.secondary' },
+            '&:hover': { color: 'text.primary' },
           }}
         >
           {t('privacyPolicy')}
@@ -116,10 +116,10 @@ export default function Footer() {
           href="mailto:rost.redko@gmail.com"
           variant="body2"
           sx={{
-            color: 'text.disabled',
+            color: 'text.secondary',
             textDecoration: 'none',
             transition: 'color 150ms',
-            '&:hover': { color: 'text.secondary' },
+            '&:hover': { color: 'text.primary' },
           }}
         >
           {t('contactUs')}
@@ -127,7 +127,7 @@ export default function Footer() {
         <Typography variant="body2" sx={{ color: 'text.disabled', userSelect: 'none' }}>
           ·
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('copyright')}
         </Typography>
       </Box>

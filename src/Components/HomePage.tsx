@@ -401,7 +401,7 @@ export default function HomePage({ lang }: Props) {
 
                 <Divider />
 
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
+                <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
                   {t('examplesTitle')}
                 </Typography>
                 <Box sx={{ mb: 8 }}>
@@ -437,8 +437,8 @@ export default function HomePage({ lang }: Props) {
                                 overflow: 'hidden',
                                 whiteSpace: { xs: 'normal', sm: 'normal' },
                                 display: { sm: '-webkit-box' },
-                                WebkitLineClamp: { sm: 2 } as any,
-                                WebkitBoxOrient: { sm: 'vertical' } as any,
+                                WebkitLineClamp: { sm: 2 },
+                                WebkitBoxOrient: { sm: 'vertical' },
                               }}
                             >
                               {ex.title}
@@ -483,6 +483,7 @@ export default function HomePage({ lang }: Props) {
             <Stack sx={{ width: '100%', mt: 4, pb: 4 }} spacing={0}>
               <Stack spacing={2}>
                 <Typography
+                  component="h2"
                   variant="h5"
                   sx={{
                     fontWeight: 700,
@@ -622,7 +623,7 @@ export default function HomePage({ lang }: Props) {
                     id={`faq-panel${idx}-header`}
                     sx={{ '& .MuiAccordionSummary-content': { my: 2 } }}
                   >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {item.q}
                     </Typography>
                   </AccordionSummary>
@@ -655,7 +656,7 @@ export default function HomePage({ lang }: Props) {
         disableBackdropClose={isDeleting}
       />
 
-      <Backdrop open={isDeleting} sx={{ color: '#fff', zIndex: 9999 }}>
+      <Backdrop open={isDeleting} sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.modal + 1 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
     </Box>

@@ -16,7 +16,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://wishlistapp.com.ua/" />
+    <meta property="og:url" content="https://wishlistapp.com.ua/ua" />
     <meta property="og:title" content="Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App" />
     <meta property="og:description"
         content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
@@ -132,6 +132,44 @@
     </style>
 
     <title>Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App</title>
+
+    <!-- Static structured data: visible to non-JS crawlers (ChatGPT, Perplexity, archival bots) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "WishList App",
+      "url": "https://wishlistapp.com.ua",
+      "description": "Free online wishlist maker. Create a wish list in seconds, share a private link, and let friends anonymously claim gifts. No ads. Ukrainian and English.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "UAH"
+      },
+      "featureList": ["Create wishlists", "Share private links", "Anonymous gift claiming", "Free to use", "Multi-language support"]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "WishList App",
+      "url": "https://wishlistapp.com.ua",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://wishlistapp.com.ua/android-chrome-512x512.png",
+        "width": 512,
+        "height": 512
+      },
+      "description": "Free wishlist app. Create and share wishlists. Friends anonymously claim gifts.",
+      "foundingDate": "2024",
+      "areaServed": "UA",
+      "sameAs": []
+    }
+    </script>
 </head>
 
 <body>
@@ -177,27 +215,37 @@
             gap: 8px;
         }
 
+        /* Shell hero padding matches React: Box pt={xs:6,md:10} = 48px / 80px */
         .shell-hero {
-            padding: 48px 24px 24px;
+            padding: 48px 24px 4px;
             max-width: 900px;
             margin: 0 auto;
+            box-sizing: border-box;
         }
 
+        @media (min-width: 900px) {
+            .shell-hero {
+                padding-top: 80px;
+            }
+        }
+
+        /* Shell h1 matches theme.ts Typography h3 breakpoints to avoid CLS on hydration */
         .shell-h1 {
-            font-size: 3rem;
-            /* Fallback for h3 variant */
+            font-size: 1.65rem;
             font-weight: 800;
-            margin: 0 0 24px;
-            line-height: 1.167;
+            line-height: 1.25;
+            margin: 0;
         }
 
-        @media (max-width: 600px) {
+        @media (min-width: 600px) {
             .shell-h1 {
                 font-size: 2rem;
             }
+        }
 
-            .shell-hero {
-                padding-top: 24px;
+        @media (min-width: 900px) {
+            .shell-h1 {
+                font-size: 2.5rem;
             }
         }
 
@@ -246,10 +294,10 @@
     </div>
     <script type="module" src="/src/main.tsx"></script>
     <noscript>
-        <div style="padding: 32px 24px; max-width: 700px; margin: 0 auto; font-family: system-ui, sans-serif; color: #fff; background: #1c1c1c;">
-            <h1 style="font-size: 2rem; margin: 0 0 16px;">WishList App - Безкоштовний Список Бажань</h1>
-            <p>Зробіть вішліст за 30 секунд: додайте подарунки, поділіться посиланням, друзі анонімно бронюють подарунки. Безкоштовно.</p>
-            <p>Create a free wishlist in 30 seconds. Share with friends, they anonymously claim gifts. Free, no registration required for viewers.</p>
+        <div style="padding: 32px 24px; max-width: 700px; margin: 0 auto; font-family: system-ui, sans-serif; color: #fff; background: #1c1c1c; line-height: 1.6;">
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 20px;">WishList App - Free Online Wishlist Maker</h1>
+            <p style="margin: 0 0 16px;">WishList App (wishlistapp.com.ua) is a free online wishlist maker for birthdays, Christmas, New Year, weddings, Secret Santa, graduations, and any other occasion. Create a wishlist in 30 seconds: sign in with Google, add gift ideas with names, prices, and shop links, then share a private URL with friends and family. Recipients open the link without registering and can anonymously reserve gifts so there are no duplicate presents. Everyone sees which items are already taken, but the names of who reserved them stay private to keep surprises intact. The app has no ads, no subscription fees, and works on any device. Both Ukrainian and English are fully supported. You do not need an account to view or claim gifts on someone else's list.</p>
+            <p style="margin: 0 0 16px;">Зробіть вішліст за 30 секунд: увійдіть через Google, додайте подарунки та поділіться приватним посиланням. Друзі анонімно бронюють подарунки. Безкоштовно, без реклами.</p>
             <p style="margin-top: 24px;">
                 <a href="/ua" style="color: #2196f3; margin-right: 16px;">Українська версія</a>
                 <a href="/en" style="color: #2196f3;">English version</a>

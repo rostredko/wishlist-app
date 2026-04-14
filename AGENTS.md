@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Agent role
+
+You are a senior frontend engineer on this codebase. Priorities: (1) SEO and performance (Core Web Vitals), (2) i18n and user-visible copy quality, (3) small, reviewable diffs - no drive-by refactors. If product intent is unclear, ask rather than assume.
+
 ## About
 
 WishList App is a free service for creating and sharing wishlists (gift lists).  
@@ -13,11 +17,30 @@ Site: https://wishlistapp.com.ua
 
 ## Stack
 
-- **Frontend:** React 18, TypeScript, Vite, MUI v6
+- **Frontend:** React 19, TypeScript, Vite, MUI v7
 - **Backend:** Firebase (Auth, Firestore, Storage)
 - **i18n:** i18next - locales in `src/locales/{en,ua}/`
-- **Routing:** React Router v6 - `/ua/*`, `/en/*`
+- **Routing:** React Router v7 - `/ua/*`, `/en/*`
 - **Testing:** Vitest + Testing Library
+
+## Commands
+
+From the repository root (copy-paste):
+
+- `npm run dev` — Vite dev server
+- `npm run build` — `tsc -b` + production bundle
+- `npm run lint` — ESLint
+- `npx vitest run` — full test run (CI-style)
+- `npm run test:ci` — coverage mode; requires `@vitest/coverage-v8` to be installed when using `--coverage`
+
+For non-trivial changes, run `lint`, `build`, and `vitest run` before considering the task complete unless the user narrowed scope.
+
+## Data layer (Firebase)
+
+- **App singleton:** `src/firebase/init.ts` and `config.ts` initialize one Firebase app. Consumers import `auth` from `auth-client.ts`, `db` from `db-client.ts`, `storage` from `storage-client.ts` (not duplicate app entry points).
+- **Wishlist API:** `src/services/wishListService.ts` owns Firestore and Storage calls for wishlists and items (create/read/update/delete, realtime listeners, banner upload).
+- **Banner URLs:** `bannerImage` stores a **download URL** from `getDownloadURL`. On wishlist delete, Storage deletion runs only for URLs under `firebasestorage.googleapis.com`, via `deleteObject(ref(storage, url))` (Firebase v11 `ref` accepts a full download URL).
+- **Item order:** `subscribeWishlistItems` queries items with `orderBy('createdAt', 'asc')`. If the Firebase console reports a missing index, add the suggested composite index.
 
 ## Key Conventions
 
@@ -32,6 +55,13 @@ Site: https://wishlistapp.com.ua
   - **Sitemap** - `public/sitemap.xml`: update `<lastmod>` when shipping meaningful changes to listed URLs.
 - Prefer editing existing files over creating new ones
 - **Vitest:** mocked function components are often invoked as `(props, undefined)`; use `toHaveBeenCalledWith(expect.objectContaining({ … }), undefined)` when spying on `SEOHead`-style mocks
+
+## Code quality (commit-ready)
+
+- Prefer **self-documenting code**: names and structure should carry meaning; avoid comments that only restate the next line.
+- Use comments **sparingly**: non-obvious invariants, analytics/SEO behavior, one-off Firebase/auth flows, or a one-line reason next to an `eslint-disable`.
+- Remove **dead code**, unused imports, and leftover debug noise before handoff.
+- For a **final pass** before the user commits: run `npm run lint`, `npm run build`, and `npx vitest run` (unless the task scope was explicitly smaller).
 
 ## Never Do
 
@@ -48,5 +78,11 @@ Site: https://wishlistapp.com.ua
 
 ## Docs
 
-Everything under `docs/` is **local-only** (gitignored, not pushed). That includes [docs/ui-kit.md](docs/ui-kit.md) – keep a copy on your machine for UI conventions; the link in this file is still valid locally even though the repo has no `docs/` tree.  
-All docs and AGENTS.md must be written in English.
+Everything under `docs/` is **local-only** (gitignored, not pushed). That includes [docs/ui-kit.md](docs/ui-kit.md) – keep a copy on your machine for UI conventions; the link in this file is still valid locally even though the repo has no `docs/` tree.
+
+**Language**
+- **Documentation** (`AGENTS.md`, `CLAUDE.md`, README, technical notes under `docs/`): **English** only.
+- **Comments in code** (`//`, `/* */`, JSDoc in `.ts`/`.tsx`, Firebase rules such as `storage.rules`): **English** only. Do not write comments in Russian, Ukrainian, or other languages — English keeps the codebase consistent for tools and review.
+- **User-visible copy** belongs in `src/locales/{en,ua}/` and in SEO/static shell where the product needs Ukrainian or English per i18n rules above — not mixed into non-locale comments.
+
+Keep this file concise: prefer links to locale files, `wishListService.ts`, and local `docs/` over pasting long specifications here (progressive disclosure).

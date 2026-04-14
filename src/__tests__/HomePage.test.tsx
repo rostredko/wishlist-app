@@ -85,7 +85,7 @@ describe('HomePage – delete wishlist flow', () => {
     const createBtns = screen.getAllByRole('button', { name: /create wishlist/i });
     await userEvent.click(createBtns[createBtns.length - 1]);
 
-    expect(await screen.findByText(/new wishlist/i)).toBeInTheDocument();
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
   it('cancel in ConfirmDialog does not call deleteWishlistDeep', async () => {

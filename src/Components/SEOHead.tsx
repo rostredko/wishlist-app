@@ -311,7 +311,7 @@ export default function SEOHead({
     upsertMetaByProperty('og:image:width', '1200');
     upsertMetaByProperty('og:image:height', '630');
     upsertMetaByProperty('og:image:type', 'image/webp');
-    upsertMetaByProperty('og:image:alt', title);
+    upsertMetaByProperty('og:image:alt', image ? title : 'WishList App - free online wishlist maker');
     upsertMetaByProperty('og:url', href);
 
     removeAllManaged('meta[property="og:locale:alternate"][data-seo-head="1"]');
@@ -369,8 +369,11 @@ export default function SEOHead({
 
     if (structured?.itemList) {
       const src = structured.itemList;
-      const itemsRaw = Array.isArray((src as any).items) ? (src as any).items : [];
-      const names: string[] = itemsRaw.map((it: any) => (typeof it === 'string' ? it : it?.name)).filter(Boolean);
+      const rawItems = src.items;
+      const itemsRaw: Array<string | { name?: string }> = Array.isArray(rawItems) ? rawItems : [];
+      const names: string[] = itemsRaw
+        .map((it) => (typeof it === 'string' ? it : it?.name))
+        .filter((n): n is string => typeof n === 'string' && n.length > 0);
 
       if (names.length > 0) {
         upsertJsonLd('itemlist', {

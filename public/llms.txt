@@ -2,14 +2,29 @@
 > Free online wishlist maker. Create a wish list in seconds, share a private link,
   and let friends anonymously claim gifts. No ads. Ukrainian and English.
 
+WishList App (wishlistapp.com.ua) is a free service for creating and sharing wishlists
+for birthdays, Christmas, New Year, weddings, Secret Santa, graduations, and any other
+occasion. Sign in with Google, add gift ideas, share a private URL. Friends open it
+without registering and anonymously reserve gifts - everyone sees what is taken, nobody
+sees who took it. No ads, no subscription fees. Available in Ukrainian and English.
+
+license: CC BY 4.0
+
 ## Pages
-https://wishlistapp.com.ua/ua
-https://wishlistapp.com.ua/en
-https://wishlistapp.com.ua/en/wishlist/christmas-list
-https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua
-https://wishlistapp.com.ua/en/wishlist/birthday-list
-https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua
-https://wishlistapp.com.ua/en/wishlist/secret-santa-list
-https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua
-https://wishlistapp.com.ua/en/wishlist/wedding-list
-https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua
+
+[Ukrainian homepage](https://wishlistapp.com.ua/ua): Create a free wishlist in Ukrainian - безкоштовний вішліст онлайн.
+[English homepage](https://wishlistapp.com.ua/en): Create a free wishlist in English - free gift list maker online.
+[Christmas Wish List (EN)](https://wishlistapp.com.ua/en/wishlist/christmas-list): Example Christmas wish list - browse holiday gift ideas and create your own for free.
+[Вішліст на Новий Рік (UA)](https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua): Приклад новорічного вішліста - перегляньте ідеї подарунків і створіть свій безкоштовно.
+[Birthday Wishlist (EN)](https://wishlistapp.com.ua/en/wishlist/birthday-list): Example birthday wishlist - browse gift ideas and create your own free birthday wish list.
+[Вішліст на День Народження (UA)](https://wishlistapp.com.ua/ua/wishlist/birthday-list-ua): Приклад вішліста на день народження - ідеї подарунків, створіть свій безкоштовно.
+[Secret Santa Wishlist (EN)](https://wishlistapp.com.ua/en/wishlist/secret-santa-list): Example Secret Santa wish list - gift ideas for anonymous gift exchanges.
+[Вішліст Таємного Санти (UA)](https://wishlistapp.com.ua/ua/wishlist/secret-santa-list-ua): Приклад вішліста для Таємного Санти - ідеї подарунків для анонімного обміну.
+[Wedding Wishlist (EN)](https://wishlistapp.com.ua/en/wishlist/wedding-list): Example wedding gift registry - browse wedding gift ideas and create your own for free.
+[Весільний Вішліст (UA)](https://wishlistapp.com.ua/ua/wishlist/wedding-list-ua): Приклад весільного вішліста - ідеї подарунків на весілля, створіть свій безкоштовно.
+
+## Optional
+
+[Privacy Policy (UA)](https://wishlistapp.com.ua/ua/privacy): Privacy policy in Ukrainian.
+[Privacy Policy (EN)](https://wishlistapp.com.ua/en/privacy): Privacy policy in English.
+[Contact](mailto:rost.redko@gmail.com): Contact the creator of WishList App.

@@ -3,6 +3,34 @@ import { customRender as render, screen } from '../test/render';
 import userEvent from '@testing-library/user-event';
 import BannerUploader from '@components/BannerUploader';
 
+vi.mock('react-i18next', async (orig) => {
+  const actual = await (orig() as Promise<unknown>);
+  const tMap: Record<string, string> = {
+    bannerUploadTooltip: 'Upload banner',
+    bannerUploadAria: 'Upload banner',
+    bannerUploading: 'Uploading…',
+    bannerUpload: 'Upload',
+    bannerErrorNotImage: 'Please select an image file.',
+    bannerErrorTooLarge: 'Image is too large. Max 10MB.',
+    bannerErrorFailed: 'Failed to upload banner. Please try again.',
+  };
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string, opts?: Record<string, unknown>) => {
+        let val = tMap[key] ?? key;
+        if (opts) {
+          Object.entries(opts).forEach(([k, v]) => {
+            val = val.replace(`{{${k}}}`, String(v));
+          });
+        }
+        return val;
+      },
+      i18n: { changeLanguage: () => Promise.resolve(), language: 'en' },
+    }),
+  };
+});
+
 const uploadWishlistBanner = vi.fn();
 
 vi.mock('@api/wishListService', () => ({

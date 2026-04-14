@@ -635,6 +635,7 @@ export function WishListItemList() {
       console.error('Error updating title:', error);
       setTitleState((tst) => ({ ...tst, isEditing: false }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- draft/current are intentional granular deps
   }, [wishlistId, titleState.draft, titleState.current]);
 
   const handleBannerUpload = useCallback((newUrl: string) => {
@@ -1024,9 +1025,7 @@ export function WishListItemList() {
         {status === 'found' && (
           <List>
             {items.map((item) => {
-              // Получаем актуальный claimed статус (из базы для обычных, из локального состояния для примеров)
               const actualClaimed = getItemClaimedStatus(item);
-              // Создаем модифицированный item с актуальным claimed статусом
               const itemWithActualClaimed: WishListItem = {
                 ...item,
                 claimed: actualClaimed,

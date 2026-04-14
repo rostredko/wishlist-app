@@ -16,7 +16,7 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import type { WishList } from '@models/WishList';
 import type { WishListItem } from '@models/WishListItem';
@@ -186,11 +186,11 @@ export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
 
   await deleteDoc(wlRef);
 
-  if (bannerUrl) {
+  if (bannerUrl && bannerUrl.includes('firebasestorage.googleapis.com')) {
     try {
       await deleteObject(ref(storage, bannerUrl));
-    } catch (err) {
-      console.warn('Failed to delete banner from Storage:', err);
+    } catch {
+      // Invalid URL, wrong bucket, or object already removed
     }
   }
 }
@@ -210,7 +210,8 @@ export function subscribeWishlistItems(
   cb: (items: WishListItem[]) => void
 ): Unsubscribe {
   const colRef = collection(db, 'wishlists', wishlistId, 'items');
-  return onSnapshot(colRef, (snapshot) => {
+  const itemsQuery = query(colRef, orderBy('createdAt', 'asc'));
+  return onSnapshot(itemsQuery, (snapshot) => {
     const items = snapshot.docs.map((docSnap) => {
       const data = docSnap.data() as FirestoreWishListItemData;
       return { id: docSnap.id, ...data };
