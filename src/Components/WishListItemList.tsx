@@ -1,41 +1,31 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import SEOHead from '@components/SEOHead';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@hooks/useAuth';
+import { useWishlistData } from '@hooks/useWishlistData';
 
 import type { WishListItem } from '@models/WishListItem';
-import type { WishList } from '@models/WishList';
 
-import CustomCheckbox from '@components/CustomCheckbox';
 import ConfirmDialog from '@components/ConfirmDialog';
 import AddItemDialog from '@components/AddItemDialog';
 import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import WishlistHeader from '@components/WishListHeader';
+import { WishListItemRow } from '@components/WishListItemRow';
 
 import EditIcon from '@mui/icons-material/Edit';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
-import type { MenuProps } from '@mui/material/Menu';
 import {
   Box,
   TextField,
   Container,
   Typography,
   List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  Link as MuiLink,
-  Paper,
   IconButton,
   Button,
   Skeleton,
@@ -44,13 +34,9 @@ import {
   CardContent,
   Tooltip,
   Snackbar,
-  Menu,
-  MenuItem,
-  ListItemIcon as MuiListItemIcon,
 } from '@mui/material';
 
 import {
-  getWishlistById,
   addGiftItem,
   deleteGiftItem,
   updateWishlistTitle,
@@ -59,6 +45,11 @@ import {
   updateGiftItem,
   createWishlist,
 } from '@api/wishListService';
+import {
+  EXAMPLE_SEO,
+  EXAMPLE_WISHLIST_ALTERNATES,
+  isDemoWishlistId,
+} from '@constants/exampleWishlists';
 import { trackEvent } from '@utils/analytics';
 
 type DialogsState = {
@@ -81,368 +72,11 @@ type TitleState = {
   isEditing: boolean;
 };
 
-type PageStatus = 'loading' | 'found' | 'not_found';
-
-function useWishlistData(wishlistId: string | undefined) {
-  const [items, setItems] = useState<WishListItem[]>([]);
-  const [wishlist, setWishlist] = useState<WishList | null>(null);
-  const [status, setStatus] = useState<PageStatus>('loading');
-
-  useEffect(() => {
-    if (!wishlistId) return;
-    const unsub = subscribeWishlistItems(wishlistId, (list) => setItems(list));
-    return unsub;
-  }, [wishlistId]);
-
-  useEffect(() => {
-    const fetchWishlistData = async () => {
-      if (!wishlistId) return;
-      setStatus('loading');
-      const result = await getWishlistById(wishlistId);
-      if (result) {
-        setWishlist(result);
-        setStatus('found');
-      } else {
-        setWishlist(null);
-        setStatus('not_found');
-      }
-    };
-    fetchWishlistData();
-  }, [wishlistId]);
-
-  return { items, setItems, wishlist, setWishlist, status, setStatus };
-}
-
-function logClickAndOpen(url: string, payload: { id: string; name?: string | null; user_id?: string }) {
-  let opened = false;
-  const open = () => {
-    if (opened) return;
-    opened = true;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  // Check if gtag is ready and can use event_callback for reliable tracking
-  const gtagReady = typeof window !== 'undefined' &&
-    typeof window.gtag === 'function' &&
-    Array.isArray(window.dataLayer);
-
-  if (gtagReady && window.gtag) {
-    // Use event_callback to ensure event is sent before opening link
-    try {
-      window.gtag('event', 'click_gift_link', {
-        event_category: 'engagement',
-        event_label: payload.name ?? '',
-        item_id: payload.id,
-        url,
-        ...(payload.user_id ? { user_id: payload.user_id } : {}),
-        event_callback: open, // Open link only after event is confirmed sent
-      });
-      return; // event_callback will handle opening
-    } catch (error) {
-      console.error('Failed to track click_gift_link event with callback:', error);
-      // Fall through to fallback approach
-    }
-  }
-
-  // Fallback: Track event and use safer timeout
-  trackEvent('click_gift_link', {
-    event_category: 'engagement',
-    event_label: payload.name ?? '',
-    item_id: payload.id,
-    url,
-    ...(payload.user_id ? { user_id: payload.user_id } : {}), // Add user_id if available
-  }).catch((error) => {
-    console.error('Failed to track click_gift_link event:', error);
-  });
-
-  // Use longer timeout as fallback when callback is not available
-  // This ensures enough time for network requests even on slow connections
-  setTimeout(open, 500);
-}
-
-type RowProps = {
-  item: WishListItem;
-  canEdit: boolean;
-  onRowClick: () => void;
-  onEditClick: () => void;
-  onDeleteClick: () => void;
-};
-
-const WishListItemRow = memo(function WishListItemRow({
-  item,
-  canEdit,
-  onRowClick,
-  onEditClick,
-  onDeleteClick,
-}: RowProps) {
-  const { t } = useTranslation('wishlist');
-  const { user } = useAuth();
-  const isLockedForGuest = !canEdit && item.claimed;
-
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const menuOpen = Boolean(menuAnchor);
-  const openMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setMenuAnchor(e.currentTarget);
-  };
-  const settleCloseMenu = (event?: unknown) => {
-    if (event && typeof event === 'object' && 'stopPropagation' in event) {
-      (event as React.MouseEvent).stopPropagation();
-    }
-    setMenuAnchor(null);
-  };
-
-  const closeMenu: MenuProps['onClose'] = (event) => {
-    settleCloseMenu(event);
-  };
-
-  const handleGiftClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const url = item.link ?? undefined;
-    if (!url) return;
-    logClickAndOpen(url, {
-      id: item.id,
-      name: item.name ?? '',
-      ...(user?.uid ? { user_id: user.uid } : {}),
-    });
-  };
-
-  return (
-    <Paper
-      sx={{
-        mb: 1.5,
-        p: { xs: 1, sm: 1.5 },
-        borderRadius: 3,
-        border: '1px solid #2c2c2c',
-        boxShadow: 'none',
-        transition: 'background-color 0.2s ease, transform 0.2s ease',
-        '&:hover': { backgroundColor: '#2a2a2a', transform: 'scale(1.02)' },
-      }}
-    >
-      <ListItem alignItems="flex-start" sx={{ py: { xs: 0.5, sm: 0.75 } }}>
-        <ListItemButton
-          aria-disabled={isLockedForGuest}
-          onClick={onRowClick}
-          sx={{
-            borderRadius: '15px',
-            ...(isLockedForGuest ? { opacity: 0.6 } : {}),
-            '&:hover': { backgroundColor: '#3d3d3d' },
-            width: '100%',
-            px: { xs: 1, sm: 1.5 },
-            py: { xs: 1, sm: 1 },
-            alignItems: 'stretch',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: { xs: 1, sm: 2 },
-              flexGrow: 1,
-              minWidth: 0,
-            }}
-          >
-            <Box sx={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
-              <CustomCheckbox
-                checked={item.claimed}
-                disabled
-                icon={<RadioButtonUncheckedIcon fontSize="small" />}
-                checkedIcon={<CheckCircleIcon fontSize="small" />}
-              />
-            </Box>
-
-            <ListItemText
-              sx={{ minWidth: 0, flex: '1 1 auto', my: 0 }}
-              primary={
-                <Typography
-                  variant="h6"
-                  sx={{
-                    textDecoration: item.claimed ? 'line-through' : 'none',
-                    color: item.claimed ? 'gray' : 'inherit',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'anywhere',
-                  }}
-                >
-                  {item.name}
-                </Typography>
-              }
-              secondary={
-                <>
-                  {item.link ? (
-                    <>
-                      <MuiLink
-                        href={item.link ?? undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        color="primary"
-                        underline="hover"
-                        onClick={handleGiftClick}
-                      >
-                        {t('link')}
-                      </MuiLink>
-                      <br />
-                    </>
-                  ) : null}
-                  {item.description ? (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="span"
-                      sx={{
-                        display: 'block',
-                        mt: 0.25,
-                        wordBreak: 'break-word',
-                        overflowWrap: 'anywhere',
-                        whiteSpace: 'pre-wrap',
-                      }}
-                    >
-                      {item.description}
-                    </Typography>
-                  ) : null}
-                </>
-              }
-            />
-          </Box>
-
-          {canEdit && (
-            <>
-              <Box
-                sx={{
-                  display: { xs: 'none', sm: 'flex' },
-                  gap: 0.5,
-                  ml: 1,
-                  flex: '0 0 auto',
-                  alignSelf: 'center',
-                }}
-              >
-                <Tooltip title={t('editTitleTooltip')} arrow>
-                  <IconButton
-                    size="small"
-                    aria-label={t('editAria')}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditClick();
-                    }}
-                  >
-                    <EditIcon sx={{ fontSize: 18, color: '#bbb' }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={t('deleteTitleTooltip')} arrow>
-                  <IconButton
-                    size="small"
-                    aria-label={t('deleteAria')}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteClick();
-                    }}
-                  >
-                    <DeleteIcon sx={{ fontSize: 18, color: '#999' }} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-
-              <Box sx={{ display: { xs: 'flex', sm: 'none' }, ml: 0.25, alignSelf: 'center' }}>
-                <IconButton
-                  size="small"
-                  aria-label={t('moreActionsAria', { defaultValue: 'More actions' })}
-                  onClick={openMenu}
-                  sx={{ p: 1 }}
-                >
-                  <MoreVertIcon sx={{ fontSize: 20, color: '#aaa' }} />
-                </IconButton>
-                <Menu
-                  anchorEl={menuAnchor}
-                  open={menuOpen}
-                  onClose={closeMenu}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                >
-                  <MenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      settleCloseMenu(e);
-                      onEditClick();
-                    }}
-                  >
-                    <MuiListItemIcon>
-                      <EditIcon fontSize="small" />
-                    </MuiListItemIcon>
-                    {t('editTitleTooltip')}
-                  </MenuItem>
-                  <MenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      settleCloseMenu(e);
-                      onDeleteClick();
-                    }}
-                  >
-                    <MuiListItemIcon>
-                      <DeleteIcon fontSize="small" />
-                    </MuiListItemIcon>
-                    {t('deleteTitleTooltip')}
-                  </MenuItem>
-                </Menu>
-              </Box>
-            </>
-          )}
-        </ListItemButton>
-      </ListItem>
-    </Paper>
-  );
-});
-
 type RouteLang = 'ua' | 'en';
 const toSeoLang = (lng: RouteLang): 'uk' | 'en' => (lng === 'ua' ? 'uk' : 'en');
 
-const EXAMPLE_SEO: Record<string, { title: string; description: string }> = {
-  'christmas-list': {
-    title: 'Christmas Wish List 2026 - Free Holiday Gift List | WishList App',
-    description: 'Browse a Christmas wish list example. Create your own free holiday gift list and share it with family - friends can anonymously claim gifts.',
-  },
-  'christmas-list-ua': {
-    title: 'Вішліст на Новий Рік та Різдво 2026 - Безкоштовний | WishList App',
-    description: 'Перегляньте приклад новорічного вішліста. Зробіть свій список бажань безкоштовно та поділіться з друзями.',
-  },
-  'birthday-list': {
-    title: 'Birthday Wishlist Example - Free Gift List Maker | WishList App',
-    description: 'Browse a birthday wishlist example. Create your own free birthday gift list and share the private link with friends.',
-  },
-  'birthday-list-ua': {
-    title: 'Вішліст на День Народження - Безкоштовний Приклад | WishList App',
-    description: 'Перегляньте приклад вішліста на день народження. Зробіть свій список побажань безкоштовно.',
-  },
-  'secret-santa-list': {
-    title: 'Secret Santa Wishlist Example - Free Gift List | WishList App',
-    description: 'Browse a Secret Santa wishlist example. Create your own free Secret Santa gift list and share it with your group.',
-  },
-  'secret-santa-list-ua': {
-    title: 'Вішліст Таємного Санти - Безкоштовний Приклад | WishList App',
-    description: 'Перегляньте приклад вішліста для Таємного Санти. Зробіть свій список подарунків безкоштовно.',
-  },
-  'wedding-list': {
-    title: 'Wedding Wishlist Example - Free Wedding Gift Registry | WishList App',
-    description: 'Browse a wedding wishlist example. Create your free wedding gift registry and share it with guests.',
-  },
-  'wedding-list-ua': {
-    title: 'Весільний Вішліст - Безкоштовний Приклад | WishList App',
-    description: 'Перегляньте приклад весільного вішліста. Зробіть свій список побажань до весілля безкоштовно.',
-  },
-};
-
-const EXAMPLE_WISHLIST_ALTERNATES: Record<string, { en: string; uk: string }> = {
-  'christmas-list': { en: 'christmas-list', uk: 'christmas-list-ua' },
-  'christmas-list-ua': { en: 'christmas-list', uk: 'christmas-list-ua' },
-  'birthday-list': { en: 'birthday-list', uk: 'birthday-list-ua' },
-  'birthday-list-ua': { en: 'birthday-list', uk: 'birthday-list-ua' },
-  'secret-santa-list': { en: 'secret-santa-list', uk: 'secret-santa-list-ua' },
-  'secret-santa-list-ua': { en: 'secret-santa-list', uk: 'secret-santa-list-ua' },
-  'wedding-list': { en: 'wedding-list', uk: 'wedding-list-ua' },
-  'wedding-list-ua': { en: 'wedding-list', uk: 'wedding-list-ua' },
-};
-
 export function WishListItemList() {
-  const { t } = useTranslation(['wishlist', 'examples']);
+  const { t } = useTranslation('wishlist');
   const { user, isAdmin } = useAuth();
   const { wishlistId, lng } = useParams();
   const routeLang = (lng === 'ua' || lng === 'en' ? lng : 'en') as RouteLang;
@@ -506,16 +140,7 @@ export function WishListItemList() {
     [status, isAdmin, user, wishlist],
   );
 
-  const isExampleWishlist = useMemo(() => {
-    if (!wishlistId) return false;
-    try {
-      const cards = t('examples:cards', { returnObjects: true }) as Array<{ title: string; emoji: string; wishlistId: string }>;
-      if (!Array.isArray(cards)) return false;
-      return cards.some(card => card.wishlistId === wishlistId);
-    } catch {
-      return false;
-    }
-  }, [wishlistId, t]);
+  const isExampleWishlist = Boolean(wishlistId && isDemoWishlistId(wishlistId));
 
   const canCopyWishlist = useMemo(() => {
     if (!user || !wishlist) return false;

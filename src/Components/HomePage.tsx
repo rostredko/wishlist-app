@@ -1,71 +1,30 @@
-import { useEffect, useMemo, useState, useCallback, lazy, Suspense } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Tooltip from '@mui/material/Tooltip';
-import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
-import Skeleton from '@mui/material/Skeleton';
-import IconButton from '@mui/material/IconButton';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-
-import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import SEOHead from '@components/SEOHead';
-import { useAuth } from '@hooks/useAuth';
-import { useGoogleSignIn } from '@hooks/useGoogleSignIn';
+import { HomePageBrandBar } from '@components/HomePageBrandBar';
+import { HomePageHero } from '@components/HomePageHero';
+import { HomePageInfoCard } from '@components/HomePageInfoCard';
+import { HomePageGuestCta } from '@components/HomePageGuestCta';
+import { HomePageMyListsSection } from '@components/HomePageMyListsSection';
+import { HomePageFaq } from '@components/HomePageFaq';
 import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import type { WishList } from '@models/WishList';
+import { useAuth } from '@hooks/useAuth';
+import { useGoogleSignIn } from '@hooks/useGoogleSignIn';
 import { subscribeMyWishlists, deleteWishlistDeep } from '@api/wishListService';
-
-const VideoTutorialsSection = lazy(() => import('@components/VideoTutorialsSection'));
-
-/** After Google sign-in, open Create wishlist dialog (popup + redirect return + Telegram return). */
-const WL_PENDING_CREATE_KEY = 'wl_pending_create_wishlist';
-const WL_PENDING_CREATE_MAX_AGE_MS = 30 * 60 * 1000;
-
-function setPendingWishlistCreateAfterAuth() {
-  try {
-    sessionStorage.setItem(WL_PENDING_CREATE_KEY, String(Date.now()));
-  } catch {
-    /* ignore */
-  }
-}
-
-function clearPendingWishlistCreateAfterAuth() {
-  try {
-    sessionStorage.removeItem(WL_PENDING_CREATE_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
-/** If a valid pending intent exists, remove it and return true. */
-function consumePendingWishlistCreateAfterAuth(): boolean {
-  try {
-    const raw = sessionStorage.getItem(WL_PENDING_CREATE_KEY);
-    if (raw == null) return false;
-    sessionStorage.removeItem(WL_PENDING_CREATE_KEY);
-    const t = parseInt(raw, 10);
-    if (Number.isNaN(t) || Date.now() - t > WL_PENDING_CREATE_MAX_AGE_MS) return false;
-    return true;
-  } catch {
-    return false;
-  }
-}
+import {
+  clearPendingWishlistCreateAfterAuth,
+  consumePendingWishlistCreateAfterAuth,
+  setPendingWishlistCreateAfterAuth,
+} from '@utils/pendingWishlistCreate';
 
 type WLItem = WishList & { id: string };
 type RouteLang = 'ua' | 'en';
@@ -82,7 +41,6 @@ export default function HomePage({ lang }: Props) {
 
   const seoLang = toSeoLang(lang);
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
@@ -94,7 +52,7 @@ export default function HomePage({ lang }: Props) {
       setMyLists(null);
       return;
     }
-    const unsub = subscribeMyWishlists(user.uid, lists => setMyLists(lists));
+    const unsub = subscribeMyWishlists(user.uid, (lists) => setMyLists(lists));
     return unsub;
   }, [user?.uid]);
 
@@ -164,22 +122,8 @@ export default function HomePage({ lang }: Props) {
     uk: `${origin}/ua`,
   };
 
-  const deleteName = deleteDialog.title && deleteDialog.title.trim().length > 0
-    ? deleteDialog.title
-    : t('untitled');
-
-  const exampleCards = useMemo(() => {
-    const cards = t('examples:cards', { returnObjects: true }) as Array<{ title: string; emoji: string; wishlistId: string }>;
-    if (!Array.isArray(cards)) {
-      return [];
-    }
-    return cards.map(card => ({
-      path: `/${lang}/wishlist/${card.wishlistId}`,
-      title: card.title,
-      emoji: card.emoji,
-      wishlistId: card.wishlistId
-    }));
-  }, [lang, t]);
+  const deleteName =
+    deleteDialog.title && deleteDialog.title.trim().length > 0 ? deleteDialog.title : t('untitled');
 
   const faqData = useMemo(() => {
     const faq = t('faq', { returnObjects: true }) as Array<{ q: string; a: string }>;
@@ -202,441 +146,44 @@ export default function HomePage({ lang }: Props) {
           organization: true,
           faq: faqData,
         }}
-        keywords={lang === 'ua'
-          ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
-          : 'wishlist, gift list, birthday, christmas, wedding, free, create wishlist, share wishlist'}
+        keywords={
+          lang === 'ua'
+            ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст'
+            : 'wishlist, gift list, birthday, christmas, wedding, free, create wishlist, share wishlist'
+        }
       />
 
       <Container maxWidth="md">
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 2,
-            mb: 2,
-            flexWrap: 'wrap',
-            rowGap: 1.5,
-          }}
-        >
-          <Box
-            component={RouterLink}
-            to={`/${lang}`}
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 1.25,
-              minWidth: 0,
-              textDecoration: 'none',
-              color: 'inherit',
-              '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 },
-            }}
-          >
-            <Box
-              aria-hidden
-              sx={{ fontSize: { xs: '2.25rem', sm: '2.75rem' }, lineHeight: 1, userSelect: 'none' }}
-            >
-              🎁
-            </Box>
-            <Typography variant="h6" component="span" sx={{ fontWeight: 800, letterSpacing: 0.02 }}>
-              {t('brandName')}
-            </Typography>
-          </Box>
+        <HomePageBrandBar
+          lang={lang}
+          user={user ? { uid: user.uid } : null}
+          signInLoading={signInLoading}
+          isTelegram={isTelegram}
+          onCreateClick={handleCreateWishlistFlow}
+        />
 
-          {!user ? (
-            <Tooltip
-              title={isTelegram ? tAuth('telegramInstructionTitle') : t('createTooltip')}
-              placement="bottom-end"
-            >
-              <Box
-                component="span"
-                sx={{
-                  ml: { xs: 0, sm: 'auto' },
-                  width: { xs: '100%', sm: 'auto' },
-                  flexShrink: 0,
-                  display: 'inline-block',
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="medium"
-                  sx={{
-                    fontWeight: 700,
-                    width: { xs: '100%', sm: 'auto' },
-                  }}
-                  onClick={() => void handleCreateWishlistFlow()}
-                  disabled={signInLoading}
-                  aria-label={t('createBtn')}
-                >
-                  {t('createBtn')}
-                </Button>
-              </Box>
-            </Tooltip>
-          ) : (
-            <Box
-              sx={{
-                ml: { xs: 0, sm: 'auto' },
-                width: { xs: '100%', sm: 'auto' },
-                flexShrink: 0,
-              }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                size="medium"
-                sx={{
-                  fontWeight: 700,
-                  width: { xs: '100%', sm: 'auto' },
-                }}
-                onClick={() => void handleCreateWishlistFlow()}
-                disabled={signInLoading}
-                aria-label={t('createBtn')}
-              >
-                {t('createBtn')}
-              </Button>
-            </Box>
-          )}
-        </Box>
-
-        <Box className="hero" sx={{ width: '100%' }}>
-          <Stack spacing={2} alignItems="flex-start" sx={{ width: '100%' }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 800, display: 'flex', gap: 1 }}>
-              {t('heroH1')}
-            </Typography>
-            <Typography
-              variant="h5"
-              component="h2"
-              sx={{
-                fontWeight: 500,
-                opacity: 0.88,
-                pb: 3,
-                fontSize: { xs: '1.125rem', sm: '1.25rem', md: '1.375rem' },
-                lineHeight: 1.45,
-                maxWidth: '42rem',
-              }}
-            >
-              {t('heroH2')}
-            </Typography>
-          </Stack>
-        </Box>
+        <HomePageHero lang={lang} />
 
         <Stack spacing={3} alignItems="stretch">
-          <Card variant="outlined" sx={{ bgcolor: 'background.paper' }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography
-                  component="h2"
-                  variant="subtitle1"
-                  sx={{ fontWeight: 700, fontSize: { xs: 22, sm: 25 } }}
-                >
-                  {t('what')}
-                </Typography>
-
-                <Stack
-                  spacing={2}
-                  sx={{
-                    pl: { xs: 2, sm: 4, md: 4 },
-                    m: 0,
-                  }}
-                >
-                  {(t('whatList', { returnObjects: true }) as string[]).map((item, idx) => (
-                    <Typography
-                      key={idx}
-                      variant="body1"
-                      sx={{ fontSize: 18, display: 'flex', alignItems: 'flex-start', gap: 1 }}
-                    >
-                      {item}
-                    </Typography>
-                  ))}
-                </Stack>
-
-                <Divider />
-
-                <Typography
-                  component="h2"
-                  variant="subtitle1"
-                  sx={{ fontWeight: 700, fontSize: { xs: 20, sm: 22 } }}
-                >
-                  {t('how')}
-                </Typography>
-
-                <Stack
-                  component="ul"
-                  spacing={2}
-                  sx={{
-                    pl: { xs: 3, sm: 5, md: 6 },
-                    m: 0,
-                    listStylePosition: 'outside',
-                  }}
-                >
-                  {(['li1', 'li2', 'li3', 'li4'] as const).map(key => (
-                    <li key={key}>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontSize: 18, display: 'flex', alignItems: 'flex-start', gap: 1 }}
-                      >
-                        {t(key)}
-                      </Typography>
-                    </li>
-                  ))}
-                </Stack>
-
-                <Divider />
-
-                <Suspense fallback={
-                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
-                    <Box sx={{ flex: 1 }}>
-                      <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
-                      <Skeleton variant="rectangular" height={0} sx={{ paddingTop: '56.25%', borderRadius: 2 }} />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
-                      <Skeleton variant="rectangular" height={0} sx={{ paddingTop: '56.25%', borderRadius: 2 }} />
-                    </Box>
-                  </Stack>
-                }>
-                    <VideoTutorialsSection lang={lang} />
-                </Suspense>
-
-                <Divider />
-
-                <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 700, fontSize: 24 }}>
-                  {t('examplesTitle')}
-                </Typography>
-                <Box sx={{ mb: 8 }}>
-                  <Grid container spacing={2}>
-                    {exampleCards.map((ex) => (
-                      <Grid key={ex.path} size={{ xs: 12, md: 6 }}>
-                        <Card
-                          variant="outlined"
-                          component={RouterLink}
-                          to={ex.path}
-                          sx={{
-                            height: '100%',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            textDecoration: 'none',
-                            color: 'inherit',
-                            px: { xs: 2, sm: 3 },
-                            py: { xs: 1.5, sm: 2 },
-                            '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' },
-                            transition: 'all 120ms ease',
-                            gap: 2,
-                          }}
-                        >
-                          <Stack direction="row" spacing={2} alignItems="center" sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography sx={{ fontSize: { xs: 24, sm: 28 }, lineHeight: 1 }}>{ex.emoji}</Typography>
-                            <Typography
-                              variant="subtitle1"
-                              sx={{
-                                fontWeight: 700,
-                                pr: 1,
-                                overflow: 'hidden',
-                                whiteSpace: { xs: 'normal', sm: 'normal' },
-                                display: { sm: '-webkit-box' },
-                                WebkitLineClamp: { sm: 2 },
-                                WebkitBoxOrient: { sm: 'vertical' },
-                              }}
-                            >
-                              {ex.title}
-                            </Typography>
-                          </Stack>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
+          <HomePageInfoCard lang={lang} />
 
           {!user && (
-            <Stack sx={{ width: '100%', mt: 4, pb: 4 }} spacing={0}>
-              <Tooltip title={t('createTooltip')} placement="top">
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    width: '100%',
-                    mt: 6,
-                  }}
-                >
-                  <Button
-                    size="large"
-                    variant="contained"
-                    onClick={() => void handleCreateWishlistFlow()}
-                    disabled={signInLoading}
-                    aria-label={t('createBtn')}
-                    sx={{ width: { xs: '100%', md: 'auto' }, minWidth: { md: 300 }, px: { md: 5 } }}
-                  >
-                    {t('createBtn')}
-                  </Button>
-                </Box>
-              </Tooltip>
-            </Stack>
+            <HomePageGuestCta lang={lang} signInLoading={signInLoading} onCreateClick={handleCreateWishlistFlow} />
           )}
 
           {user && (
-            <Stack sx={{ width: '100%', mt: 4, pb: 4 }} spacing={0}>
-              <Stack spacing={2}>
-                <Typography
-                  component="h2"
-                  variant="h5"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: { xs: 26, sm: 30, md: 32 },
-                    lineHeight: 1.25,
-                    textAlign: { xs: 'center', md: 'left' },
-                  }}
-                >
-                  {t('your')}
-                </Typography>
-
-                {isLoading && (
-                  <Grid container spacing={2}>
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <Grid key={i} size={{ xs: 12, md: 6, lg: 4 }}>
-                        <Skeleton variant="rounded" height={96} />
-                      </Grid>
-                    ))}
-                  </Grid>
-                )}
-
-                {!isLoading && myLists && myLists.length === 0 && (
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Typography>{t('noLists')}</Typography>
-                        <Button variant="outlined" onClick={() => void handleCreateWishlistFlow()}>
-                          {t('createOne')}
-                        </Button>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {!isLoading && myLists && myLists.length > 0 && (
-                  <Grid container spacing={2}>
-                    {myLists.map(wl => (
-                      <Grid key={wl.id} size={{ xs: 12, md: 6, lg: 4 }}>
-                        <Card
-                          variant="outlined"
-                          onClick={() => navigate(`/${lang}/wishlist/${wl.id}`)}
-                          sx={{
-                            cursor: 'pointer',
-                            display: 'flex',
-                            transition: 'transform 120ms ease, box-shadow 120ms ease',
-                            '&:hover': { transform: 'translateY(-2px)', boxShadow: 6 },
-                          }}
-                        >
-                          <CardContent
-                            sx={{
-                              width: '100%',
-                              height: '100%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              p: 2,
-                              '&:last-child': { pb: 2 },
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle1"
-                              sx={{
-                                fontWeight: 700,
-                                pr: 1,
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
-                              }}
-                            >
-                              {wl.title || t('untitled')}
-                            </Typography>
-                            <IconButton
-                              aria-label={t('deleteAria')}
-                              size="small"
-                              onClick={e => {
-                                e.stopPropagation();
-                                openDeleteDialog(wl.id, wl.title);
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                )}
-              </Stack>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  width: '100%',
-                  mt: 6,
-                }}
-              >
-                <Button
-                  size="large"
-                  variant="contained"
-                  onClick={() => void handleCreateWishlistFlow()}
-                  disabled={signInLoading}
-                  aria-label={t('createBtn')}
-                  sx={{ width: { xs: '100%', md: 'auto' }, minWidth: { md: 300 }, px: { md: 5 } }}
-                >
-                  {t('createBtn')}
-                </Button>
-              </Box>
-            </Stack>
+            <HomePageMyListsSection
+              lang={lang}
+              isLoading={isLoading}
+              myLists={myLists}
+              signInLoading={signInLoading}
+              onCreateClick={handleCreateWishlistFlow}
+              onDeleteRequest={openDeleteDialog}
+            />
           )}
-
         </Stack>
 
-        {faqData && (
-          <Box sx={{ mt: 8, mb: 4 }}>
-            <Typography variant="h2" sx={{ fontWeight: 700, fontSize: 32, mb: 3, textAlign: 'center' }}>
-              {t('faqTitle')}
-            </Typography>
-            <Box>
-              {faqData.map((item, idx) => (
-                <Accordion
-                  key={idx}
-                  disableGutters
-                  elevation={0}
-                  sx={{
-                    '&:before': { display: 'none' },
-                    mb: 1,
-                    border: '1px solid #333',
-                    borderRadius: '8px !important',
-                    overflow: 'hidden',
-                    bgcolor: 'transparent',
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls={`faq-panel${idx}-content`}
-                    id={`faq-panel${idx}-header`}
-                    sx={{ '& .MuiAccordionSummary-content': { my: 2 } }}
-                  >
-                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {item.q}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body1" color="text.secondary">
-                      {item.a}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </Box>
-          </Box>
-        )}
+        <HomePageFaq lang={lang} faqData={faqData} />
       </Container>
 
       <CreateWishListDialog

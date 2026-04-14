@@ -39,6 +39,7 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 
 - **App singleton:** `src/firebase/init.ts` and `config.ts` initialize one Firebase app. Consumers import `auth` from `auth-client.ts`, `db` from `db-client.ts`, `storage` from `storage-client.ts` (not duplicate app entry points).
 - **Wishlist API:** `src/services/wishListService.ts` owns Firestore and Storage calls for wishlists and items (create/read/update/delete, realtime listeners, banner upload).
+- **Path alias:** `@constants/*` maps to `src/constants/` (see root `tsconfig.json`).
 - **Banner URLs:** `bannerImage` stores a **download URL** from `getDownloadURL`. On wishlist delete, Storage deletion runs only for URLs under `firebasestorage.googleapis.com`, via `deleteObject(ref(storage, url))` (Firebase v11 `ref` accepts a full download URL).
 - **Item order:** `subscribeWishlistItems` queries items with `orderBy('createdAt', 'asc')`. If the Firebase console reports a missing index, add the suggested composite index.
 
@@ -51,7 +52,7 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 - **SEO**
   - **Per-route metadata** - `SEOHead` sets title, description, canonical, alternates, and JSON-LD for SPA routes after load.
   - **Static shell (`index.html`)** - default `<title>`, meta description, Open Graph, Twitter Card, and skeleton H1 for the first HTML response (UA-focused defaults for crawlers and pre-hydration). Keep these aligned with top UA queries; they are not a substitute for `SEOHead` on `/en/*` and `/ua/*`.
-  - **Example / demo wishlists** - Fallback list metadata in `DEMO_WISHLISTS` (`src/services/wishListService.ts`). Guest-facing SEO title/description overrides for known example IDs live in `EXAMPLE_SEO` inside `WishListItemList.tsx` and apply only when the viewer **cannot** edit the list (`canEdit === false`; owners and admins keep `{wishlist.title} - WishList App`).
+  - **Example / demo wishlists** - `DEMO_WISHLISTS`, guest SEO overrides (`EXAMPLE_SEO`), and hreflang-style alternates (`EXAMPLE_WISHLIST_ALTERNATES`) live in [`src/constants/exampleWishlists.ts`](src/constants/exampleWishlists.ts). `wishListService.ts` imports `DEMO_WISHLISTS` from there; `WishListItemList.tsx` imports SEO maps and `isDemoWishlistId`. Overrides apply only when the viewer **cannot** edit (`canEdit === false`; owners and admins keep `{wishlist.title} - WishList App`).
   - **Sitemap** - `public/sitemap.xml`: update `<lastmod>` when shipping meaningful changes to listed URLs.
 - Prefer editing existing files over creating new ones
 - **Vitest:** mocked function components are often invoked as `(props, undefined)`; use `toHaveBeenCalledWith(expect.objectContaining({ … }), undefined)` when spying on `SEOHead`-style mocks
