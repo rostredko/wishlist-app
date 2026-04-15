@@ -88,6 +88,8 @@ export default function BlogHubPage() {
               src="/pencil_blog.png"
               alt=""
               aria-hidden="true"
+              decoding="async"
+              fetchPriority="low"
               sx={{
                 display: { xs: 'none', md: 'block' },
                 position: 'absolute',
@@ -119,6 +121,8 @@ export default function BlogHubPage() {
             src="/pencil_blog.png"
             alt=""
             aria-hidden="true"
+            decoding="async"
+            fetchPriority="low"
             sx={{
               display: { xs: 'block', md: 'none' },
               position: 'absolute',
