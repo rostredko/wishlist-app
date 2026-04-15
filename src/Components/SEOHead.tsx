@@ -16,6 +16,24 @@ type BreadcrumbItem = {
   url: string;
 };
 
+type ArticleLD = {
+  headline: string;
+  datePublished?: string;
+  dateModified?: string;
+  authorName?: string;
+};
+
+type HowToLD = {
+  name: string;
+  description?: string;
+  steps: Array<{ text: string; name?: string }>;
+};
+
+type GuideItemListLD = {
+  name?: string;
+  items: Array<{ name: string; url: string }>;
+};
+
 type StructuredProps = {
   website?: boolean;
   webapp?: boolean;
@@ -23,6 +41,9 @@ type StructuredProps = {
   organization?: boolean;
   faq?: FAQItem[] | null;
   breadcrumbs?: BreadcrumbItem[] | null;
+  article?: ArticleLD | null;
+  howTo?: HowToLD | null;
+  guideItemList?: GuideItemListLD | null;
 };
 
 type SEOHeadProps = {
@@ -432,6 +453,65 @@ export default function SEOHead({
           position: index + 1,
           name: item.name,
           item: absoluteUrl(item.url),
+        })),
+      });
+    }
+
+    if (structured?.article) {
+      const a = structured.article;
+      upsertJsonLd('article', {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: a.headline,
+        datePublished: a.datePublished,
+        dateModified: a.dateModified,
+        author: {
+          '@type': 'Organization',
+          name: a.authorName ?? 'WishList App',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'WishList App',
+          logo: {
+            '@type': 'ImageObject',
+            url: `${origin}/android-chrome-512x512.png`,
+          },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': href,
+        },
+      });
+    }
+
+    if (structured?.howTo && structured.howTo.steps.length > 0) {
+      const h = structured.howTo;
+      upsertJsonLd('howto', {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: h.name,
+        description: h.description,
+        step: h.steps.map((s, i) => ({
+          '@type': 'HowToStep',
+          position: i + 1,
+          name: s.name,
+          text: s.text,
+        })),
+      });
+    }
+
+    if (structured?.guideItemList && structured.guideItemList.items.length > 0) {
+      const g = structured.guideItemList;
+      upsertJsonLd('guideitemlist', {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: g.name ?? 'Guides',
+        numberOfItems: g.items.length,
+        itemListElement: g.items.map((it, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: it.name,
+          item: absoluteUrl(it.url),
         })),
       });
     }

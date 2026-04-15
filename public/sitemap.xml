@@ -45,6 +45,116 @@
         <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/privacy"/>
     </url>
 
+    <!-- Blog hub + posts -->
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/best-wishlist-apps-2026</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/best-wishlist-apps-2026"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/de-stvoryty-vishlist-2026"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/de-stvoryty-vishlist-2026"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/de-stvoryty-vishlist-2026</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/de-stvoryty-vishlist-2026"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/best-wishlist-apps-2026"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/de-stvoryty-vishlist-2026"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/amazon-wishlist-alternatives</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/amazon-wishlist-alternatives"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/amazon-wishlist-alternatives"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/how-to-create-a-birthday-wishlist</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/how-to-create-a-birthday-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist-na-den-narodzhennya"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist-na-den-narodzhennya"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist-na-den-narodzhennya</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist-na-den-narodzhennya"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/how-to-create-a-birthday-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist-na-den-narodzhennya"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/wishlist-vs-gift-registry</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/wishlist-vs-gift-registry"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/vishlist-chy-google-docs-telegram"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/vishlist-chy-google-docs-telegram"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/vishlist-chy-google-docs-telegram</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/vishlist-chy-google-docs-telegram"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/wishlist-vs-gift-registry"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/vishlist-chy-google-docs-telegram"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/best-secret-santa-apps</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/best-secret-santa-apps"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ</loc>
+        <lastmod>2026-04-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/best-secret-santa-apps"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ"/>
+    </url>
+
     <!-- Example wishlists (EN + UA) -->
     <url>
         <loc>https://wishlistapp.com.ua/en/wishlist/christmas-list</loc>

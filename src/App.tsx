@@ -27,7 +27,22 @@ const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
 const PrivacyPage = lazy(() => import('@components/PrivacyPage'));
+const BlogHubPage = lazy(() => import('@components/blog/BlogHubPage'));
+const BlogArticlePage = lazy(() => import('@components/blog/BlogArticlePage'));
 import Footer from '@components/Footer';
+
+function LegacyHowToHubRedirect() {
+  const { lng } = useParams();
+  const l = lng === 'en' || lng === 'ua' ? lng : 'ua';
+  return <Navigate to={`/${l}/blog`} replace />;
+}
+
+function LegacyHowToArticleRedirect() {
+  const { lng, slug = '' } = useParams<{ lng: string; slug: string }>();
+  const l = lng === 'en' || lng === 'ua' ? lng : 'ua';
+  const to = slug ? `/${l}/blog/${slug}` : `/${l}/blog`;
+  return <Navigate to={to} replace />;
+}
 
 function getRouteLanguage(pathname: string): SupportedLang | undefined {
   const maybeLang = pathname.split('/').filter(Boolean)[0];
@@ -208,6 +223,12 @@ function App() {
                 <Route path="/en" element={<LocalizedHome lng="en" />} />
 
                 <Route path="/:lng/privacy" element={<PrivacyPage />} />
+
+                <Route path="/:lng/blog" element={<BlogHubPage />} />
+                <Route path="/:lng/blog/:slug" element={<BlogArticlePage />} />
+
+                <Route path="/:lng/how-to" element={<LegacyHowToHubRedirect />} />
+                <Route path="/:lng/how-to/:slug" element={<LegacyHowToArticleRedirect />} />
 
                 <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
 

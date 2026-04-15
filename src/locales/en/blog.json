@@ -1,0 +1,52 @@
+{
+  "hub": {
+    "title": "WishList App Blog - Wishlists, Gifts & Tips",
+    "description": "I've been making lists since I was six - wishlists 🎁 for every holiday, to-dos for every week. I built WishList App from that same habit. Here I write about what I've actually learned: good wishlists, the apps worth using, and why a short list 📝 beats a crowded head every time.",
+    "h1": "Blog",
+    "keywords": "wishlist blog, best wishlist apps, birthday wishlist, Secret Santa, gift registry"
+  },
+  "notFound": {
+    "title": "Post not found | WishList App Blog",
+    "description": "This post does not exist or was moved. Browse the blog index.",
+    "h1": "Post not found",
+    "body": "Try the blog list or go back to the homepage."
+  },
+  "backHome": "Back to home",
+  "navBlog": "Blog",
+  "breadcrumbHome": "Home",
+  "breadcrumbBlog": "Blog",
+  "lastUpdated": "Updated: {{date}}",
+  "byline": "I run WishList App and write these posts myself - feedback welcome anytime.",
+  "cards": {
+    "how-lists-change-your-life": {
+      "title": "Why I've Been Making Lists My Whole Life",
+      "desc": "My personal story with lists - from childhood wishlists to productivity habits - and a holiday wishlist guide for every occasion.",
+      "read": "9 min read"
+    },
+    "best-wishlist-apps-2026": {
+      "title": "Best Wishlist Apps in 2026",
+      "desc": "What I look for in a wishlist app after building one, plus a straight comparison table.",
+      "read": "10 min read"
+    },
+    "amazon-wishlist-alternatives": {
+      "title": "Amazon Wishlist Alternatives",
+      "desc": "When you want more flexibility than a single store - and why I built a store-agnostic list.",
+      "read": "8 min read"
+    },
+    "how-to-create-a-birthday-wishlist": {
+      "title": "How to Create a Birthday Wishlist",
+      "desc": "My checklist for a birthday list guests actually use - from naming to sharing.",
+      "read": "7 min read"
+    },
+    "wishlist-vs-gift-registry": {
+      "title": "Wishlist vs Gift Registry",
+      "desc": "Side-by-side: flexibility, guests, and where WishList App fits.",
+      "read": "6 min read"
+    },
+    "best-secret-santa-apps": {
+      "title": "Best Secret Santa Apps",
+      "desc": "Picking tools for draws and wishlists - including what I optimize for in my own app.",
+      "read": "8 min read"
+    }
+  }
+}
