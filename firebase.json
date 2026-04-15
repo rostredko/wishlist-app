@@ -60,6 +60,26 @@
         "source": "/index.html",
         "destination": "/",
         "type": 301
+      },
+      {
+        "source": "/ua/how-to",
+        "destination": "/ua/blog",
+        "type": 301
+      },
+      {
+        "source": "/en/how-to",
+        "destination": "/en/blog",
+        "type": 301
+      },
+      {
+        "source": "/ua/how-to/:slug",
+        "destination": "/ua/blog/:slug",
+        "type": 301
+      },
+      {
+        "source": "/en/how-to/:slug",
+        "destination": "/en/blog/:slug",
+        "type": 301
       }
     ],
     "rewrites": [

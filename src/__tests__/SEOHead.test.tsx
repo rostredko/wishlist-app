@@ -9,7 +9,7 @@ describe('SEOHead', () => {
     document.documentElement.lang = 'en';
   });
 
-  it('keeps slashless canonical and alternate URLs and points x-default to /ua', async () => {
+  it('keeps slashless canonical and alternate URLs and points x-default to uk alternate', async () => {
     render(
       <SEOHead
         title="Example wishlist"
@@ -37,9 +37,10 @@ describe('SEOHead', () => {
       document.head.querySelector('link[rel="alternate"][hreflang="uk"]')?.getAttribute('href')
     ).toBe('https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua');
 
+    // x-default should point to the uk alternate URL, not the generic homepage
     expect(
       document.head.querySelector('link[rel="alternate"][hreflang="x-default"]')?.getAttribute('href')
-    ).toBe('https://wishlistapp.com.ua/ua');
+    ).toBe('https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua');
   });
 
   it('allows overriding robots meta content', async () => {

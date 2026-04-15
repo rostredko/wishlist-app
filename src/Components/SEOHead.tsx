@@ -321,7 +321,7 @@ export default function SEOHead({
 
     if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), { hreflang: 'en' });
     if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), { hreflang: 'uk' });
-    upsertLink('alternate', `${canonicalOrigin}/ua`, { hreflang: 'x-default' });
+    upsertLink('alternate', sanitizeCanonical(ukHref ?? `${canonicalOrigin}/ua`), { hreflang: 'x-default' });
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@hooks/useAuth';
 import { useWishlistData } from '@hooks/useWishlistData';
 
+import type { WishList } from '@models/WishList';
 import type { WishListItem } from '@models/WishListItem';
 
 import ConfirmDialog from '@components/ConfirmDialog';
@@ -46,6 +47,8 @@ import {
   createWishlist,
 } from '@api/wishListService';
 import {
+  DEMO_ITEMS,
+  DEMO_WISHLISTS,
   EXAMPLE_SEO,
   EXAMPLE_WISHLIST_ALTERNATES,
   isDemoWishlistId,
@@ -90,8 +93,24 @@ export function WishListItemList() {
     }
   }, [wishlistId, navigate, routeLang]);
 
-  const { items, wishlist, setWishlist, status } = useWishlistData(
+  const isExampleWishlist = Boolean(wishlistId && isDemoWishlistId(wishlistId));
+
+  const { items: firestoreItems, wishlist: firestoreWishlist, setWishlist, status: firestoreStatus } = useWishlistData(
     wishlistId && wishlistId !== 'default' ? wishlistId : undefined,
+  );
+
+  // For demo wishlists: use static data immediately so crawlers see unique content
+  // without waiting for Firebase SDK + Firestore roundtrip (1-3 seconds).
+  // Real Firestore data overrides once it arrives.
+  const demoBucket = isExampleWishlist && wishlistId ? DEMO_WISHLISTS[wishlistId] : undefined;
+  const wishlist = useMemo<WishList | null>(
+    () => firestoreWishlist ?? (demoBucket ? { id: wishlistId!, title: demoBucket.title ?? '', ownerUid: demoBucket.ownerUid ?? 'demo', bannerImage: demoBucket.bannerImage } as WishList : null),
+    [firestoreWishlist, demoBucket, wishlistId],
+  );
+  const status = firestoreWishlist ? firestoreStatus : (demoBucket ? 'found' : firestoreStatus);
+  const items = useMemo(
+    () => firestoreItems.length > 0 ? firestoreItems : (demoBucket ? (DEMO_ITEMS[wishlistId!] ?? []) : firestoreItems),
+    [firestoreItems, demoBucket, wishlistId],
   );
 
   const [dialogs, setDialogs] = useState<DialogsState>({
@@ -139,8 +158,6 @@ export function WishListItemList() {
       ((isAdmin ?? false) || (user ? wishlist?.ownerUid === user.uid : false)),
     [status, isAdmin, user, wishlist],
   );
-
-  const isExampleWishlist = Boolean(wishlistId && isDemoWishlistId(wishlistId));
 
   const canCopyWishlist = useMemo(() => {
     if (!user || !wishlist) return false;

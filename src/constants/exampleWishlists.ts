@@ -1,4 +1,5 @@
 import type { WishList } from '@models/WishList';
+import type { WishListItem } from '@models/WishListItem';
 
 /** Fallback wishlists when Firestore has no document (demo / SEO examples). */
 export const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
@@ -50,6 +51,69 @@ export const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
     bannerImage: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80',
     isHidden: false,
   },
+};
+
+/**
+ * Static items for each demo wishlist. Rendered immediately (no Firestore wait)
+ * so search crawlers see unique, meaningful content on first render.
+ */
+export const DEMO_ITEMS: Record<string, WishListItem[]> = {
+  'christmas-list': [
+    { id: 'c1', name: 'AirPods Pro', claimed: false },
+    { id: 'c2', name: 'Book: "Atomic Habits"', claimed: false },
+    { id: 'c3', name: 'Cozy fleece blanket', claimed: false },
+    { id: 'c4', name: 'Wireless charger', claimed: false },
+    { id: 'c5', name: 'Gift card - Amazon', claimed: false },
+  ],
+  'christmas-list-ua': [
+    { id: 'cu1', name: 'AirPods Pro', claimed: false },
+    { id: 'cu2', name: 'Книга "Атомні звички"', claimed: false },
+    { id: 'cu3', name: 'Тепла ковдра', claimed: false },
+    { id: 'cu4', name: 'Бездротова зарядка', claimed: false },
+    { id: 'cu5', name: 'Подарунковий сертифікат', claimed: false },
+  ],
+  'birthday-list': [
+    { id: 'b1', name: 'Kindle Paperwhite', claimed: false },
+    { id: 'b2', name: 'Running shoes', claimed: false },
+    { id: 'b3', name: 'Coffee subscription (3 months)', claimed: false },
+    { id: 'b4', name: 'Fitness tracker', claimed: false },
+    { id: 'b5', name: 'Dinner experience for two', claimed: false },
+  ],
+  'birthday-list-ua': [
+    { id: 'bu1', name: 'Kindle Paperwhite', claimed: false },
+    { id: 'bu2', name: 'Кросівки для бігу', claimed: false },
+    { id: 'bu3', name: 'Підписка на каву (3 місяці)', claimed: false },
+    { id: 'bu4', name: 'Фітнес-браслет', claimed: false },
+    { id: 'bu5', name: 'Вечеря у ресторані на двох', claimed: false },
+  ],
+  'secret-santa-list': [
+    { id: 's1', name: 'Scented candle set', claimed: false },
+    { id: 's2', name: 'Insulated water bottle', claimed: false },
+    { id: 's3', name: 'Chocolate assortment', claimed: false },
+    { id: 's4', name: 'Funny desk calendar', claimed: false },
+    { id: 's5', name: 'Cozy socks', claimed: false },
+  ],
+  'secret-santa-list-ua': [
+    { id: 'su1', name: 'Набір ароматних свічок', claimed: false },
+    { id: 'su2', name: 'Термопляшка', claimed: false },
+    { id: 'su3', name: 'Набір шоколаду', claimed: false },
+    { id: 'su4', name: 'Настільний календар', claimed: false },
+    { id: 'su5', name: 'Теплі шкарпетки', claimed: false },
+  ],
+  'wedding-list': [
+    { id: 'w1', name: 'Kitchen stand mixer', claimed: false },
+    { id: 'w2', name: 'Hotel stay voucher', claimed: false },
+    { id: 'w3', name: 'Dinnerware set (8 pieces)', claimed: false },
+    { id: 'w4', name: 'Espresso machine', claimed: false },
+    { id: 'w5', name: 'Smart home speaker', claimed: false },
+  ],
+  'wedding-list-ua': [
+    { id: 'wu1', name: 'Кухонний міксер', claimed: false },
+    { id: 'wu2', name: 'Ваучер у готель', claimed: false },
+    { id: 'wu3', name: 'Набір посуду (8 предметів)', claimed: false },
+    { id: 'wu4', name: 'Кавова машина', claimed: false },
+    { id: 'wu5', name: 'Смарт-колонка', claimed: false },
+  ],
 };
 
 export function isDemoWishlistId(wishlistId: string): boolean {
