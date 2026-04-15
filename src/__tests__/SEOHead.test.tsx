@@ -56,4 +56,39 @@ describe('SEOHead', () => {
       expect(document.head.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex,follow');
     });
   });
+
+  it('emits Article and HowTo JSON-LD when structured props are set', async () => {
+    render(
+      <SEOHead
+        title="How to test"
+        description="Test description"
+        lang="en"
+        canonical="https://wishlistapp.com.ua/en/blog/test"
+        structured={{
+          article: {
+            headline: 'How to test',
+            datePublished: '2026-04-01',
+            dateModified: '2026-04-15',
+          },
+          howTo: {
+            name: 'Test how-to',
+            steps: [{ text: 'Step one' }],
+          },
+        }}
+      />
+    );
+
+    await waitFor(() => {
+      const article = document.head.querySelector(
+        'script[type="application/ld+json"][data-jsonld-id="article"]',
+      );
+      expect(article?.textContent).toContain('"@type":"Article"');
+      expect(article?.textContent).toContain('"datePublished":"2026-04-01"');
+      expect(article?.textContent).toContain('"dateModified":"2026-04-15"');
+      const howto = document.head.querySelector(
+        'script[type="application/ld+json"][data-jsonld-id="howto"]',
+      );
+      expect(howto?.textContent).toContain('"@type":"HowTo"');
+    });
+  });
 });

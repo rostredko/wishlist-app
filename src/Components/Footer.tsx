@@ -97,6 +97,22 @@ export default function Footer() {
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Typography
           component={RouterLink}
+          to={`/${privacyLang}/blog`}
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            textDecoration: 'none',
+            transition: 'color 150ms',
+            '&:hover': { color: 'text.primary' },
+          }}
+        >
+          {t('blog')}
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.disabled', userSelect: 'none' }}>
+          ·
+        </Typography>
+        <Typography
+          component={RouterLink}
           to={`/${privacyLang}/privacy`}
           variant="body2"
           sx={{
