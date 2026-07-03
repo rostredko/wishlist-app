@@ -55,6 +55,12 @@
         ]
       },
       {
+        "source": "/",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/ua>; rel=\"canonical\"" }
+        ]
+      },
+      {
         "source": "/ua",
         "headers": [
           { "key": "Link", "value": "<https://wishlistapp.com.ua/ua>; rel=\"canonical\"" }
