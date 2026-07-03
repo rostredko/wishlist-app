@@ -32,6 +32,8 @@ From the repository root (copy-paste):
 - `npm run lint` — ESLint
 - `npx vitest run` — full test run (CI-style)
 - `npm run test:ci` — coverage mode; requires `@vitest/coverage-v8` to be installed when using `--coverage`
+- `npm run test` — Vitest watch mode (dev loop); `npm run test:ui` — browser UI
+- `npm run preview` — serve the production build locally (Vite preview)
 
 For non-trivial changes, run `lint`, `build`, and `vitest run` before considering the task complete unless the user narrowed scope.
 
@@ -39,7 +41,11 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 
 - **App singleton:** `src/firebase/init.ts` and `config.ts` initialize one Firebase app. Consumers import `auth` from `auth-client.ts`, `db` from `db-client.ts`, `storage` from `storage-client.ts` (not duplicate app entry points).
 - **Wishlist API:** `src/services/wishListService.ts` owns Firestore and Storage calls for wishlists and items (create/read/update/delete, realtime listeners, banner upload).
-- **Path alias:** `@constants/*` maps to `src/constants/` (see root `tsconfig.json`).
+- **Path aliases** (all defined in `tsconfig.json`):
+  `@components/*` → `src/Components/`, `@models/*` → `src/types/`,
+  `@hooks/*` → `src/hooks/`, `@api/*` → `src/services/`,
+  `@lib/*` → `src/firebase/`, `@utils/*` → `src/utils/`,
+  `@assets/*` → `src/assets/`, `@constants/*` → `src/constants/`
 - **Banner URLs:** `bannerImage` stores a **download URL** from `getDownloadURL`. On wishlist delete, Storage deletion runs only for URLs under `firebasestorage.googleapis.com`, via `deleteObject(ref(storage, url))` (Firebase v11 `ref` accepts a full download URL).
 - **Item order:** `subscribeWishlistItems` queries items with `orderBy('createdAt', 'asc')`. If the Firebase console reports a missing index, add the suggested composite index.
 
@@ -56,6 +62,11 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
   - **Sitemap** - `public/sitemap.xml`: update `<lastmod>` when shipping meaningful changes to listed URLs.
   - **Blog** - Routes `/:lng/blog` (hub) and `/:lng/blog/:slug` (articles). Slug pairs and `BLOG_LAST_UPDATED` live in [`src/constants/blogArticles.ts`](src/constants/blogArticles.ts). Article bodies are under `src/Components/blog/`; `BlogArticlePage` maps slug to a static component (no per-article `lazy` for correct client navigation). `SEOHead` supports `structured.article`, `structured.howTo`, and `structured.guideItemList` JSON-LD for posts and the hub. Legacy `/:lng/how-to` and `/:lng/how-to/:slug` redirect to `/blog` (article slug preserved when present). `public/llms.txt` lists the blog hubs for AI crawlers.
 - Prefer editing existing files over creating new ones
+- **Tests:** test files live in `src/__tests__/`; shared render wrapper is `src/test/render.tsx`
+  (import as `customRender` — wraps with i18n provider and router). Setup file: `src/test/setupTests.ts`.
+- **Key utils:** `src/utils/analytics.ts` — GA4 wrapper with event queue;
+  `src/utils/locale.ts` — exports `SUPPORTED_LANGS`, `detectPreferredLang`, `isProbablyBot`.
+- **Theme:** `src/theme.ts` exports `darkTheme` — the single MUI theme instance. Do not create a new theme.
 - **Vitest:** mocked function components are often invoked as `(props, undefined)`; use `toHaveBeenCalledWith(expect.objectContaining({ … }), undefined)` when spying on `SEOHead`-style mocks
 
 ## Code quality (commit-ready)
@@ -77,6 +88,29 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 - Prepare code changes only; the user reviews and commits
 - When done with a task, summarize what changed and why - no need for verbose explanations
 - Ask before making structural/architectural changes
+
+## Directory map
+
+```
+src/
+  App.tsx            # routing root, language sync, lazy page imports
+  main.tsx           # React entry point
+  theme.ts           # darkTheme (MUI)
+  i18n.ts            # i18next init
+  Components/        # UI components (@components/*)
+    blog/            # blog hub + article components
+    SEOHead.tsx      # per-route <head> metadata
+  constants/         # blogArticles.ts, exampleWishlists.ts (@constants/*)
+  firebase/          # init, auth/db/storage clients (@lib/*)
+  hooks/             # useAuth, useWishlistData (@hooks/*)
+  services/          # wishListService.ts (@api/*)
+  types/             # WishList.ts, WishListItem.ts (@models/*)
+  utils/             # analytics.ts, locale.ts (@utils/*)
+  locales/en/        # English i18n strings
+  locales/ua/        # Ukrainian i18n strings
+  __tests__/         # all test files
+  test/              # render.tsx (custom wrapper), setupTests.ts
+```
 
 ## Docs
 

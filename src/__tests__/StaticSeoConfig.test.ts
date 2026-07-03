@@ -10,16 +10,18 @@ function readText(relativePath: string): string {
 }
 
 describe('static SEO config', () => {
-  it('declares slashless hreflang links in the HTML shell', () => {
+  it('ships no static canonical or hreflang in the SPA shell (prerender injects them per route)', () => {
     const html = readText('index.html');
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    expect(doc.querySelector('link[rel="alternate"][hreflang="uk"]')?.getAttribute('href'))
-      .toBe('https://wishlistapp.com.ua/ua');
-    expect(doc.querySelector('link[rel="alternate"][hreflang="en"]')?.getAttribute('href'))
-      .toBe('https://wishlistapp.com.ua/en');
-    expect(doc.querySelector('link[rel="alternate"][hreflang="x-default"]')?.getAttribute('href'))
-      .toBe('https://wishlistapp.com.ua/ua');
+    // Homepage-pointing hreflang/canonical on every route made Google
+    // canonicalize the whole site to /ua (GSC: "Duplicate, Google chose
+    // different canonical than user"). scripts/prerender.ts injects the
+    // correct per-route tags at build time; the shell must stay bare.
+    expect(doc.querySelector('link[rel="canonical"]')).toBeNull();
+    expect(doc.querySelector('link[rel="alternate"][hreflang]')).toBeNull();
+    expect(html).toContain('<!-- prerender:hero -->');
+    expect(html).toContain('<!-- /prerender:hero -->');
   });
 
   it('uses slashless URLs in the sitemap and includes x-default for example pages', () => {

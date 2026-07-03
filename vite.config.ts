@@ -4,12 +4,15 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { visualizer } from 'rollup-plugin-visualizer';
 
+import { prerender } from './scripts/prerender';
+
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tsconfigPaths({
       projects: ['tsconfig.app.json', 'tsconfig.test.json'],
     }),
+    prerender(),
     mode === 'analyze' && visualizer({
       open: true,
       filename: 'dist/stats.html',

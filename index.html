@@ -32,12 +32,10 @@
         content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
     <meta name="twitter:image" content="https://wishlistapp.com.ua/og-image.webp" />
 
-    <!-- Canonical and language alternates -->
-    <!-- No static canonical: SEOHead sets the correct per-route canonical after JS renders. -->
-    <!-- A hardcoded canonical here would signal canonical=/ua for every route on first HTTP response. -->
-    <link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua" />
-    <link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en" />
-    <link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua" />
+    <!-- Canonical and hreflang are injected per route at build time by scripts/prerender.ts.
+         This fallback shell intentionally ships neither: static homepage-pointing hreflang on
+         every URL made Google canonicalize all routes to the homepage (GSC "Duplicate, Google
+         chose different canonical than user"). SEOHead sets both at runtime after hydration. -->
 
     <!-- Fonts: preconnect + async load to avoid render-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -285,12 +283,14 @@
             </div>
         </div>
         <div class="shell-hero">
+            <!-- prerender:hero -->
             <h1 class="shell-h1">
                 Зробіть Вішліст - Список Бажань Онлайн
             </h1>
             <div class="shell-skel-text" style="width: 100%; max-width: 600px; height: 28px; margin-bottom: 24px;">
             </div>
             <div class="shell-btn"></div>
+            <!-- /prerender:hero -->
         </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
