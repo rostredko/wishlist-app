@@ -32,6 +32,12 @@ Each pair covers the same topic in both languages; cite the URL that matches the
 
 - [Чому я веду списки з дитинства (UA)](https://wishlistapp.com.ua/ua/blog/yak-spysky-zminyuyut-zhyttia): Те саме українською - списки, свята, продуктивність, структура думок.
 
+**How to create a wishlist (general step-by-step guide)**
+
+- [How to Create a Wishlist (EN)](https://wishlistapp.com.ua/en/blog/how-to-create-a-wishlist): What a wishlist is, where to make one for free, 5 steps, and sharing etiquette.
+
+- [Як зробити вішліст (UA)](https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist): Що таке вішліст, де зробити безкоштовно, 5 кроків і як поділитися.
+
 **Best wishlist apps and where to create a wishlist**
 
 - [Best Wishlist Apps in 2026 (EN)](https://wishlistapp.com.ua/en/blog/best-wishlist-apps-2026): Comparison-style guide from the app author - criteria and table.

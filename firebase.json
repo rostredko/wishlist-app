@@ -91,6 +91,18 @@
         ]
       },
       {
+        "source": "/ua/blog/yak-zrobyty-vishlist",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist>; rel=\"canonical\"" }
+        ]
+      },
+      {
+        "source": "/en/blog/how-to-create-a-wishlist",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/en/blog/how-to-create-a-wishlist>; rel=\"canonical\"" }
+        ]
+      },
+      {
         "source": "/ua/blog/yak-spysky-zminyuyut-zhyttia",
         "headers": [
           { "key": "Link", "value": "<https://wishlistapp.com.ua/ua/blog/yak-spysky-zminyuyut-zhyttia>; rel=\"canonical\"" }

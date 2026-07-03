@@ -12,6 +12,7 @@ import { findBlogPairBySlug } from '@constants/blogArticles';
 
 import type { BlogArticleProps } from './blogArticleTypes';
 
+import HowToCreateWishlistArticle from './articles/en/HowToCreateWishlistArticle';
 import BestWishlistApps2026Article from './articles/en/BestWishlistApps2026Article';
 import AmazonWishlistAlternativesArticle from './articles/en/AmazonWishlistAlternativesArticle';
 import HowToCreateBirthdayWishlistArticle from './articles/en/HowToCreateBirthdayWishlistArticle';
@@ -19,6 +20,7 @@ import WishlistVsGiftRegistryArticle from './articles/en/WishlistVsGiftRegistryA
 import BestSecretSantaAppsArticle from './articles/en/BestSecretSantaAppsArticle';
 import HowListsChangeYourLifeArticle from './articles/en/HowListsChangeYourLifeArticle';
 
+import YakZrobytyVishlistArticle from './articles/ua/YakZrobytyVishlistArticle';
 import DeStvorytyVishlist2026Article from './articles/ua/DeStvorytyVishlist2026Article';
 import NajkrashchiServisySpyskuBazhanArticle from './articles/ua/NajkrashchiServisySpyskuBazhanArticle';
 import YakZrobytyVishlistNaDenNarodzhennyaArticle from './articles/ua/YakZrobytyVishlistNaDenNarodzhennyaArticle';
@@ -28,6 +30,7 @@ import YakSpyskyZminyuyutZhyttiaArticle from './articles/ua/YakSpyskyZminyuyutZh
 
 const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogArticleProps>>> = {
   en: {
+    'how-to-create-a-wishlist': HowToCreateWishlistArticle,
     'best-wishlist-apps-2026': BestWishlistApps2026Article,
     'amazon-wishlist-alternatives': AmazonWishlistAlternativesArticle,
     'how-to-create-a-birthday-wishlist': HowToCreateBirthdayWishlistArticle,
@@ -36,6 +39,7 @@ const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogAr
     'how-lists-change-your-life': HowListsChangeYourLifeArticle,
   },
   ua: {
+    'yak-zrobyty-vishlist': YakZrobytyVishlistArticle,
     'de-stvoryty-vishlist-2026': DeStvorytyVishlist2026Article,
     'najkrashchi-servisy-spysku-bazhan-v-ukraini': NajkrashchiServisySpyskuBazhanArticle,
     'yak-zrobyty-vishlist-na-den-narodzhennya': YakZrobytyVishlistNaDenNarodzhennyaArticle,

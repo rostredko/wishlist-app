@@ -18,6 +18,11 @@
   "lastUpdated": "Updated: {{date}}",
   "byline": "I run WishList App and write these posts myself - feedback welcome anytime.",
   "cards": {
+    "how-to-create-a-wishlist": {
+      "title": "How to Create a Wishlist People Actually Buy From",
+      "desc": "Three identical books, one dead Google Doc, and the method I ended up with.",
+      "read": "8 min read"
+    },
     "how-lists-change-your-life": {
       "title": "Why I've Been Making Lists My Whole Life",
       "desc": "My personal story with lists - from childhood wishlists to productivity habits - and a holiday wishlist guide for every occasion.",

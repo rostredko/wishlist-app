@@ -8,9 +8,9 @@ import { useTranslation } from 'react-i18next';
 import type { BlogRouteLang } from '@constants/blogArticles';
 import { BLOG_LAST_UPDATED } from '@constants/blogArticles';
 
-type Props = { routeLang: BlogRouteLang };
+type Props = { routeLang: BlogRouteLang; date?: string };
 
-export function BlogArticleFooter({ routeLang }: Props) {
+export function BlogArticleFooter({ routeLang, date = BLOG_LAST_UPDATED }: Props) {
   const { t } = useTranslation('blog', { lng: routeLang });
   const { t: tp } = useTranslation('privacy', { lng: routeLang });
 
@@ -28,7 +28,7 @@ export function BlogArticleFooter({ routeLang }: Props) {
         {t('byline')}
       </Typography>
       <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-        {t('lastUpdated', { date: BLOG_LAST_UPDATED })}
+        {t('lastUpdated', { date })}
       </Typography>
       <Typography variant="body2">
         <RouterLink to={`/${routeLang}/privacy`} style={{ color: 'inherit' }}>

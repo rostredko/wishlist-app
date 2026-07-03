@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .env
 
+# Firebase CLI local cache (deploy state)
+.firebase/
+
 # Local docs only (not for repo) - includes ui-kit, plans, notes
 docs/
 

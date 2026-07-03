@@ -1,5 +1,6 @@
 /** Blog post slug pairs (EN ↔ UA) for hreflang and routing. */
 export const BLOG_SLUG_PAIRS = [
+  { en: 'how-to-create-a-wishlist', ua: 'yak-zrobyty-vishlist' },
   { en: 'how-lists-change-your-life', ua: 'yak-spysky-zminyuyut-zhyttia' },
   { en: 'best-wishlist-apps-2026', ua: 'de-stvoryty-vishlist-2026' },
   { en: 'amazon-wishlist-alternatives', ua: 'najkrashchi-servisy-spysku-bazhan-v-ukraini' },
