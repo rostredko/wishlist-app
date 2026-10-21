@@ -25,7 +25,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
@@ -308,7 +308,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
               </Typography>
               <Button
                 component={RouterLink}
-                to={`/${routeLang}`}
+                to={`/${routeLang}`} state={{ creationSource: 'blog' }}
                 variant="contained"
                 size="large"
               >

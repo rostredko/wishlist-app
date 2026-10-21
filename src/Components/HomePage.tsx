@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import { trackEvent } from '@utils/analytics';
+import type { CreationSource } from '@utils/pendingWishlistCreate';
+import { Alert, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import Box from '@mui/material/Box';
@@ -21,7 +25,7 @@ import { useAuth } from '@hooks/useAuth';
 import { useGoogleSignIn } from '@hooks/useGoogleSignIn';
 import { subscribeMyWishlists, deleteWishlistDeep } from '@api/wishListService';
 import {
-  clearPendingWishlistCreateAfterAuth,
+  WISHLIST_AUTH_COMPLETE,
   consumePendingWishlistCreateAfterAuth,
   setPendingWishlistCreateAfterAuth,
 } from '@utils/pendingWishlistCreate';
@@ -41,26 +45,40 @@ export default function HomePage({ lang }: Props) {
 
   const seoLang = toSeoLang(lang);
   const { user } = useAuth();
+  const { pathname, state: navigationState } = useLocation();
+  const [creationSource, setCreationSource] = useState<CreationSource>('home');
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [myListsError, setMyListsError] = useState(false);
+  const [myListsAttempt, setMyListsAttempt] = useState(0);
   const [myLists, setMyLists] = useState<WLItem[] | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string; title?: string }>({ open: false });
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (!user?.uid) {
-      setMyLists(null);
-      return;
-    }
-    const unsub = subscribeMyWishlists(user.uid, (lists) => setMyLists(lists));
-    return unsub;
-  }, [user?.uid]);
+    let active = true;
+    setMyLists(null);
+    setMyListsError(false);
+    if (!user?.uid) return;
+    const unsub = subscribeMyWishlists(user.uid, lists => {
+      if (active) { setMyLists(lists); setMyListsError(false); }
+    }, () => {
+      if (active) setMyListsError(true);
+      void trackEvent('wishlist_operation_failed', { operation: 'load', error_category: 'persistence' });
+    });
+    return () => { active = false; unsub(); };
+  }, [user?.uid, myListsAttempt]);
 
   useEffect(() => {
-    if (!user?.uid) return;
-    if (!consumePendingWishlistCreateAfterAuth()) return;
-    setCreateOpen(true);
-  }, [user?.uid]);
+    const resume = () => {
+      if (!user?.uid) return;
+      const intent = consumePendingWishlistCreateAfterAuth(pathname);
+      if (intent?.action === 'create') { setCreationSource(intent.source); setCreateOpen(true); }
+    };
+    resume();
+    window.addEventListener(WISHLIST_AUTH_COMPLETE, resume);
+    return () => window.removeEventListener(WISHLIST_AUTH_COMPLETE, resume);
+  }, [user?.uid, pathname]);
 
   const isLoading = useMemo(() => !!user && myLists === null, [user, myLists]);
 
@@ -78,21 +96,21 @@ export default function HomePage({ lang }: Props) {
   }, [tAuth]);
 
   const handleCreateWishlistFlow = useCallback(async () => {
+    const source = navigationState?.creationSource === 'blog' ? 'blog' : 'home';
+    setCreationSource(source);
+    void trackEvent('create_wishlist_start', { source });
     if (user) {
       openCreateDialog();
       return;
     }
     if (isTelegram) {
-      setPendingWishlistCreateAfterAuth();
+      setPendingWishlistCreateAfterAuth({ action: 'create', language: lang, path: pathname, source });
       handleTelegramOpenBrowser();
       return;
     }
-    setPendingWishlistCreateAfterAuth();
-    const result = await signIn();
-    if (result === 'cancelled') {
-      clearPendingWishlistCreateAfterAuth();
-    }
-  }, [user, isTelegram, signIn, openCreateDialog, handleTelegramOpenBrowser]);
+    setPendingWishlistCreateAfterAuth({ action: 'create', language: lang, path: pathname, source });
+    await signIn();
+  }, [user, isTelegram, signIn, openCreateDialog, handleTelegramOpenBrowser, lang, pathname, navigationState]);
 
   const openDeleteDialog = useCallback((id: string, title?: string) => {
     setDeleteDialog({ open: true, id, title });
@@ -171,7 +189,8 @@ export default function HomePage({ lang }: Props) {
             <HomePageGuestCta lang={lang} signInLoading={signInLoading} onCreateClick={handleCreateWishlistFlow} />
           )}
 
-          {user && (
+          {user && myListsError && <Alert severity="error" action={<Button color="inherit" onClick={() => setMyListsAttempt(value => value + 1)}>{t('retryLists')}</Button>}>{t('loadListsFailed')}</Alert>}
+          {user && !myListsError && (
             <HomePageMyListsSection
               lang={lang}
               isLoading={isLoading}
@@ -190,6 +209,7 @@ export default function HomePage({ lang }: Props) {
         user={user ? { uid: user.uid } : null}
         open={createOpen}
         onClose={handleCloseCreate}
+        source={creationSource}
       />
       <ConfirmDialog
         open={deleteDialog.open}

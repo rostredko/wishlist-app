@@ -24,7 +24,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
         structured={{
           article: {
             headline: 'Best Secret Santa Apps - What Actually Works in a Group Chat',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           breadcrumbs: [
@@ -93,6 +93,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
               <Typography variant="h2" sx={{ fontWeight: 700, fontSize: 22, mb: 1.5 }}>
                 Popular Secret Santa apps compared
               </Typography>
+              <Typography sx={{ mb: 2 }}>{tb('research.checked')}</Typography>
               <TableContainer component={Paper} variant="outlined" sx={{ bgcolor: 'background.paper' }}>
                 <Table size="small">
                   <TableHead>
@@ -107,12 +108,20 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell>DrawNames / Elfster</TableCell>
+                      <TableCell><a href="https://www.drawnames.com/">DrawNames</a></TableCell>
                       <TableCell>Yes, core feature</TableCell>
                       <TableCell>Built-in wishlist</TableCell>
-                      <TableCell>No - signup required</TableCell>
-                      <TableCell>Yes</TableCell>
+                      <TableCell>{tb('research.drawGuest')}</TableCell>
+                      <TableCell>{tb('research.reservationUnknown')}</TableCell>
                       <TableCell>Free tier</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><a href="https://help.elfster.com/en/articles/11518008-how-do-i-change-the-settings-on-my-elfster-wishlist">Elfster</a></TableCell>
+                      <TableCell>Yes</TableCell>
+                      <TableCell>{tb('research.publicList')}</TableCell>
+                      <TableCell>{tb('research.guestView')}</TableCell>
+                      <TableCell>{tb('research.reservationUnknown')}</TableCell>
+                      <TableCell>Free</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Sneaky Santa</TableCell>

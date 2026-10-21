@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() { return request.auth != null && request.auth.token.get('isAdmin', false) == true; }
+    function isReservedDemo(wishlistId) {
+      return wishlistId in ['christmas-list', 'christmas-list-ua', 'birthday-list', 'birthday-list-ua',
+        'secret-santa-list', 'secret-santa-list-ua', 'wedding-list', 'wedding-list-ua'];
+    }
+    function managesWishlist(wishlistId) {
+      return request.auth != null && (isAdmin() ||
+        (!isReservedDemo(wishlistId) && getAfter(/databases/$(database)/documents/wishlists/$(wishlistId)).data.ownerUid == request.auth.uid));
+    }
+    function validMoney(data) {
+      return ((!('priceMinor' in data) || data.priceMinor == null) &&
+              (!('currency' in data) || data.currency == null)) ||
+        (data.priceMinor is int && data.priceMinor >= 0 && data.priceMinor <= 100000000 &&
+         data.currency in ['UAH', 'USD', 'EUR', 'GBP']);
+    }
+    function validCreationMethod(data) {
+      return !('creationMethod' in data) || data.creationMethod in ['manual', 'demo_copy', 'shared_copy'];
+    }
+    match /wishlists/{wishlistId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid && (!isReservedDemo(wishlistId) || isAdmin()) && validCreationMethod(request.resource.data);
+      allow update: if (isAdmin() || (request.auth != null && !isReservedDemo(wishlistId) && resource.data.ownerUid == request.auth.uid))
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && validCreationMethod(request.resource.data)
+        && request.resource.data.get('creationMethod', null) == resource.data.get('creationMethod', null);
+      allow delete: if isAdmin() || (request.auth != null && !isReservedDemo(wishlistId) && resource.data.ownerUid == request.auth.uid);
+      match /items/{itemId} {
+        allow read: if true;
+        allow create: if managesWishlist(wishlistId) && request.resource.data.claimed == false && validMoney(request.resource.data);
+        allow delete: if managesWishlist(wishlistId);
+        allow update: if (managesWishlist(wishlistId) && validMoney(request.resource.data)) ||
+          (!isReservedDemo(wishlistId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed']) &&
+           resource.data.claimed == false && request.resource.data.claimed == true);
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

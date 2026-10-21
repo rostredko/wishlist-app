@@ -27,13 +27,15 @@ Site: https://wishlistapp.com.ua
 
 From the repository root (copy-paste):
 
-- `npm run dev` — Vite dev server
+- `npm run emulators` - isolated local Auth, Firestore, and Storage (Java 21+, Firebase CLI 15.12.0)
+- `npm run dev` - Vite dev server; start the local emulators first
 - `npm run build` — `tsc -b` + production bundle
 - `npm run lint` — ESLint
 - `npx vitest run` — full test run (CI-style)
 - `npm run test:ci` — coverage mode; requires `@vitest/coverage-v8` to be installed when using `--coverage`
 - `npm run test` — Vitest watch mode (dev loop); `npm run test:ui` — browser UI
 - `npm run preview` — serve the production build locally (Vite preview)
+- `npm run test:rules` - disposable emulator acceptance, separate from persistent local dev data
 
 For non-trivial changes, run `lint`, `build`, and `vitest run` before considering the task complete unless the user narrowed scope.
 
@@ -46,7 +48,9 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
   `@hooks/*` → `src/hooks/`, `@api/*` → `src/services/`,
   `@lib/*` → `src/firebase/`, `@utils/*` → `src/utils/`,
   `@assets/*` → `src/assets/`, `@constants/*` → `src/constants/`
-- **Banner URLs:** `bannerImage` stores a **download URL** from `getDownloadURL`. On wishlist delete, Storage deletion runs only for URLs under `firebasestorage.googleapis.com`, via `deleteObject(ref(storage, url))` (Firebase v11 `ref` accepts a full download URL).
+- **Banner URLs:** `bannerImage` stores a download URL. New paths are `banners/{wishlistId}/{object}`; Storage rules check the Firestore owner or `isAdmin` custom claim. Legacy flat banners are read-only. Deletion attempts Storage cleanup before removing the owning wishlist document.
+- **Authorization:** `firestore.rules` and `storage.rules` are versioned in `firebase.json`. Admin UI uses the trusted `isAdmin` token claim, never a client UID setting. Official demo IDs are administrator-managed; keep the reserved ID sets in both rules aligned with `exampleWishlists.ts`.
+- **Money and copies:** `money.ts` validates integer `priceMinor` and UAH/USD/EUR/GBP; both fields are null to clear a price. `copyWishlist` atomically copies up to 499 resolved gifts, resets claims, and preserves prices. New lists carry immutable `creationMethod`; old records may omit it.
 - **Item order:** `subscribeWishlistItems` queries items with `orderBy('createdAt', 'asc')`. If the Firebase console reports a missing index, add the suggested composite index.
 
 ## Key Conventions
@@ -57,6 +61,8 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 - **Copy and punctuation:** use a normal hyphen `-` (ASCII), not an em dash (Unicode U+2014), in user-facing strings and in this file
 - **SEO**
   - **Per-route metadata** - `SEOHead` sets title, description, canonical, alternates, and JSON-LD for SPA routes after load.
+  - **Search exposure** - personal lists use an initial `personal-wishlist.html` noindex shell and runtime noindex. Public demos remain indexable. Unknown routes use generated `404.html`; do not restore the Hosting catch-all rewrite.
+  - **Analytics** - route titles and paths come from bounded metadata in `analytics.ts`. Never send user text, raw list/product URLs or IDs. GA4 Enhanced Measurement must be disabled; see README release checks.
   - **Static shell (`index.html`)** - default `<title>`, meta description, Open Graph, Twitter Card, and skeleton H1 for the first HTML response (UA-focused defaults for crawlers and pre-hydration). Keep these aligned with top UA queries; they are not a substitute for `SEOHead` on `/en/*` and `/ua/*`.
   - **Example / demo wishlists** - `DEMO_WISHLISTS`, guest SEO overrides (`EXAMPLE_SEO`), and hreflang-style alternates (`EXAMPLE_WISHLIST_ALTERNATES`) live in [`src/constants/exampleWishlists.ts`](src/constants/exampleWishlists.ts). `wishListService.ts` imports `DEMO_WISHLISTS` from there; `WishListItemList.tsx` imports SEO maps and `isDemoWishlistId`. Overrides apply only when the viewer **cannot** edit (`canEdit === false`; owners and admins keep `{wishlist.title} - WishList App`).
   - **Sitemap** - `public/sitemap.xml`: update `<lastmod>` when shipping meaningful changes to listed URLs.
@@ -82,6 +88,16 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 - Never add `console.log` to production code
 - Never hardcode strings visible to users
 - Never install packages without confirming with the user
+
+## Production data safety
+
+- **Production customer data is critical. Preserving existing wishlists, gifts, reservations, ownership, accounts, and uploaded files takes precedence over all other priorities.**
+- Never erase, reset, seed, import over, bulk overwrite, or migrate production data as part of development, tests, builds, previews, or deployment. Do not test destructive operations against production.
+- Local development and automated acceptance tests must use isolated Firebase emulators with a `demo-` project ID for Auth, Firestore, and Storage. Never fall back to live Firebase when an emulator is unavailable; do not copy production customer data into fixtures.
+- Keep existing records backward compatible. New optional fields must not require rewriting old documents; reading a wishlist must never repair, replace, or delete its stored data automatically.
+- Any exceptional production data operation requires the user's explicit approval of the exact project, scope, and operation, a verified backup, and a recovery plan. General permission to implement a feature or deploy code is not permission to alter stored customer data.
+- Before release, review every data-writing path and rule change. Rules can block access without deleting data. Verify legacy-record compatibility in emulators and use an explicit project and deployment scope; never run an unreviewed blanket `firebase deploy`.
+- Check production backup/PITR and Storage recovery settings before a data-sensitive release. Do not claim they are enabled or recovery is verified without evidence. See the README for local setup and release checks.
 
 ## Workflow
 

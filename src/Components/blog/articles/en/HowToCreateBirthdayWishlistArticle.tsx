@@ -14,7 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import { useTranslation } from 'react-i18next';
 
 import SEOHead from '@components/SEOHead';
-import { BLOG_LAST_UPDATED, resolveBlogAlternates } from '@constants/blogArticles';
+import { resolveBlogAlternates } from '@constants/blogArticles';
 import type { BlogArticleProps } from '@components/blog/blogArticleTypes';
 import { BlogArticleFooter } from '@components/blog/BlogArticleFooter';
 
@@ -24,7 +24,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -38,8 +38,8 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
         structured={{
           article: {
             headline: 'How to Create a Birthday Wishlist - The 4-Step Method',
-            datePublished: BLOG_LAST_UPDATED,
-            dateModified: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
+            dateModified: '2026-04-15',
           },
           howTo: {
             name: 'Create a birthday wishlist',
@@ -265,7 +265,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
             </section>
           </Stack>
 
-          <BlogArticleFooter routeLang={routeLang} />
+          <BlogArticleFooter routeLang={routeLang} date="2026-04-15" />
         </Container>
       </Box>
     </>

@@ -22,7 +22,7 @@ const SLUG = 'wishlist-vs-gift-registry';
 export default function WishlistVsGiftRegistryArticle({ origin, routeLang }: BlogArticleProps) {
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -36,7 +36,7 @@ export default function WishlistVsGiftRegistryArticle({ origin, routeLang }: Blo
         structured={{
           article: {
             headline: 'Wishlist vs Gift Registry - The Honest Difference',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           faq: [

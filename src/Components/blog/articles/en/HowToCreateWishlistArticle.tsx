@@ -25,7 +25,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -49,7 +49,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
               { text: 'Sign in to a wishlist service - with WishList App a Google account is enough, and creating a list takes about 30 seconds.' },
               { text: 'Name the list after the occasion, like "Birthday 2026" or "Housewarming" - a clear title tells guests instantly what it is for.' },
               { text: 'Add each item with a direct product link and a short description - mention the price range, size, or color so nobody has to guess.' },
-              { text: 'Share one private link in the chat your friends already use - the same URL for everyone, no guest registration required.' },
+              { text: 'Share one link in the chat your friends already use - the same URL for everyone, no guest registration required.' },
               { text: 'Tell guests they can claim items anonymously - everyone sees what is taken, nobody sees who took it, so there are no duplicate gifts.' },
             ],
           },
@@ -312,7 +312,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
               </Typography>
               <Button
                 component={RouterLink}
-                to={`/${routeLang}`}
+                to={`/${routeLang}`} state={{ creationSource: 'blog' }}
                 variant="contained"
                 size="large"
               >

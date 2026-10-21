@@ -2,7 +2,6 @@ import { memo, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAuth } from '@hooks/useAuth';
 import type { WishListItem } from '@models/WishListItem';
 import CustomCheckbox from '@components/CustomCheckbox';
 
@@ -28,11 +27,13 @@ import {
   ListItemIcon as MuiListItemIcon,
 } from '@mui/material';
 
-import { logClickAndOpen } from '@utils/giftLinkTracking';
+import { trackGiftLinkClick } from '@utils/giftLinkTracking';
+import { formatPrice, isValidMoney } from '@utils/money';
 
 export type WishListItemRowProps = {
   item: WishListItem;
   canEdit: boolean;
+  isDemo?: boolean;
   onRowClick: () => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
@@ -41,12 +42,12 @@ export type WishListItemRowProps = {
 export const WishListItemRow = memo(function WishListItemRow({
   item,
   canEdit,
+  isDemo = false,
   onRowClick,
   onEditClick,
   onDeleteClick,
 }: WishListItemRowProps) {
-  const { t } = useTranslation('wishlist');
-  const { user } = useAuth();
+  const { t, i18n } = useTranslation('wishlist');
   const isLockedForGuest = !canEdit && item.claimed;
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
@@ -67,15 +68,8 @@ export const WishListItemRow = memo(function WishListItemRow({
   };
 
   const handleGiftClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
     e.stopPropagation();
-    const url = item.link ?? undefined;
-    if (!url) return;
-    logClickAndOpen(url, {
-      id: item.id,
-      name: item.name ?? '',
-      ...(user?.uid ? { user_id: user.uid } : {}),
-    });
+    if (item.link) trackGiftLinkClick(canEdit ? 'owner' : 'guest', isDemo);
   };
 
   return (
@@ -139,6 +133,11 @@ export const WishListItemRow = memo(function WishListItemRow({
               }
               secondary={
                 <>
+                  {isValidMoney(item.priceMinor, item.currency) && (
+                    <Typography component="span" variant="body2" sx={{ display: 'block', mb: 0.5 }}>
+                      {t('indicativePrice', { price: formatPrice(item.priceMinor!, item.currency!, i18n.language) })}
+                    </Typography>
+                  )}
                   {item.link ? (
                     <>
                       <MuiLink
@@ -148,6 +147,10 @@ export const WishListItemRow = memo(function WishListItemRow({
                         color="primary"
                         underline="hover"
                         onClick={handleGiftClick}
+                        onAuxClick={(event) => {
+                          event.stopPropagation();
+                          if (event.button === 1) trackGiftLinkClick(canEdit ? 'owner' : 'guest', isDemo);
+                        }}
                       >
                         {t('link')}
                       </MuiLink>

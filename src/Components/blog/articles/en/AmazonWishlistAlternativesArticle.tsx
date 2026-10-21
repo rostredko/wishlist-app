@@ -24,7 +24,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
         structured={{
           article: {
             headline: 'Amazon Wishlist Alternatives - from someone who uses both',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           breadcrumbs: [
@@ -210,7 +210,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
               <Box sx={{ mt: 1 }}>
                 <Button
                   component={RouterLink}
-                  to={`/${routeLang}`}
+                  to={`/${routeLang}`} state={{ creationSource: 'blog' }}
                   variant="contained"
                   size="large"
                 >

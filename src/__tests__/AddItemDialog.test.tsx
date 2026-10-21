@@ -1,5 +1,5 @@
 import {describe, it, expect, vi} from 'vitest';
-import {customRender as render, screen} from '../test/render';
+import {customRender as render, screen, act, fireEvent} from '../test/render';
 import userEvent from '@testing-library/user-event';
 import '../../src/i18n';
 import AddItemDialog from '@components/AddItemDialog';
@@ -335,4 +335,154 @@ describe('AddItemDialog (URL validation)', () => {
       })
     );
   });
+});
+
+describe('AddItemDialog save lifecycle and optional price', () => {
+  it('waits for save, disables editing and dismissal, and prevents repeated submissions', async () => {
+    let resolve!: () => void;
+    const onSubmit = vi.fn(() => new Promise<void>((done) => { resolve = done; }));
+    const onClose = vi.fn();
+    render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
+    const {name, description, link} = getInputs();
+    await userEvent.type(name, 'Camera');
+    const add = screen.getByRole('button', {name: /^add$/i});
+    fireEvent.click(add);
+    fireEvent.keyDown(name, {key: 'Enter'});
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(name).toBeDisabled();
+    expect(description).toBeDisabled();
+    expect(link).toBeDisabled();
+    expect(screen.getByRole('button', {name: /cancel/i})).toBeDisabled();
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).not.toHaveBeenCalled();
+    await act(async () => resolve());
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(name).toHaveValue('');
+  });
+
+  it('retains entered values after failure and allows a successful retry', async () => {
+    const onSubmit = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(undefined);
+    const onClose = vi.fn();
+    render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
+    const {name, link} = getInputs();
+    await userEvent.type(name, 'Camera');
+    await userEvent.type(link, 'shop.test/camera');
+    const price = screen.getByRole('textbox', {name: /price/i});
+    await userEvent.type(price, '12,50');
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/try again/i);
+    expect(name).toHaveValue('Camera');
+    expect(link).toHaveValue('shop.test/camera');
+    expect(price).toHaveValue('12,50');
+    expect(onClose).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    expect(onSubmit).toHaveBeenLastCalledWith({name: 'Camera', link: 'https://shop.test/camera', priceMinor: 1250, currency: 'UAH'});
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['0', '12.50', '12,50'])('saves valid price %s as integer minor units', async (value) => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit}/>);
+    await userEvent.type(getInputs().name, 'Gift');
+    await userEvent.type(screen.getByRole('textbox', {name: /price/i}), value);
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift', priceMinor: value === '0' ? 0 : 1250, currency: 'UAH'});
+  });
+
+  it.each(['-1', 'abc', '1.234', '1000001'])('rejects invalid price %s even with Enter', async (value) => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit}/>);
+    await userEvent.type(getInputs().name, 'Gift');
+    await userEvent.type(screen.getByRole('textbox', {name: /price/i}), value);
+    expect(screen.getByRole('button', {name: /^add$/i})).toBeDisabled();
+    fireEvent.keyDown(getInputs().name, {key: 'Enter'});
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('prefills price and currency and explicitly clears previously priced items', async () => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit} initialValues={{name: 'Gift', priceMinor: 1234, currency: 'EUR'}}/>);
+    const price = screen.getByRole('textbox', {name: /price/i});
+    expect(price).toHaveValue('12.34');
+    expect(screen.getByRole('combobox', {name: /currency/i})).toHaveTextContent('EUR');
+    await userEvent.clear(price);
+    await userEvent.click(screen.getByRole('button', {name: /^save$/i}));
+    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift', description: '', link: '', priceMinor: null, currency: null});
+  });
+
+  it('does not close a new dialog after an obsolete save finishes', async () => {
+    let resolve!: () => void;
+    const onSubmit = vi.fn(() => new Promise<void>((done) => { resolve = done; }));
+    const onClose = vi.fn();
+    const {rerender} = render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
+    await userEvent.type(getInputs().name, 'Old gift');
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    rerender(<AddItemDialog open={false} onClose={onClose} onSubmit={onSubmit}/>);
+    rerender(<AddItemDialog open onClose={onClose} onSubmit={onSubmit} initialValues={{name: 'New gift'}}/>);
+    await act(async () => resolve());
+    expect(onClose).not.toHaveBeenCalled();
+    expect(getInputs().name).toHaveValue('New gift');
+  });
+});
+
+
+describe('AddItemDialog price compatibility', () => {
+  it('lets the user choose an explicit currency', async () => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit}/>);
+    await userEvent.type(getInputs().name, 'Gift');
+    await userEvent.type(screen.getByRole('textbox', {name: /price/i}), '5');
+    await userEvent.click(screen.getByRole('combobox', {name: /currency/i}));
+    await userEvent.click(screen.getByRole('option', {name: 'GBP'}));
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift', priceMinor: 500, currency: 'GBP'});
+  });
+
+  it('preserves the selected currency when editing an existing price', async () => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit} initialValues={{name: 'Gift', priceMinor: 1234, currency: 'USD'}}/>);
+    const price = screen.getByRole('textbox', {name: /price/i});
+    await userEvent.clear(price);
+    await userEvent.type(price, '15.99');
+    await userEvent.click(screen.getByRole('button', {name: /^save$/i}));
+    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift', description: '', link: '', priceMinor: 1599, currency: 'USD'});
+  });
+
+  it('keeps legacy unpriced edits free of money fields', async () => {
+    const onSubmit = vi.fn();
+    render(<AddItemDialog open onClose={vi.fn()} onSubmit={onSubmit} initialValues={{name: 'Gift'}}/>);
+    expect(screen.getByRole('textbox', {name: /price/i})).toHaveValue('');
+    await userEvent.click(screen.getByRole('button', {name: /^save$/i}));
+    expect(onSubmit).toHaveBeenCalledWith({name: 'Gift', description: '', link: ''});
+  });
+
+  it('does not call the close callback after unmounting during save', async () => {
+    let resolve!: () => void;
+    const onSubmit = vi.fn(() => new Promise<void>((done) => { resolve = done; }));
+    const onClose = vi.fn();
+    const {unmount} = render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
+    await userEvent.type(getInputs().name, 'Gift');
+    await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+    unmount();
+    await act(async () => resolve());
+    expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+
+it('ignores save completion after a route change', async () => {
+  let resolve!: () => void;
+  const onSubmit = vi.fn(() => new Promise<void>((done) => { resolve = done; }));
+  const onClose = vi.fn();
+  render(<AddItemDialog open onClose={onClose} onSubmit={onSubmit}/>);
+  await userEvent.type(getInputs().name, 'Gift');
+  await userEvent.click(screen.getByRole('button', {name: /^add$/i}));
+  await act(async () => {
+    window.history.pushState({}, '', '/en/another-list');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await act(async () => resolve());
+  expect(onClose).not.toHaveBeenCalled();
+  window.history.replaceState({}, '', '/');
 });

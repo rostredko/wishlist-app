@@ -51,3 +51,18 @@ describe('BlogArticlePage', () => {
     });
   });
 });
+
+describe('article language equivalence', () => {
+  it('keeps related topics accessible without advertising them as translations', async () => {
+    render(
+      <MemoryRouter initialEntries={['/ua/blog/najkrashchi-servisy-spysku-bazhan-v-ukraini']}>
+        <Routes><Route path="/:lng/blog/:slug" element={<BlogArticlePage />} /></Routes>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('heading', { name: /Сервіси для списку бажань в Україні/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Wishpicks' })).toHaveAttribute('href', 'https://wishpicks.com/uk');
+    expect(screen.getByRole('link', { name: 'Bazhannya' })).toHaveAttribute('href', 'https://bazhannya.com/');
+    expect(screen.getAllByText(/2026-10-09/).length).toBeGreaterThan(0);
+    await waitFor(() => expect(document.head.querySelector('link[hreflang]')).toBeNull());
+  });
+});

@@ -8,7 +8,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="verify-admitad" content="7ddfd97b5a" />
     <meta name="description"
-        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
+        content="Створіть список бажань і поділіться посиланням. Друзі бронюють подарунки без реєстрації. Безкоштовно, без реклами." />
     <meta name="keywords"
         content="вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст, поділитися вішлістом" />
     <meta name="author" content="WishList App" />
@@ -17,9 +17,9 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://wishlistapp.com.ua/ua" />
-    <meta property="og:title" content="Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App" />
+    <meta property="og:title" content="Створити вішліст безкоштовно - WishList App" />
     <meta property="og:description"
-        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
+        content="Створіть список бажань і поділіться посиланням. Друзі бронюють подарунки без реєстрації. Безкоштовно, без реклами." />
     <meta property="og:image" content="https://wishlistapp.com.ua/og-image.webp" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:locale:alternate" content="en_US" />
@@ -27,9 +27,9 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App" />
+    <meta name="twitter:title" content="Створити вішліст безкоштовно - WishList App" />
     <meta name="twitter:description"
-        content="Зробіть вішліст за 30 секунд - безкоштовно. Поділіться з друзями: вони анонімно бронюють подарунки. Список побажань для будь-якого свята →" />
+        content="Створіть список бажань і поділіться посиланням. Друзі бронюють подарунки без реєстрації. Безкоштовно, без реклами." />
     <meta name="twitter:image" content="https://wishlistapp.com.ua/og-image.webp" />
 
     <!-- Canonical and hreflang are injected per route at build time by scripts/prerender.ts.
@@ -69,12 +69,18 @@
         }
         window.gtag = gtag;
 
-        // Initialize GA config after page load with low priority (no delay)
-        window.addEventListener('load', () => {
-            (window.requestIdleCallback || setTimeout)(() => {
-                gtag('js', new Date());
-                gtag('config', 'G-X8QM3ZWMZ8', { send_page_view: false });
-            });
+        // Queue configuration before application events, even when the external script is blocked.
+        // Automatic measurement must remain disabled in GA4; application events supply safe route metadata.
+        let referrerOrigin = '';
+        try { referrerOrigin = new URL(document.referrer).origin; } catch { /* No valid referrer. */ }
+        gtag('js', new Date());
+        gtag('config', 'G-X8QM3ZWMZ8', {
+            send_page_view: false,
+            page_title: 'WishList App',
+            page_location: window.location.origin + (window.location.pathname.startsWith('/en') ? '/en' : '/ua'),
+            page_referrer: referrerOrigin,
+            allow_google_signals: false,
+            allow_ad_personalization_signals: false
         });
     </script>
 
@@ -130,7 +136,7 @@
         }
     </style>
 
-    <title>Зробити Вішліст Безкоштовно | Список Бажань Онлайн - WishList App</title>
+    <title>Створити вішліст безкоштовно - WishList App</title>
 
     <!-- Static structured data: visible to non-JS crawlers (ChatGPT, Perplexity, archival bots) -->
     <script type="application/ld+json">
@@ -139,7 +145,7 @@
       "@type": "WebApplication",
       "name": "WishList App",
       "url": "https://wishlistapp.com.ua",
-      "description": "Free online wishlist maker. Create a wish list in seconds, share a private link, and let friends anonymously claim gifts. No ads. Ukrainian and English.",
+      "description": "Free online wishlist maker. Create a wish list in seconds, share a link, and let friends anonymously claim gifts. No ads. Ukrainian and English.",
       "applicationCategory": "LifestyleApplication",
       "operatingSystem": "Web",
       "browserRequirements": "Requires JavaScript",
@@ -148,7 +154,7 @@
         "price": "0",
         "priceCurrency": "UAH"
       },
-      "featureList": ["Create wishlists", "Share private links", "Anonymous gift claiming", "Free to use", "Multi-language support"]
+      "featureList": ["Create wishlists", "Share links", "Anonymous gift claiming", "Free to use", "Multi-language support"]
     }
     </script>
     <script type="application/ld+json">
@@ -285,7 +291,7 @@
         <div class="shell-hero">
             <!-- prerender:hero -->
             <h1 class="shell-h1">
-                Зробіть Вішліст - Список Бажань Онлайн
+                Створіть вішліст - список бажань онлайн безкоштовно
             </h1>
             <div class="shell-skel-text" style="width: 100%; max-width: 600px; height: 28px; margin-bottom: 24px;">
             </div>
@@ -297,8 +303,8 @@
     <noscript>
         <div style="padding: 32px 24px; max-width: 700px; margin: 0 auto; font-family: system-ui, sans-serif; color: #fff; background: #1c1c1c; line-height: 1.6;">
             <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 20px;">WishList App - Free Online Wishlist Maker</h1>
-            <p style="margin: 0 0 16px;">WishList App (wishlistapp.com.ua) is a free online wishlist maker for birthdays, Christmas, New Year, weddings, Secret Santa, graduations, and any other occasion. Create a wishlist in 30 seconds: sign in with Google, add gift ideas with names, prices, and shop links, then share a private URL with friends and family. Recipients open the link without registering and can anonymously reserve gifts so there are no duplicate presents. Everyone sees which items are already taken, but the names of who reserved them stay private to keep surprises intact. The app has no ads, no subscription fees, and works on any device. Both Ukrainian and English are fully supported. You do not need an account to view or claim gifts on someone else's list.</p>
-            <p style="margin: 0 0 16px;">Зробіть вішліст за 30 секунд: увійдіть через Google, додайте подарунки та поділіться приватним посиланням. Друзі анонімно бронюють подарунки. Безкоштовно, без реклами.</p>
+            <p style="margin: 0 0 16px;">WishList App (wishlistapp.com.ua) is a free online wishlist maker for birthdays, Christmas, New Year, weddings, Secret Santa, graduations, and any other occasion. Create a wishlist in a few steps: sign in with Google, add gift ideas with names, prices, and shop links, then share a link with friends and family. Recipients open the link without registering and can anonymously reserve gifts to help avoid duplicate presents. Everyone sees which items are already taken, but the names of who reserved them stay private to keep surprises intact. The app has no ads, no subscription fees, and works on any device. Both Ukrainian and English are fully supported. You do not need an account to view or claim gifts on someone else's list.</p>
+            <p style="margin: 0 0 16px;">Створіть вішліст у кілька кроків: увійдіть через Google, додайте подарунки та поділіться посиланням. Друзі анонімно бронюють подарунки. Безкоштовно, без реклами.</p>
             <p style="margin-top: 24px;">
                 <a href="/ua" style="color: #2196f3; margin-right: 16px;">Українська версія</a>
                 <a href="/en" style="color: #2196f3;">English version</a>

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -17,11 +17,13 @@ import i18n from './i18n';
 import { auth } from '@lib/auth-client';
 import { useAuth } from '@hooks/useAuth';
 import { trackPageView } from './utils/analytics';
+import { clearPendingWishlistCreateAfterAuth, completePendingWishlistAuth, hasPendingWishlistRedirect, getPendingWishlistAuthAttempt, discardPendingWishlistCreateOnNavigation } from '@utils/pendingWishlistCreate';
 
 function scrollWindowToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
+const NotFoundPage = lazy(() => import('@components/NotFoundPage'));
 const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
@@ -30,6 +32,16 @@ const PrivacyPage = lazy(() => import('@components/PrivacyPage'));
 const BlogHubPage = lazy(() => import('@components/blog/BlogHubPage'));
 const BlogArticlePage = lazy(() => import('@components/blog/BlogArticlePage'));
 import Footer from '@components/Footer';
+
+function ValidLocale({ children }: { children: ReactNode }) {
+  const { lng } = useParams();
+  return lng === 'ua' || lng === 'en' ? children : <NotFoundPage />;
+}
+
+function CanonicalWishlistRedirect() {
+  const { lng, wishlistId } = useParams();
+  return <Navigate to={`/${lng}/wishlist/${wishlistId}`} replace />;
+}
 
 function LegacyHowToHubRedirect() {
   const { lng } = useParams();
@@ -107,44 +119,48 @@ function LegacyWishlistRedirect() {
   return null;
 }
 
+let redirectResultPromise: ReturnType<typeof getRedirectResult> | undefined;
+
 function AuthRedirectHandler() {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Handle redirect result after Google OAuth redirect
-    // This must be called only once per app load, as Firebase clears the result after first call
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result) {
-          // User successfully signed in via redirect
-          // Auth state will update automatically via onAuthStateChanged
-          // Try to navigate back to the saved URL
-          try {
-            const returnUrl = sessionStorage.getItem('auth_return_url');
-            if (returnUrl && returnUrl !== location.pathname) {
-              navigate(returnUrl);
-            }
-            sessionStorage.removeItem('auth_return_url');
-          } catch {
-            // sessionStorage not available, stay on current page
-          }
-        }
-      })
-      .catch((error) => {
-        // Ignore expected errors (user cancelled, etc.)
-        if (
-          error.code !== 'auth/operation-not-allowed' &&
-          error.code !== 'auth/popup-closed-by-user' &&
-          !error.message?.includes('initial state')
-        ) {
-          console.error('Auth redirect error:', error);
-        }
-      });
-    // Intentionally once per mount: getRedirectResult must not be called again after Firebase consumes the redirect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- see above
+    let active = true;
+    const wasPendingRedirect = hasPendingWishlistRedirect();
+    const attemptId = getPendingWishlistAuthAttempt();
+    redirectResultPromise ??= getRedirectResult(auth);
+    void redirectResultPromise.then(result => {
+      if (!active) return;
+      if (!result) {
+        if (wasPendingRedirect && attemptId) clearPendingWishlistCreateAfterAuth(attemptId);
+        return;
+      }
+      let returnUrl: string | null = null;
+      try {
+        returnUrl = sessionStorage.getItem('auth_return_url');
+        sessionStorage.removeItem('auth_return_url');
+      } catch { /* Restricted storage: remain on the current route. */ }
+      if (returnUrl && /^\/(ua|en)(?:\/|$)/.test(returnUrl) && returnUrl !== location.pathname) navigate(returnUrl, { replace: true });
+      if (wasPendingRedirect && attemptId) completePendingWishlistAuth(attemptId);
+    }).catch(() => {
+      if (active && wasPendingRedirect && attemptId) clearPendingWishlistCreateAfterAuth(attemptId);
+    });
+    return () => { active = false; };
+    // Firebase consumes redirect results once; route changes must not re-run the exchange.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one exchange for this app load
   }, []);
 
+  return null;
+}
+
+function CreationIntentRouteGuard() {
+  const { pathname } = useLocation();
+  const previousPath = useRef(pathname);
+  useEffect(() => {
+    if (previousPath.current !== pathname) discardPendingWishlistCreateOnNavigation(pathname);
+    previousPath.current = pathname;
+  }, [pathname]);
   return null;
 }
 
@@ -153,22 +169,11 @@ function RouteTracker() {
   const prevPathRef = useRef<string>('');
 
   useEffect(() => {
-    // Skip tracking if this is the first page load and path hasn't changed
-    // (to avoid duplicate page_view events)
-    const currentPath = location.pathname + location.search;
-
-    if (prevPathRef.current === currentPath) {
-      return;
-    }
-
-    // Track page view
-    const pageTitle = typeof document !== 'undefined' ? document.title : '';
-    trackPageView(currentPath, pageTitle).catch((error) => {
-      console.error('Failed to track page view:', error);
-    });
-
-    prevPathRef.current = currentPath;
-  }, [location.pathname, location.search]);
+    const path = location.pathname;
+    if (prevPathRef.current === path || path === '/' || /^\/wishlist\//.test(path) || /\/(how-to|wishlists)(?:\/|$)/.test(path)) return;
+    prevPathRef.current = path;
+    void trackPageView(path);
+  }, [location.pathname]);
 
   return null;
 }
@@ -206,6 +211,7 @@ function App() {
         <RouteLanguageSync />
         <ScrollToTop />
         <AuthRedirectHandler />
+        <CreationIntentRouteGuard />
         <RouteTracker />
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ flexGrow: 1 }}>
@@ -222,21 +228,21 @@ function App() {
                 <Route path="/ua" element={<LocalizedHome lng="ua" />} />
                 <Route path="/en" element={<LocalizedHome lng="en" />} />
 
-                <Route path="/:lng/privacy" element={<PrivacyPage />} />
+                <Route path="/:lng/privacy" element={<ValidLocale><PrivacyPage /></ValidLocale>} />
 
-                <Route path="/:lng/blog" element={<BlogHubPage />} />
-                <Route path="/:lng/blog/:slug" element={<BlogArticlePage />} />
+                <Route path="/:lng/blog" element={<ValidLocale><BlogHubPage /></ValidLocale>} />
+                <Route path="/:lng/blog/:slug" element={<ValidLocale><BlogArticlePage /></ValidLocale>} />
 
-                <Route path="/:lng/how-to" element={<LegacyHowToHubRedirect />} />
-                <Route path="/:lng/how-to/:slug" element={<LegacyHowToArticleRedirect />} />
+                <Route path="/:lng/how-to" element={<ValidLocale><LegacyHowToHubRedirect /></ValidLocale>} />
+                <Route path="/:lng/how-to/:slug" element={<ValidLocale><LegacyHowToArticleRedirect /></ValidLocale>} />
 
-                <Route path="/:lng/wishlist/:wishlistId" element={<WishListItemList />} />
+                <Route path="/:lng/wishlist/:wishlistId" element={<ValidLocale><WishListItemList /></ValidLocale>} />
 
-                <Route path="/:lng/wishlists/:wishlistId" element={<WishListItemList />} />
+                <Route path="/:lng/wishlists/:wishlistId" element={<ValidLocale><CanonicalWishlistRedirect /></ValidLocale>} />
 
                 <Route path="/wishlist/:wishlistId" element={<LegacyWishlistRedirect />} />
 
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </Box>

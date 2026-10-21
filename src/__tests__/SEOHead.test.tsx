@@ -58,6 +58,17 @@ describe('SEOHead', () => {
     });
   });
 
+  it('does not invent language URLs for topics without declared translations', () => {
+    render(<SEOHead title="Topic" description="Topic" lang="en" canonical="https://wishlistapp.com.ua/en/blog/one-language-topic" />);
+    expect(document.head.querySelector('link[hreflang]')).toBeNull();
+  });
+
+  it('suppresses language alternates for unlisted personal lists', () => {
+    render(<SEOHead title="Personal list" description="Personal list" lang="en" robots="noindex,follow"
+      alternates={{ en: 'https://wishlistapp.com.ua/en/wishlist/personal', uk: 'https://wishlistapp.com.ua/ua/wishlist/personal' }} />);
+    expect(document.head.querySelector('link[hreflang]')).toBeNull();
+  });
+
   it('emits Article and HowTo JSON-LD when structured props are set', async () => {
     render(
       <SEOHead

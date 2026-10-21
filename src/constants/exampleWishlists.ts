@@ -10,7 +10,7 @@ export const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
     isHidden: false,
   },
   'christmas-list-ua': {
-    title: 'Вішліст на Новий Рік 2026',
+    title: 'Вішліст на Новий рік',
     ownerUid: 'demo',
     bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
     isHidden: false,
@@ -57,17 +57,18 @@ export const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
  * Static items for each demo wishlist. Rendered immediately (no Firestore wait)
  * so search crawlers see unique, meaningful content on first render.
  */
+// Demo amounts are illustrative, not current retailer quotes.
 export const DEMO_ITEMS: Record<string, WishListItem[]> = {
   'christmas-list': [
     { id: 'c1', name: 'AirPods Pro', claimed: false },
-    { id: 'c2', name: 'Book: "Atomic Habits"', claimed: false },
+    { id: 'c2', name: 'Book: "Atomic Habits"', claimed: false, priceMinor: 2000, currency: 'USD' },
     { id: 'c3', name: 'Cozy fleece blanket', claimed: false },
     { id: 'c4', name: 'Wireless charger', claimed: false },
     { id: 'c5', name: 'Gift card - Amazon', claimed: false },
   ],
   'christmas-list-ua': [
     { id: 'cu1', name: 'AirPods Pro', claimed: false },
-    { id: 'cu2', name: 'Книга "Атомні звички"', claimed: false },
+    { id: 'cu2', name: 'Книга "Атомні звички"', claimed: false, priceMinor: 50000, currency: 'UAH' },
     { id: 'cu3', name: 'Тепла ковдра', claimed: false },
     { id: 'cu4', name: 'Бездротова зарядка', claimed: false },
     { id: 'cu5', name: 'Подарунковий сертифікат', claimed: false },
@@ -87,14 +88,14 @@ export const DEMO_ITEMS: Record<string, WishListItem[]> = {
     { id: 'bu5', name: 'Вечеря у ресторані на двох', claimed: false },
   ],
   'secret-santa-list': [
-    { id: 's1', name: 'Scented candle set', claimed: false },
+    { id: 's1', name: 'Scented candle set', claimed: false, priceMinor: 1500, currency: 'USD' },
     { id: 's2', name: 'Insulated water bottle', claimed: false },
     { id: 's3', name: 'Chocolate assortment', claimed: false },
     { id: 's4', name: 'Funny desk calendar', claimed: false },
     { id: 's5', name: 'Cozy socks', claimed: false },
   ],
   'secret-santa-list-ua': [
-    { id: 'su1', name: 'Набір ароматних свічок', claimed: false },
+    { id: 'su1', name: 'Набір ароматних свічок', claimed: false, priceMinor: 45000, currency: 'UAH' },
     { id: 'su2', name: 'Термопляшка', claimed: false },
     { id: 'su3', name: 'Набір шоколаду', claimed: false },
     { id: 'su4', name: 'Настільний календар', claimed: false },
@@ -128,14 +129,14 @@ export const EXAMPLE_SEO: Record<string, { title: string; description: string }>
       'Browse a Christmas wish list example. Create your own free holiday gift list and share it with family - friends can anonymously claim gifts.',
   },
   'christmas-list-ua': {
-    title: 'Вішліст на Новий Рік та Різдво 2026 - Безкоштовний | WishList App',
+    title: 'Вішліст на Новий рік та Різдво - Безкоштовний | WishList App',
     description:
       'Перегляньте приклад новорічного вішліста. Зробіть свій список бажань безкоштовно та поділіться з друзями.',
   },
   'birthday-list': {
     title: 'Birthday Wishlist Example - Free Gift List Maker | WishList App',
     description:
-      'Browse a birthday wishlist example. Create your own free birthday gift list and share the private link with friends.',
+      'Browse a birthday wishlist example. Create your own free birthday gift list and share the link with friends.',
   },
   'birthday-list-ua': {
     title: 'Вішліст на День Народження - Безкоштовний Приклад | WishList App',

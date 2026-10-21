@@ -24,27 +24,27 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
       <SEOHead
         lang="en"
         title="Best Wishlist Apps in 2026 - Honest Picks from a Builder | WishList App"
-        description="I built WishList App and tested every major alternative. My honest breakdown of the best wishlist apps in 2026: speed, sharing, anonymous claims, and price."
+        description="Research into wishlist apps in 2026 from the WishList App builder: sharing, guest access, store links and cost. Official product pages checked October 9, 2026."
         canonical={canonicalUrl}
         alternates={alternates}
         keywords="best wishlist apps 2026, wishlist app, online wishlist, gift list app, create wishlist free"
         structured={{
           article: {
             headline: 'Best Wishlist Apps in 2026 - Honest Picks from a Builder',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           faq: [
             {
               q: 'What makes a good wishlist app in 2026?',
-              a: 'Fast setup, no guest signup required, a private share link, and a way for guests to claim items anonymously so surprises are not spoiled.',
+              a: 'Fast setup, no guest signup required, a share link, and a way for guests to claim items anonymously so surprises are not spoiled.',
             },
             {
               q: 'Is WishList App free?',
@@ -69,9 +69,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
             Best wishlist apps in 2026 - my honest take as the builder
           </Typography>
           <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            I built WishList App. I also obsessively test competitors whenever a new season comes around,
-            because I want to know if my own product still earns its place or if I should be pointing people
-            elsewhere. Here is what I actually think - no fake rankings, no affiliate links.
+            {tb('research.checked')}
           </Typography>
 
           <Stack spacing={4}>
@@ -150,7 +148,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
                     <TableRow>
                       <TableCell>Elfster</TableCell>
                       <TableCell>Yes</TableCell>
-                      <TableCell>No - signup required</TableCell>
+                      <TableCell>{tb('research.guestView')}</TableCell>
                       <TableCell>Yes</TableCell>
                       <TableCell>Free tier exists</TableCell>
                     </TableRow>
@@ -193,10 +191,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
                 Elfster
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
-                Elfster does the Secret Santa draw well - it is probably the most polished dedicated app for
-                that. The friction point is the signup wall for participants. I have seen group exchanges fall
-                apart because three people in the chat refused to create another account. If everyone in your
-                group is willing to register, Elfster is solid.
+                {tb('research.elfster')} <a href="https://help.elfster.com/en/articles/11518008-how-do-i-change-the-settings-on-my-elfster-wishlist">Elfster Help</a>
               </Typography>
 
               <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
@@ -265,7 +260,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
               <Box sx={{ mt: 2 }}>
                 <Button
                   component={RouterLink}
-                  to={`/${routeLang}`}
+                  to={`/${routeLang}`} state={{ creationSource: 'blog' }}
                   variant="contained"
                   size="large"
                 >

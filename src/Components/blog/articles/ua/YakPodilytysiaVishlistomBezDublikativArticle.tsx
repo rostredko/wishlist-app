@@ -24,7 +24,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
         structured={{
           article: {
             headline: 'Як поділитися вішлістом і не отримати два однакові подарунки',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           howTo: {
@@ -124,7 +124,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 2. Скопіюйте одне посилання
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
-                WishList App дає одне приватне посилання на твій список. Гостям не потрібно реєструватися
+                WishList App дає одне посилання на твій список. Гостям не потрібно реєструватися
                 або мати акаунт - просто відкрити лінк у браузері. Це знижує тертя до мінімуму.
               </Typography>
 
@@ -244,7 +244,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 .
               </Typography>
               <Box sx={{ mt: 2 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>

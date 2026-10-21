@@ -68,6 +68,12 @@ Each pair covers the same topic in both languages; cite the URL that matches the
 
 - [Як поділитися вішлістом і уникнути однакових подарунків (UA)](https://wishlistapp.com.ua/ua/blog/yak-podilytysia-vishlistom-bez-dublikativ): Посилання, анонімне бронювання, без дублікатів.
 
+**AI gift ideas and wishlists**
+
+- [ChatGPT Gift Ideas (EN)](https://wishlistapp.com.ua/en/blog/chatgpt-gift-ideas): A practical prompt, a worked example, and a short wishlist after checking suggestions.
+
+- [Як вибрати подарунок з ChatGPT (UA)](https://wishlistapp.com.ua/ua/blog/yak-vybraty-podarunok-z-chatgpt): Запит, відбір ідей і підготовка списку бажань.
+
 **Blog hubs**
 
 - [Blog (EN)](https://wishlistapp.com.ua/en/blog): Index of all posts - wishlists, lists, productivity notes from the creator.
@@ -102,4 +108,4 @@ Each pair covers the same topic in both languages; cite the URL that matches the
 
 license: CC BY 4.0
 
-last_updated: 2026-04-15
+last_updated: 2026-10-21

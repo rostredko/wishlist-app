@@ -1,8 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FirebaseError } from 'firebase/app';
 import { signInWithPopup, signInWithRedirect } from 'firebase/auth';
+
+import { clearPendingWishlistCreateAfterAuth, completePendingWishlistAuth, getPendingWishlistAuthAttempt, markPendingWishlistRedirect } from '@utils/pendingWishlistCreate';
 
 import { auth, googleProvider } from '@lib/auth-client';
 import { canUseRedirectFlow, isTelegramWebView, shouldUseRedirect } from '@utils/auth';
@@ -17,12 +19,14 @@ export function useGoogleSignIn() {
   const location = useLocation();
   const { t } = useTranslation('auth');
   const [loading, setLoading] = useState(false);
+  const inFlight = useRef(false);
   const isTelegram = isTelegramWebView();
 
   const signIn = useCallback(async (): Promise<GoogleSignInResult> => {
-    if (loading) return 'cancelled';
+    if (inFlight.current) return 'cancelled';
     if (isTelegram) return 'cancelled';
 
+    const attemptId = getPendingWishlistAuthAttempt();
     const redirectSupported = canUseRedirectFlow();
     const preferRedirect = shouldUseRedirect();
 
@@ -32,10 +36,12 @@ export function useGoogleSignIn() {
           code: 'auth/redirect-unsupported',
         });
       }
+      if (attemptId) markPendingWishlistRedirect(attemptId);
       await signInWithRedirect(auth, googleProvider);
     };
 
     try {
+      inFlight.current = true;
       setLoading(true);
 
       if (redirectSupported) {
@@ -53,6 +59,8 @@ export function useGoogleSignIn() {
 
       try {
         await signInWithPopup(auth, googleProvider);
+        if (attemptId) completePendingWishlistAuth(attemptId);
+        try { sessionStorage.removeItem('auth_return_url'); } catch { /* Restricted storage. */ }
         return 'signed_in';
       } catch (popupError: unknown) {
         const code = popupError instanceof FirebaseError ? popupError.code : undefined;
@@ -62,10 +70,13 @@ export function useGoogleSignIn() {
             : popupError instanceof Error
               ? popupError.message
               : '';
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+          if (attemptId) clearPendingWishlistCreateAfterAuth(attemptId);
+          return 'cancelled';
+        }
         const shouldFallbackToRedirect =
           redirectSupported &&
           (code === 'auth/popup-blocked' ||
-            code === 'auth/popup-closed-by-user' ||
             code === 'auth/operation-not-supported-in-this-environment' ||
             message.includes('sessionStorage') ||
             message.includes('initial state') ||
@@ -79,6 +90,7 @@ export function useGoogleSignIn() {
         throw popupError;
       }
     } catch (e: unknown) {
+      if (attemptId) clearPendingWishlistCreateAfterAuth(attemptId);
       console.error('Sign-in error:', e);
       const code = e instanceof FirebaseError ? e.code : undefined;
       if (!code || !String(code).startsWith('auth/redirect')) {
@@ -86,9 +98,10 @@ export function useGoogleSignIn() {
       }
       return 'cancelled';
     } finally {
+      inFlight.current = false;
       setLoading(false);
     }
-  }, [loading, t, location.pathname, location.search, isTelegram]);
+  }, [t, location.pathname, location.search, isTelegram]);
 
   return { signIn, loading, isTelegram };
 }

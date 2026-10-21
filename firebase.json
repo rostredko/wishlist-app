@@ -97,6 +97,18 @@
         ]
       },
       {
+        "source": "/ua/blog/yak-vybraty-podarunok-z-chatgpt",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/ua/blog/yak-vybraty-podarunok-z-chatgpt>; rel=\"canonical\"" }
+        ]
+      },
+      {
+        "source": "/en/blog/chatgpt-gift-ideas",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/en/blog/chatgpt-gift-ideas>; rel=\"canonical\"" }
+        ]
+      },
+      {
         "source": "/ua/blog/yak-zrobyty-vishlist",
         "headers": [
           { "key": "Link", "value": "<https://wishlistapp.com.ua/ua/blog/yak-zrobyty-vishlist>; rel=\"canonical\"" }
@@ -258,12 +270,27 @@
     ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/",
         "destination": "/index.html"
+      },
+      {
+        "source": "/{ua,en}/wishlist/*",
+        "destination": "/personal-wishlist.html"
+      },
+      {
+        "source": "/{ua,en}/wishlists/*",
+        "destination": "/personal-wishlist.html"
+      },
+      {
+        "source": "/wishlist/*",
+        "destination": "/personal-wishlist.html"
       }
     ]
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

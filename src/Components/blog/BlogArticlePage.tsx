@@ -11,6 +11,7 @@ import type { BlogRouteLang } from '@constants/blogArticles';
 import { findBlogPairBySlug } from '@constants/blogArticles';
 
 import type { BlogArticleProps } from './blogArticleTypes';
+import AiGiftIdeasArticle from './articles/AiGiftIdeasArticle';
 
 import HowToCreateWishlistArticle from './articles/en/HowToCreateWishlistArticle';
 import BestWishlistApps2026Article from './articles/en/BestWishlistApps2026Article';
@@ -30,6 +31,7 @@ import YakSpyskyZminyuyutZhyttiaArticle from './articles/ua/YakSpyskyZminyuyutZh
 
 const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogArticleProps>>> = {
   en: {
+    'chatgpt-gift-ideas': AiGiftIdeasArticle,
     'how-to-create-a-wishlist': HowToCreateWishlistArticle,
     'best-wishlist-apps-2026': BestWishlistApps2026Article,
     'amazon-wishlist-alternatives': AmazonWishlistAlternativesArticle,
@@ -39,6 +41,7 @@ const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogAr
     'how-lists-change-your-life': HowListsChangeYourLifeArticle,
   },
   ua: {
+    'yak-vybraty-podarunok-z-chatgpt': AiGiftIdeasArticle,
     'yak-zrobyty-vishlist': YakZrobytyVishlistArticle,
     'de-stvoryty-vishlist-2026': DeStvorytyVishlist2026Article,
     'najkrashchi-servisy-spysku-bazhan-v-ukraini': NajkrashchiServisySpyskuBazhanArticle,
@@ -63,10 +66,6 @@ export default function BlogArticlePage() {
 
   if (!slug || !pair || !Article) {
     const notFoundCanonical = `${origin}/${routeLang}/blog/${slug || 'unknown'}`;
-    const hubAlternates = {
-      en: `${origin}/en/blog`,
-      uk: `${origin}/ua/blog`,
-    };
 
     return (
       <Box component="main" sx={{ pt: { xs: 6, md: 10 }, pb: 8 }}>
@@ -75,7 +74,6 @@ export default function BlogArticlePage() {
           title={t('notFound.title')}
           description={t('notFound.description')}
           canonical={notFoundCanonical}
-          alternates={hubAlternates}
           robots="noindex,follow"
         />
         <Container maxWidth="md">

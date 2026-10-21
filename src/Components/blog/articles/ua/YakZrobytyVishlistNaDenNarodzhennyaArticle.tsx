@@ -14,7 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import { useTranslation } from 'react-i18next';
 
 import SEOHead from '@components/SEOHead';
-import { BLOG_LAST_UPDATED, resolveBlogAlternates } from '@constants/blogArticles';
+import { resolveBlogAlternates } from '@constants/blogArticles';
 import type { BlogArticleProps } from '@components/blog/blogArticleTypes';
 import { BlogArticleFooter } from '@components/blog/BlogArticleFooter';
 
@@ -24,7 +24,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
@@ -38,8 +38,8 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
         structured={{
           article: {
             headline: 'Як зробити вішліст на день народження - метод, яким користуюся сам',
-            datePublished: BLOG_LAST_UPDATED,
-            dateModified: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
+            dateModified: '2026-04-15',
           },
           howTo: {
             name: 'Зробити вішліст на день народження',
@@ -230,7 +230,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
                 .
               </Typography>
               <Box sx={{ mt: 2 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>
@@ -251,7 +251,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
             </section>
           </Stack>
 
-          <BlogArticleFooter routeLang={routeLang} />
+          <BlogArticleFooter routeLang={routeLang} date="2026-04-15" />
         </Container>
       </Box>
     </>

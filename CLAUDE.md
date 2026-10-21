@@ -27,13 +27,15 @@ Site: https://wishlistapp.com.ua
 
 From the repository root (copy-paste):
 
-- `npm run dev` — Vite dev server
+- `npm run emulators` - isolated local Auth, Firestore, and Storage (Java 21+, Firebase CLI 15.12.0)
+- `npm run dev` - Vite dev server; start the local emulators first
 - `npm run build` — `tsc -b` + production bundle
 - `npm run lint` — ESLint
 - `npx vitest run` — full test run (CI-style)
 - `npm run test:ci` — coverage mode; requires `@vitest/coverage-v8` to be installed when using `--coverage`
 - `npm run test` — Vitest watch mode (dev loop); `npm run test:ui` — browser UI
 - `npm run preview` — serve the production build locally (Vite preview)
+- `npm run test:rules` - disposable emulator acceptance, separate from persistent local dev data
 
 For non-trivial changes, run `lint`, `build`, and `vitest run` before considering the task complete unless the user narrowed scope.
 
@@ -82,6 +84,16 @@ For non-trivial changes, run `lint`, `build`, and `vitest run` before considerin
 - Never add `console.log` to production code
 - Never hardcode strings visible to users
 - Never install packages without confirming with the user
+
+## Production data safety
+
+- **Production customer data is critical. Preserving existing wishlists, gifts, reservations, ownership, accounts, and uploaded files takes precedence over all other priorities.**
+- Never erase, reset, seed, import over, bulk overwrite, or migrate production data as part of development, tests, builds, previews, or deployment. Do not test destructive operations against production.
+- Local development and automated acceptance tests must use isolated Firebase emulators with a `demo-` project ID for Auth, Firestore, and Storage. Never fall back to live Firebase when an emulator is unavailable; do not copy production customer data into fixtures.
+- Keep existing records backward compatible. New optional fields must not require rewriting old documents; reading a wishlist must never repair, replace, or delete its stored data automatically.
+- Any exceptional production data operation requires the user's explicit approval of the exact project, scope, and operation, a verified backup, and a recovery plan. General permission to implement a feature or deploy code is not permission to alter stored customer data.
+- Before release, review every data-writing path and rule change. Rules can block access without deleting data. Verify legacy-record compatibility in emulators and use an explicit project and deployment scope; never run an unreviewed blanket `firebase deploy`.
+- Check production backup/PITR and Storage recovery settings before a data-sensitive release. Do not claim they are enabled or recovery is verified without evidence. See the README for local setup and release checks.
 
 ## Workflow
 

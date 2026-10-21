@@ -96,6 +96,12 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16}/> : <UploadIcon/>}
             aria-label={t('bannerUploadAria')}
+            sx={{
+              maxWidth: 'min(100vw - 64px, 22rem)',
+              whiteSpace: 'normal',
+              lineHeight: 1.3,
+              textAlign: 'center',
+            }}
           >
             {loading ? t('bannerUploading') : t('bannerUpload')}
           </Button>

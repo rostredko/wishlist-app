@@ -3,5 +3,9 @@
   "labelName": "Wishlist name",
   "create": "Create",
   "creating": "Creating...",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "copyTitle": "Use this example",
+  "copyHint": "Review the name before creating your own copy. All gifts will be available to reserve.",
+  "createFailed": "Could not create your wishlist. Your changes are saved here - please try again.",
+  "copySharedTitle": "Copy this wishlist"
 }

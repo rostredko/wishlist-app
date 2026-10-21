@@ -196,34 +196,6 @@ function removeStaticMetaTags() {
 
 const toOgLocale = (l: Lang) => (l === 'uk' ? 'uk_UA' : 'en_US');
 
-function buildAlternatesAuto(href: string): Partial<Record<Lang, string>> {
-  try {
-    const url = new URL(href);
-    const parts = url.pathname.split('/').filter(Boolean);
-    const buildLocalizedHref = (lang: 'en' | 'ua', rest: string[]) =>
-      rest.length > 0 ? `${url.origin}/${lang}/${rest.join('/')}` : `${url.origin}/${lang}`;
-
-    if (parts.length === 0) {
-      return { en: `${url.origin}/en`, uk: `${url.origin}/ua` };
-    }
-    const [maybeLang, ...rest] = parts;
-
-    if (maybeLang !== 'en' && maybeLang !== 'ua') {
-      return {
-        en: buildLocalizedHref('en', parts),
-        uk: buildLocalizedHref('ua', parts),
-      };
-    }
-
-    return {
-      en: buildLocalizedHref('en', rest),
-      uk: buildLocalizedHref('ua', rest),
-    };
-  } catch {
-    return {};
-  }
-}
-
 function upsertJsonLd(id: string, data: unknown) {
   const selector = `script[type="application/ld+json"][data-seo-head="1"][data-jsonld-id="${id}"]`;
   let el = document.head.querySelector<HTMLScriptElement>(selector);
@@ -279,13 +251,6 @@ export default function SEOHead({
           ? new URL(window.location.pathname, origin).toString()
           : `${origin}/`)
     );
-    const canonicalOrigin = (() => {
-      try {
-        return new URL(href).origin;
-      } catch {
-        return origin;
-      }
-    })();
 
     const ogImage = absoluteUrl(image ?? `${origin}/og-image.webp`);
     const ogLocale = toOgLocale(lang);
@@ -312,16 +277,15 @@ export default function SEOHead({
     upsertLink('canonical', href);
 
     removeAllManaged('link[rel="alternate"][data-seo-head="1"]');
-    const alts = Object.keys(alternates ?? {}).length
-      ? (alternates as Partial<Record<Lang, string>>)
-      : buildAlternatesAuto(href);
+    // Only declared equivalents are translations; matching slugs are not evidence.
+    const alts = robots?.includes('noindex') ? {} : alternates ?? {};
 
     const enHref = alts.en ? absoluteUrl(alts.en) : undefined;
     const ukHref = alts.uk ? absoluteUrl(alts.uk) : undefined;
 
     if (enHref) upsertLink('alternate', sanitizeCanonical(enHref), { hreflang: 'en' });
     if (ukHref) upsertLink('alternate', sanitizeCanonical(ukHref), { hreflang: 'uk' });
-    upsertLink('alternate', sanitizeCanonical(ukHref ?? `${canonicalOrigin}/ua`), { hreflang: 'x-default' });
+    if (ukHref || enHref) upsertLink('alternate', sanitizeCanonical(ukHref ?? enHref!), { hreflang: 'x-default' });
 
     upsertMetaByProperty('og:locale', ogLocale);
     upsertMetaByProperty('og:type', 'website');
@@ -380,7 +344,7 @@ export default function SEOHead({
         },
         featureList: [
           'Create wishlists',
-          'Share private links',
+          'Share wishlist links',
           'Anonymous gift claiming',
           'Multi-language support',
           'Free to use',

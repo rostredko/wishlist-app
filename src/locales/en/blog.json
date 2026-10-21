@@ -52,6 +52,151 @@
       "title": "Best Secret Santa Apps",
       "desc": "Picking tools for draws and wishlists - including what I optimize for in my own app.",
       "read": "8 min read"
+    },
+    "chatgpt-gift-ideas": {
+      "title": "How to use ChatGPT for gift ideas without buying more stuff",
+      "desc": "A prompt to copy, a worked example and a short wishlist instead of twenty random suggestions.",
+      "read": "6 min read"
+    }
+  },
+  "research": {
+    "checked": "Official pages checked on 2026-10-09. This is public-page research, not a hands-on test or a ranking.",
+    "elfster": "Elfster offers gift exchanges. Public wishlist links can be viewed without an Elfster account; this does not establish accountless exchange participation or reservation.",
+    "drawnames": "DrawNames advertises free name drawing without registration, with invitations and wishlists. Check the chosen web or app flow before inviting a group.",
+    "guestView": "Public-list viewing: yes; exchange and reservation requirements differ",
+    "drawGuest": "Advertises no registration",
+    "reservationUnknown": "Not established by this source",
+    "publicList": "Public wishlist links",
+    "free": "Advertised free",
+    "draw": "Name drawing",
+    "creator": "Authors sign in; guests can view and reserve without an account."
+  },
+  "articles": {
+    "chatgpt-gift-ideas": {
+      "title": "ChatGPT Gift Ideas: From AI Suggestions to a Wishlist | WishList App",
+      "description": "Use ChatGPT for gift ideas with a ready-to-copy prompt, a worked example and checks before you buy. Turn the useful suggestions into a short, shareable wishlist.",
+      "h1": "How to use ChatGPT for gift ideas without buying more stuff",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "intro": [
+        "“What would you like for your birthday?” Such a small question. Somehow the answer can take longer than buying the present. You could open ChatGPT and ask for gifts for a coffee lover. You would get a list. Whether that person has room for a fourth mug is a different question.",
+        "I like the idea of asking AI for help, especially when all you have is “something nice” and a birthday next week. I would start with a few questions, cut the weak suggestions and put specific items on a wishlist. Here is a prompt you can copy, followed by an example of what I would keep and what I would cross out."
+      ],
+      "sections": [
+        {
+          "id": "context",
+          "heading": "Shopping help is here. Working out what you want takes more effort",
+          "paragraphs": [
+            "In late 2025, OpenAI introduced shopping research in ChatGPT, while Google expanded shopping in AI Mode and Gemini. Both announcements put a lot of emphasis on comparing products. I have linked them below as background to this wave of AI shopping tools.",
+            "There is still a gap between a good product and a gift someone wants. A great pair of headphones can be the wrong choice if they have already picked another pair. A starter kit for a hobby might be a little premature when their interest currently extends to watching videos about it. I would want to ask one more question: do you actually want this?",
+            "That is where I would treat ChatGPT as a starting point. If someone already has a wishlist, use it. If they do not, AI can help turn a vague interest into a few options worth discussing."
+          ],
+          "links": [
+            {
+              "label": "OpenAI: shopping research announcement, November 24, 2025",
+              "href": "https://openai.com/index/chatgpt-shopping-research/"
+            },
+            {
+              "label": "Google: AI shopping update, November 13, 2025",
+              "href": "https://blog.google/products-and-platforms/products/shopping/agentic-checkout-holiday-ai-shopping/"
+            }
+          ]
+        },
+        {
+          "id": "prompt",
+          "heading": "A ChatGPT prompt for gift ideas you can actually judge",
+          "paragraphs": [
+            "“A gift for a friend, age 30” leaves a lot to guess. I would add the budget, where the gift will be bought, a few everyday habits and anything that should stay off the list. That last part often tells you more than an age.",
+            "Here is an example for your own birthday wishlist. Replace the details with yours. If you are shopping for someone else, stick to what you actually know about them."
+          ],
+          "prompt": "Help me find ideas for my birthday wishlist. The budget is up to £30 per gift, bought in the UK. I like reading paper books in the evening and making filter coffee. I live in a small flat. I already have mugs, a travel cup and a coffee grinder. Skip decorations, subscriptions and large gift sets.\n\nFirst, ask me three questions that would genuinely change your suggestions. After I answer, suggest five different ideas. For each, explain why I might use it, what could make it a bad fit and what to check before buying. Include one option that does not add another object to my home. If you cannot verify the current price or stock, say so. Do not invent links.",
+          "after": "This will not guarantee a brilliant answer. It gives you something to judge the answer against. You can see when a suggestion ignores a constraint. You also do not need to upload private conversations or anyone’s address; interests and preferences are enough."
+        },
+        {
+          "id": "example",
+          "heading": "What I would keep from the first list",
+          "paragraphs": [
+            "Take the fictional person in that prompt: evening reader, coffee drinker, small flat. This is my worked example, not a record of testing ChatGPT or a set of product recommendations.",
+            "A reading light sounds sensible. First, though, I would ask whether the room is actually too dark. If there is already a perfectly good lamp next to the chair, another one is just a tidy match for the phrase “book lover”."
+          ],
+          "bullets": [
+            "Coffee from a local roaster: keep it as a possibility, then check roast preferences and whether they need whole beans or ground coffee. “Likes coffee” does not answer either question.",
+            "A book: keep it once the title, language and edition are confirmed. Link to the actual book instead of writing “something interesting”.",
+            "A coffee workshop: consider it if they want that experience. Check the location, available dates and voucher expiry.",
+            "A gift set containing another mug: cross it out. They have mugs. A nice box does not change that."
+          ],
+          "after": "This is the useful part for me: making the list shorter. Two good possibilities are enough. There is no prize for keeping twenty."
+        },
+        {
+          "id": "check",
+          "heading": "I would still open the retailer’s page",
+          "paragraphs": [
+            "OpenAI’s shopping research announcement warns that prices and availability can be wrong. A link in a chat is the start of a check. On the seller’s page, look at the exact model, what is included, delivery and the return terms.",
+            "If the answer has no verified links, treat it as a set of ideas. A confident “this costs £25” is not enough to buy on. Include delivery in your budget, too: a £30 gift with £5 postage is no longer a £30 gift.",
+            "Individual shopping features depend on your country and account. This approach does not need automatic checkout in a chat. You can discuss what to look for, then check the item at a shop you use."
+          ],
+          "links": [
+            {
+              "label": "Price and availability limitations in the shopping research announcement",
+              "href": "https://openai.com/index/chatgpt-shopping-research/"
+            }
+          ]
+        },
+        {
+          "id": "wishlist",
+          "heading": "Turn the useful ideas into a wishlist people can use",
+          "paragraphs": [
+            "I would not forward the entire AI answer to friends. It may contain doubts, backup options and things you have already ruled out. Someone choosing a present needs a short list of things you would like.",
+            "In WishList App, you enter the name, product link, note and optional estimated price yourself. A book entry might include the exact title, a link to the edition and “paperback, in English”. Coffee might need a note about the grind. Those details prevent another round of guessing after you have settled on an idea.",
+            "You sign in with Google to create the list. Friends can open its link and reserve gifts without an account. That helps people coordinate their choices. It still depends on them using it: the app cannot see a purchase made outside the list.",
+            "If you are choosing for someone else, do not present an AI shortlist as their wishes. Send a couple of possibilities and ask what appeals to them. Or ask whether they have a list of their own."
+          ],
+          "links": [
+            {
+              "label": "How to create and share a wishlist",
+              "href": "/en/blog/how-to-create-a-wishlist"
+            },
+            {
+              "label": "See an example birthday wishlist",
+              "href": "/en/wishlist/birthday-list"
+            }
+          ]
+        },
+        {
+          "id": "finish",
+          "heading": "How much surprise to leave",
+          "paragraphs": [
+            "I like a compromise: the list contains several things someone would enjoy, and the giver chooses one. The wrapping, the note and the moment they hand it over are theirs as well. Knowing which edition of a book to buy does not take those away.",
+            "I build WishList App, so my fondness for lists probably will not shock anyone. But I would stop when the list feels finished. You do not need to fill every category or keep five items because you asked AI for five. Save what you want. You can leave the rest unbought."
+          ]
+        }
+      ],
+      "sourcesHeading": "What I read about AI shopping",
+      "sourcesIntro": "Four references behind this article. Announcements describe the tools at the time of release; the journalists’ experiences refer to their own tests.",
+      "sources": [
+        {
+          "label": "The ChatGPT shopping research announcement",
+          "href": "https://openai.com/index/chatgpt-shopping-research/",
+          "note": "OpenAI, November 24, 2025. Product research capabilities and accuracy limitations."
+        },
+        {
+          "label": "Shopping updates in AI Mode and Gemini",
+          "href": "https://blog.google/products-and-platforms/products/shopping/agentic-checkout-holiday-ai-shopping/",
+          "note": "Google, November 13, 2025. Conversational product search and comparisons; availability is specific to the announced markets."
+        },
+        {
+          "label": "Tom’s Guide: shopping with ChatGPT and Perplexity",
+          "href": "https://www.tomsguide.com/ai/i-tested-chatgpt-vs-perplexity-for-shopping-research-one-saved-me-real-money",
+          "note": "Elton Jones, January 24, 2026. His preferred tool varied by product. That is not a general ranking for every purchase."
+        },
+        {
+          "label": "TechRadar: trying Google AI shopping",
+          "href": "https://www.techradar.com/ai-platforms-assistants/gemini/i-tried-every-new-google-ai-shopping-feature-and-i-feel-a-lot-better-about-holiday-shopping-this-year",
+          "note": "Eric Hal Schwartz, November 17, 2025. A gift-shopping example in which the author retained the buying decision."
+        }
+      ],
+      "cta": "Start a wishlist on WishList App",
+      "ctaNote": "Open the homepage to create your list and add the gifts you have chosen."
     }
   }
 }

@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 
-import { BLOG_SLUG_PAIRS } from '../src/constants/blogArticles';
+import { BLOG_SLUG_PAIRS, resolveBlogAlternates } from '../src/constants/blogArticles';
 import {
   DEMO_ITEMS,
   DEMO_WISHLISTS,
@@ -36,7 +36,7 @@ type PrerenderRoute = {
   keywords?: string;
   /** Replaces the hero block between the prerender:hero markers. */
   heroHtml: string;
-  alternates: { en: string; uk: string };
+  alternates?: { en: string; uk: string };
 };
 
 type ArticleSeo = {
@@ -69,14 +69,25 @@ function req(obj: Record<string, string>, key: string, source: string): string {
 }
 
 /**
- * Pulls SEO title/description/keywords and the H1 out of each blog article
- * component. Articles keep these as single-line string props on SEOHead;
- * if that shape changes, this throws and the build fails loudly.
+ * New articles keep metadata in blog.json under articles[English slug].
+ * Legacy components retain their literal SEO props; malformed metadata fails the build.
  */
 function extractArticleSeo(root: string): Map<string, ArticleSeo> {
   const result = new Map<string, ArticleSeo>();
 
   for (const lang of ['en', 'ua'] as const) {
+    const localeSource = `src/locales/${lang}/blog.json`;
+    const localizedArticles = JSON.parse(readFileSync(join(root, localeSource), 'utf-8')).articles;
+    for (const pair of BLOG_SLUG_PAIRS) {
+      const localized = localizedArticles?.[pair.en];
+      if (!localized) continue;
+      const source = `${localeSource} articles.${pair.en}`;
+      result.set(`${lang}:${pair[lang]}`, {
+        title: req(localized, 'title', source),
+        description: req(localized, 'description', source),
+        h1: req(localized, 'h1', source),
+      });
+    }
     const dir = join(root, 'src/Components/blog/articles', lang);
     for (const file of readdirSync(dir).filter((f) => f.endsWith('.tsx'))) {
       const source = readFileSync(join(dir, file), 'utf-8');
@@ -112,7 +123,7 @@ function article(map: Map<string, ArticleSeo>, lang: RouteLang, slug: string): A
   return seo;
 }
 
-function buildRoutes(root: string): PrerenderRoute[] {
+export function buildRoutes(root: string): PrerenderRoute[] {
   const routes: PrerenderRoute[] = [];
   const articles = extractArticleSeo(root);
 
@@ -189,13 +200,10 @@ function buildRoutes(root: string): PrerenderRoute[] {
         heroHtml: [
           `<nav><a href="/${lang}" style="${LINK_STYLE}">${esc(req(blog, 'breadcrumbHome', `${source}/blog.json`))}</a>`
           + ` &rsaquo; <a href="/${lang}/blog" style="${LINK_STYLE}">${esc(req(blog, 'breadcrumbBlog', `${source}/blog.json`))}</a></nav>`,
-          `<h1 class="shell-h1">${seo.h1}</h1>`,
+          `<h1 class="shell-h1">${esc(seo.h1)}</h1>`,
           `<p>${esc(seo.description)}</p>`,
         ].join('\n                '),
-        alternates: {
-          en: `${ORIGIN}/en/blog/${pair.en}`,
-          uk: `${ORIGIN}/ua/blog/${pair.ua}`,
-        },
+        alternates: resolveBlogAlternates(ORIGIN, lang, slug),
       });
     }
 
@@ -260,7 +268,7 @@ function replaceOnce(html: string, pattern: RegExp, replacement: string, what: s
   return html.replace(pattern, () => replacement);
 }
 
-function renderPage(template: string, route: PrerenderRoute): string {
+export function renderPage(template: string, route: PrerenderRoute): string {
   const url = ORIGIN + route.path;
   const htmlLang = route.lang === 'ua' ? 'uk' : 'en';
   const ogLocale = route.lang === 'ua' ? 'uk_UA' : 'en_US';
@@ -312,9 +320,11 @@ function renderPage(template: string, route: PrerenderRoute): string {
 
   const headLinks = [
     `<link rel="canonical" href="${url}" />`,
-    `<link rel="alternate" hreflang="en" href="${route.alternates.en}" />`,
-    `<link rel="alternate" hreflang="uk" href="${route.alternates.uk}" />`,
-    `<link rel="alternate" hreflang="x-default" href="${route.alternates.uk}" />`,
+    ...(route.alternates ? [
+      `<link rel="alternate" hreflang="en" href="${route.alternates.en}" />`,
+      `<link rel="alternate" hreflang="uk" href="${route.alternates.uk}" />`,
+      `<link rel="alternate" hreflang="x-default" href="${route.alternates.uk}" />`,
+    ] : []),
   ].join('\n    ');
   html = replaceOnce(html, /<\/head>/, `    ${headLinks}\n</head>`, 'head close', route.path);
 
@@ -327,6 +337,18 @@ function renderPage(template: string, route: PrerenderRoute): string {
   );
 
   return html;
+}
+
+/** Unlisted routes keep the SPA entrypoint, but never inherit homepage search markup. */
+export function renderUnlistedShell(template: string, heroHtml: string, title = 'WishList App'): string {
+  return template
+    .replace(/<meta name="robots"[^>]*>/, '<meta name="robots" content="noindex,follow" />')
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '')
+    .replace(/<noscript>[\s\S]*?<\/noscript>/g, '')
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`)
+    .replace(/<meta property="og:url"[^>]*>/, '')
+    .replace(/<meta (?:name="(?:description|twitter:title|twitter:description)"|property="(?:og:title|og:description)")[^>]*>/g, '')
+    .replace(/<!-- prerender:hero -->[\s\S]*?<!-- \/prerender:hero -->/, heroHtml);
 }
 
 export function prerender(): Plugin {
@@ -349,6 +371,11 @@ export function prerender(): Plugin {
         mkdirSync(dirname(outFile), { recursive: true });
         writeFileSync(outFile, renderPage(template, route));
       }
+      writeFileSync(join(distDir, 'personal-wishlist.html'), renderUnlistedShell(template, '<h1 class="shell-h1">WishList App</h1>'));
+      const notFound = JSON.parse(readFileSync(join(root, 'src/locales/ua/home.json'), 'utf8')).notFound;
+      writeFileSync(join(distDir, '404.html'), renderUnlistedShell(template,
+        `<h1 class="shell-h1">${esc(notFound.h1)}</h1><p>${esc(notFound.body)}</p><a href="/ua">${esc(notFound.backHome)}</a>`,
+        notFound.title));
       this.info(`prerendered ${routes.length} routes into ${outDir}/`);
     },
   };

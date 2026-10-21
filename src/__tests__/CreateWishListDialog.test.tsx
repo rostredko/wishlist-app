@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { customRender as render, screen } from '../test/render';
 import userEvent from '@testing-library/user-event';
 import '../../src/i18n';
@@ -7,9 +7,11 @@ import { CreateWishListDialog } from '@components/CreateWishListDialog';
 
 const createWishlist = vi.fn();
 const navigate = vi.fn();
+const copyWishlist = vi.fn();
 
 vi.mock('@api/wishListService', () => ({
   createWishlist: (...args: unknown[]) => createWishlist(...args),
+  copyWishlist: (...args: unknown[]) => copyWishlist(...args),
 }));
 
 vi.mock('react-router-dom', async (orig) => {
@@ -23,6 +25,7 @@ vi.mock('react-router-dom', async (orig) => {
 describe('CreateWishListDialog (skeleton behavior)', () => {
   beforeEach(() => {
     createWishlist.mockReset();
+    copyWishlist.mockReset();
     navigate.mockReset();
   });
 
@@ -108,7 +111,21 @@ describe('CreateWishListDialog (skeleton behavior)', () => {
       expect(screen.getByRole('button', { name: /cancel/i })).toBeEnabled();
       expect(onClose).not.toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalled();
+      expect(screen.getByRole('alert')).toHaveTextContent(/could not create/i);
+      expect(input).toHaveValue('Y');
     });
+  });
+
+  it('reviews the example title and copies resolved gifts only on explicit confirmation', async () => {
+    const items = [{ id: 'template', name: 'Book', claimed: true, priceMinor: 2500, currency: 'USD' as const }];
+    copyWishlist.mockResolvedValueOnce('copy-id');
+    render(<CreateWishListDialog open user={{ uid: 'u1' }} onClose={vi.fn()} initialTitle="My birthday" copyItems={items} source="demo" />);
+    expect(screen.getByRole('textbox', { name: /wishlist name/i })).toHaveValue('My birthday');
+    expect(copyWishlist).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: /^create$/i }));
+    await vi.waitFor(() => expect(copyWishlist).toHaveBeenCalledWith('My birthday', 'u1', items, 'demo_copy'));
+    expect(createWishlist).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(expect.stringMatching(/\/wishlist\/copy-id$/));
   });
 
   it('Cancel calls safeClose (clears input and fires onClose)', async () => {

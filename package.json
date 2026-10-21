@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "emulators": "node scripts/firebase-emulators.mjs start",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:rules": "node scripts/firebase-emulators.mjs test"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

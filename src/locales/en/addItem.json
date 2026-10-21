@@ -9,5 +9,17 @@
   "linkError": "Enter a valid URL (e.g. https://example.com/item)",
   "cancel": "Cancel",
   "save": "Save",
-  "add": "Add"
+  "add": "Add",
+  "labelPrice": "Price (optional)",
+  "labelCurrency": "Currency",
+  "priceHelper": "An indicative price to help gift givers plan their budget. Store prices may change.",
+  "priceError": "Enter a price from 0 to 1,000,000 with up to 2 decimal places.",
+  "saving": "Saving...",
+  "saveError": "Could not save the gift. Your details are still here - please try again.",
+  "currencies": {
+    "UAH": "UAH",
+    "USD": "USD",
+    "EUR": "EUR",
+    "GBP": "GBP"
+  }
 }

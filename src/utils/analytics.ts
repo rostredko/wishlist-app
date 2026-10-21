@@ -1,6 +1,9 @@
-/**
- * Google Analytics 4 utility functions with retry mechanism and event queue
- */
+import { BLOG_SLUG_PAIRS } from '@constants/blogArticles';
+import { isDemoWishlistId } from '@constants/exampleWishlists';
+import enHome from '../locales/en/home.json';
+import uaHome from '../locales/ua/home.json';
+import enBlog from '../locales/en/blog.json';
+import uaBlog from '../locales/ua/blog.json';
 
 declare global {
   interface Window {
@@ -9,205 +12,117 @@ declare global {
   }
 }
 
-type EventParams = {
-  event_category?: string;
-  event_label?: string;
-  [key: string]: unknown;
+type EventParams = Record<string, unknown>;
+type AnalyticsPage = { page_path: string; page_title: string; page_type: string; language: 'en' | 'ua' };
+const queue: Array<{ name: string; params: EventParams }> = [];
+const MAX_QUEUED_EVENTS = 100;
+let previousPageLocation = '';
+let currentPageReferrer: string | undefined;
+
+const categories: Record<string, readonly string[]> = {
+  event_category: ['engagement'],
+  viewer_role: ['owner', 'admin', 'guest'],
+  creation_method: ['manual', 'demo_copy', 'shared_copy'],
+  source: ['home', 'guest_list', 'demo', 'blog'],
+  method: ['native', 'clipboard', 'manual'],
+  operation: ['create', 'copy', 'load', 'load_items', 'add_item', 'edit_item', 'reserve', 'share', 'delete', 'title'],
+  error_category: ['persistence', 'unavailable', 'permission', 'unknown'],
+  currency: ['UAH', 'USD', 'EUR', 'GBP'],
 };
 
-type QueuedEvent = {
-  type: 'event' | 'pageview';
-  eventName?: string;
-  params?: EventParams;
-  path?: string;
-  title?: string;
-};
-
-// Queue for events that occur before GA is initialized
-const eventQueue: QueuedEvent[] = [];
-
-// Maximum wait time for gtag to become available (5 seconds)
-const GTAG_WAIT_TIMEOUT = 5000;
-// Check interval for gtag availability (50ms)
-const GTAG_CHECK_INTERVAL = 50;
-
-/**
- * Checks if gtag is available and initialized
- */
-function isGtagReady(): boolean {
-  return typeof window !== 'undefined' &&
-    typeof window.gtag === 'function' &&
-    Array.isArray(window.dataLayer);
+export function getAnalyticsPage(path: string): AnalyticsPage {
+  const pathname = path.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  const segments = pathname.split('/').filter(Boolean);
+  const language: 'en' | 'ua' = segments[0] === 'en' ? 'en' : 'ua';
+  const base = `/${language}`;
+  const defaults = { language, page_path: `${base}/not-found`, page_title: 'Page not found - WishList App', page_type: 'not_found' };
+  if (pathname === '/' || pathname === base) {
+    return { ...defaults, page_path: base, page_title: language === 'ua' ? uaHome.title : enHome.title, page_type: 'home' };
+  }
+  if (!['en', 'ua'].includes(segments[0])) return defaults;
+  if (segments[1] === 'privacy' && segments.length === 2) {
+    return { ...defaults, page_path: `${base}/privacy`, page_title: 'Privacy - WishList App', page_type: 'privacy' };
+  }
+  if (['wishlist', 'wishlists'].includes(segments[1]) && segments.length === 3) {
+    const demo = isDemoWishlistId(segments[2]);
+    return { ...defaults, page_path: `${base}/wishlist/${demo ? segments[2] : 'personal'}`,
+      page_title: demo ? 'Wishlist example - WishList App' : 'Wishlist - WishList App', page_type: demo ? 'demo' : 'wishlist' };
+  }
+  if (segments[1] === 'blog') {
+    const blog = language === 'ua' ? uaBlog : enBlog;
+    if (segments.length === 2) return { ...defaults, page_path: `${base}/blog`, page_title: blog.hub.title, page_type: 'blog' };
+    const pair = BLOG_SLUG_PAIRS.find(pair => pair[language] === segments[2]);
+    const card = pair ? blog.cards[pair.en] : undefined;
+    if (segments.length === 3 && card) return { ...defaults, page_path: pathname, page_title: `${card.title} - WishList App`, page_type: 'article' };
+  }
+  return defaults;
 }
 
-/**
- * Waits for gtag to become available with timeout
- */
-function waitForGtag(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (isGtagReady()) {
-      resolve();
+function safeReferrer(): string {
+  if (previousPageLocation) return previousPageLocation;
+  try {
+    const referrer = new URL(document.referrer);
+    return referrer.origin === window.location.origin
+      ? `${referrer.origin}${getAnalyticsPage(referrer.pathname).page_path}` : referrer.origin;
+  } catch {
+    return '';
+  }
+}
+
+function pageParams(path: string, referrer = safeReferrer()): EventParams {
+  const page = getAnalyticsPage(path);
+  return { ...page, page_location: `${window.location.origin}${page.page_path}`, page_referrer: referrer };
+}
+
+function boundedParams(params: EventParams): EventParams {
+  const safe: EventParams = {};
+  for (const key of ['has_link', 'has_price', 'is_demo']) {
+    if (typeof params[key] === 'boolean') safe[key] = params[key];
+  }
+  for (const [key, allowed] of Object.entries(categories)) {
+    if (typeof params[key] === 'string' && allowed.includes(params[key] as string)) safe[key] = params[key];
+  }
+  return safe;
+}
+
+function sendOrQueue(name: string, params: EventParams): void {
+  try {
+    if (typeof window.gtag === 'function' && Array.isArray(window.dataLayer)) {
+      window.gtag('event', name, params);
       return;
     }
-
-    const startTime = Date.now();
-    const checkInterval = setInterval(() => {
-      if (isGtagReady()) {
-        clearInterval(checkInterval);
-        resolve();
-        return;
-      }
-
-      // Timeout after GTAG_WAIT_TIMEOUT
-      if (Date.now() - startTime >= GTAG_WAIT_TIMEOUT) {
-        clearInterval(checkInterval);
-        reject(new Error('gtag initialization timeout'));
-      }
-    }, GTAG_CHECK_INTERVAL);
-  });
-}
-
-/**
- * Processes queued events after GA initialization
- */
-async function processQueue(): Promise<void> {
-  if (eventQueue.length === 0) return;
-
-  try {
-    await waitForGtag();
   } catch {
-    // If gtag is not available, events will remain in queue
-    // They can be processed later when gtag becomes available
-    return;
+    // Analytics must never block product actions, even with a broken tag implementation.
   }
-
-  const events = [...eventQueue];
-  eventQueue.length = 0; // Clear queue
-
-  for (const queued of events) {
-    try {
-      if (queued.type === 'event' && queued.eventName && window.gtag) {
-        window.gtag('event', queued.eventName, queued.params || {});
-      } else if (queued.type === 'pageview' && window.gtag) {
-        window.gtag('event', 'page_view', {
-          page_path: queued.path,
-          page_title: queued.title,
-        });
-      }
-    } catch (error) {
-      console.error('Error processing queued analytics event:', error);
-    }
-  }
+  if (queue.length < MAX_QUEUED_EVENTS) queue.push({ name, params });
 }
 
-/**
- * Tracks a custom event in Google Analytics 4
- * Automatically queues events if GA is not yet initialized
- */
-export async function trackEvent(
-  eventName: string,
-  params: EventParams = {}
-): Promise<void> {
-  try {
-    // Try to wait for gtag (non-blocking if it takes too long)
-    const gtagReady = isGtagReady();
-
-    if (gtagReady && window.gtag) {
-      try {
-        window.gtag('event', eventName, params);
-        return;
-      } catch (error) {
-        console.error(`Error sending analytics event ${eventName}:`, error);
-        // Fall through to queue the event
-      }
-    }
-
-    // Queue event if gtag is not ready or if sending failed
-    eventQueue.push({
-      type: 'event',
-      eventName,
-      params,
-    });
-
-    // Try to process queue in background (non-blocking)
-    processQueue().catch(() => {
-      // Queue will be processed when gtag becomes available
-    });
-  } catch (error) {
-    console.error(`Error in trackEvent for ${eventName}:`, error);
-  }
+export async function trackEvent(eventName: string, params: EventParams = {}): Promise<void> {
+  if (typeof window === 'undefined') return;
+  sendOrQueue(eventName, { ...boundedParams(params), ...pageParams(window.location.pathname, currentPageReferrer) });
 }
 
-/**
- * Tracks a page view in Google Analytics 4
- * Automatically queues page views if GA is not yet initialized
- */
-export async function trackPageView(
-  path: string,
-  title?: string
-): Promise<void> {
-  try {
-    const pageTitle = title || (typeof document !== 'undefined' ? document.title : '');
-
-    // Try to wait for gtag (non-blocking if it takes too long)
-    const gtagReady = isGtagReady();
-
-    if (gtagReady && window.gtag) {
-      try {
-        window.gtag('event', 'page_view', {
-          page_path: path,
-          page_title: pageTitle,
-        });
-        return;
-      } catch (error) {
-        console.error('Error sending analytics page_view:', error);
-        // Fall through to queue the event
-      }
-    }
-
-    // Queue page view if gtag is not ready or if sending failed
-    eventQueue.push({
-      type: 'pageview',
-      path,
-      title: pageTitle,
-    });
-
-    // Try to process queue in background (non-blocking)
-    processQueue().catch(() => {
-      // Queue will be processed when gtag becomes available
-    });
-  } catch (error) {
-    console.error('Error in trackPageView:', error);
-  }
+export async function trackPageView(path: string): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const params = pageParams(path);
+  sendOrQueue('page_view', params);
+  previousPageLocation = params.page_location as string;
+  currentPageReferrer = params.page_referrer as string;
 }
 
-/**
- * Manually trigger queue processing (useful for retry scenarios)
- */
 export async function flushEventQueue(): Promise<void> {
-  await processQueue();
-}
-
-// Initialize queue processing when DOM is ready
-if (typeof window !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      processQueue().catch(() => {
-        // Will retry when gtag is available
-      });
-    });
-  } else {
-    // DOM already ready
-    processQueue().catch(() => {
-      // Will retry when gtag is available
-    });
+  if (typeof window === 'undefined' || typeof window.gtag !== 'function' || !Array.isArray(window.dataLayer)) return;
+  while (queue.length) {
+    const event = queue[0];
+    try {
+      window.gtag('event', event.name, event.params);
+      queue.shift();
+    } catch {
+      return;
+    }
   }
-
-  // Also try processing when window loads
-  window.addEventListener('load', () => {
-    processQueue().catch(() => {
-      // Will retry when gtag is available
-    });
-  });
 }
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => { void flushEventQueue(); });
+}

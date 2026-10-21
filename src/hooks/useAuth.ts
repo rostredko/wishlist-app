@@ -1,18 +1,46 @@
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import {useEffect, useState} from 'react';
+import {onIdTokenChanged, type User} from 'firebase/auth';
 
-import { auth } from '@lib/auth-client';
+import {auth} from '@lib/auth-client';
 
-const ADMIN_UID = import.meta.env.VITE_ADMIN_UID;
+type AuthState = {user: User | null; isAdmin: boolean; loading: boolean};
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [state, setState] = useState<AuthState>({user: null, isAdmin: false, loading: true});
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return unsubscribe;
+    let active = true;
+    let generation = 0;
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
+      const currentGeneration = ++generation;
+      if (!active) return;
+      if (!user) {
+        setState({user: null, isAdmin: false, loading: false});
+        return;
+      }
+
+      setState({user, isAdmin: false, loading: true});
+      let isAdmin = false;
+      try {
+        const token = await user.getIdTokenResult();
+        isAdmin = token.claims.isAdmin === true;
+      } catch {
+        // A token lookup failure must not discard a valid signed-in identity.
+      }
+      if (active && currentGeneration === generation) {
+        setState({user, isAdmin, loading: false});
+      }
+    }, () => {
+      generation += 1;
+      if (active) setState({user: null, isAdmin: false, loading: false});
+    });
+
+    return () => {
+      active = false;
+      generation += 1;
+      unsubscribe();
+    };
   }, []);
 
-  const isAdmin = user?.uid === ADMIN_UID;
-  return { user, isAdmin };
+  return state;
 };

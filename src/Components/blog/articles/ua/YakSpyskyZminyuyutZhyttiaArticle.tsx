@@ -24,7 +24,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
         structured={{
           article: {
             headline: 'Чому я веду списки з дитинства - і як вони справді змінюють життя',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           breadcrumbs: [
@@ -298,7 +298,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 - хороший старт.
               </Typography>
               <Box sx={{ mt: 2 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>

@@ -24,7 +24,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/en/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'en', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'en', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
         structured={{
           article: {
             headline: "Why I've Been Making Lists My Whole Life - and How They Actually Work",
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           breadcrumbs: [
@@ -305,7 +305,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 is a good starting point.
               </Typography>
               <Box sx={{ mt: 2 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>
@@ -324,7 +324,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 <RouterLink to={`/${routeLang}/blog/best-wishlist-apps-2026`}>
                   best wishlist apps in 2026
                 </RouterLink>{' '}
-                has everything I have tested.
+                compares options using public product information.
               </Typography>
             </section>
           </Stack>

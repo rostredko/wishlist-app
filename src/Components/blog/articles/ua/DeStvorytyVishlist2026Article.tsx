@@ -24,21 +24,21 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
       <SEOHead
         lang="uk"
         title="Де створити вішліст у 2026 - найкращі варіанти | WishList App"
-        description="Я розробив WishList App і протестував усі основні варіанти. Чесний огляд де створити вішліст у 2026: швидкість, зручність для гостей, бронювання."
+        description="Чекліст вибору вішліста у 2026: коли потрібен сервіс, Google Docs чи чат. Мова, вхід, бронювання та магазини - критерії перед створенням списку."
         canonical={canonicalUrl}
         alternates={alternates}
         keywords="де створити вішліст, зробити вішліст онлайн, список бажань онлайн, вішліст безкоштовно, де зробити список бажань"
         structured={{
           article: {
             headline: 'Де створити вішліст у 2026 - мій погляд як автора',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           faq: [
@@ -65,9 +65,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
             Де створити вішліст у 2026 - мій погляд як автора
           </Typography>
           <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            Я веду WishList App і пишу це від першої особи. Я оцінював кілька варіантів - включно зі своїм -
-            і хочу показати критерії, за якими я дивлюся на будь-який сервіс для списків бажань. Ніяких
-            affiliate-посилань, тільки те, що я помітив під час реального використання.
+            {tb('research.checked')} {tb('selectionPurpose')}
           </Typography>
 
           <Stack spacing={4}>
@@ -128,7 +126,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
                       <TableCell sx={{ fontWeight: 700 }}>Варіант</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Будь-які магазини</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Гості без акаунту</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Бронювання без дублів</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Бронювання подарунків</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Безкоштовно</TableCell>
                     </TableRow>
                   </TableHead>
@@ -140,13 +138,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
                       <TableCell>Так, анонімно</TableCell>
                       <TableCell>Так, без реклами</TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell>Маркетплейс (Rozetka / Prom)</TableCell>
-                      <TableCell>Лише один сайт</TableCell>
-                      <TableCell>Так</TableCell>
-                      <TableCell>Частково</TableCell>
-                      <TableCell>Так</TableCell>
-                    </TableRow>
+
                     <TableRow>
                       <TableCell>Google Docs / Sheets</TableCell>
                       <TableCell>Вручну</TableCell>
@@ -171,14 +163,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
                 Детальніше про кожен варіант
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
-                Маркетплейс (Rozetka, Prom, Epicentr)
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                Зручні, якщо всі покупки - з одного сайту. Але як тільки хочеш додати щось з іншого місця -
-                наприклад, книгу з невеликого видавництва або річ з Instagram-магазину - система ламається.
-                Доводиться або обмежувати себе, або вести паралельний список десь в іншому місці.
-              </Typography>
+
 
               <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Google Docs / Sheets
@@ -204,8 +189,8 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
                 Я зробив цей сервіс, тому не можу бути повністю нейтральним. Але ось що я намагався
-                вирішити: один лінк, будь-які магазини, гості без реєстрації, анонімне бронювання без
-                дублів. Це не повноцінна платформа реєстрів - це мінімалістичний інструмент для одного
+                вирішити: один лінк, будь-які магазини, гості без реєстрації, анонімне бронювання, яке допомагає уникати
+                однакових подарунків. Це не повноцінна платформа реєстрів - це мінімалістичний інструмент для одного
                 завдання. Якщо вам потрібно більше, поєднуйте.
               </Typography>
             </section>
@@ -250,7 +235,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
 
             <section>
               <Box sx={{ mt: 2 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>

@@ -14,23 +14,27 @@ import {
   Timestamp,
   updateDoc,
   where,
+  runTransaction,
+  writeBatch,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { DEMO_WISHLISTS } from '@constants/exampleWishlists';
 import type { WishList } from '@models/WishList';
-import type { WishListItem } from '@models/WishListItem';
+import { isValidMoney } from '@utils/money';
+import type { GiftValues, WishListItem } from '@models/WishListItem';
 
 type FirestoreWishListData = {
   title?: string;
   ownerUid?: string;
+  creationMethod?: WishList['creationMethod'];
   bannerImage?: string;
   isHidden?: boolean;
   createdAt?: Timestamp;
 };
 
-type FirestoreWishListItemData = {
+type FirestoreWishListItemData = Pick<WishListItem, 'priceMinor' | 'currency'> & {
   name: string;
   description?: string;
   link?: string;
@@ -42,6 +46,7 @@ export async function createWishlist(title: string, ownerUid: string): Promise<s
   const docRef = await addDoc(collection(db, 'wishlists'), {
     title,
     ownerUid,
+    creationMethod: 'manual',
     bannerImage: '',
     isHidden: false,
     createdAt: serverTimestamp(),
@@ -71,6 +76,7 @@ export async function getWishlistById(wishlistId: string): Promise<WishList | nu
     id: snap.id,
     title: data.title ?? '',
     ownerUid: data.ownerUid ?? '',
+    creationMethod: data.creationMethod,
     bannerImage: data.bannerImage ?? '',
     isHidden: !!data.isHidden,
     createdAt: data.createdAt,
@@ -83,7 +89,8 @@ export async function updateWishlistTitle(wishlistId: string, newTitle: string):
 
 export function subscribeMyWishlists(
   ownerUid: string,
-  cb: (lists: WishList[]) => void
+  cb: (lists: WishList[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const q = query(
     collection(db, 'wishlists'),
@@ -97,20 +104,22 @@ export function subscribeMyWishlists(
         id: docSnap.id,
         title: data.title ?? '',
         ownerUid: data.ownerUid ?? '',
+        creationMethod: data.creationMethod,
         bannerImage: data.bannerImage ?? '',
         isHidden: !!data.isHidden,
         createdAt: data.createdAt,
       } as WishList;
     });
     cb(lists);
-  });
+  }, onError);
 }
 
 export async function addGiftItem(
   wishlistId: string,
-  item: { name: string; description?: string; link?: string }
+  item: GiftValues
 ): Promise<void> {
   await addDoc(collection(db, 'wishlists', wishlistId, 'items'), {
+    ...normalizeMoney(item),
     name: item.name.trim(),
     description: item.description?.trim() || '',
     link: item.link?.trim() || '',
@@ -134,15 +143,14 @@ export async function deleteWishlistDeep(wishlistId: string): Promise<void> {
     await Promise.all(itemsSnap.docs.map((d) => deleteDoc(d.ref)));
   }
 
-  await deleteDoc(wlRef);
-
   if (bannerUrl && bannerUrl.includes('firebasestorage.googleapis.com')) {
     try {
       await deleteObject(ref(storage, bannerUrl));
     } catch {
-      // Invalid URL, wrong bucket, or object already removed
+      // Legacy flat banners are read-only; inaccessible or missing objects are retained.
     }
   }
+  await deleteDoc(wlRef);
 }
 
 export async function toggleGiftClaimStatus(
@@ -150,14 +158,18 @@ export async function toggleGiftClaimStatus(
   itemId: string,
   currentStatus: boolean
 ): Promise<void> {
-  await updateDoc(doc(db, 'wishlists', wishlistId, 'items', itemId), {
-    claimed: !currentStatus,
+  const itemRef = doc(db, 'wishlists', wishlistId, 'items', itemId);
+  await runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(itemRef);
+    if (!snapshot.exists() || snapshot.data().claimed !== currentStatus) throw new Error('Reservation changed');
+    transaction.update(itemRef, { claimed: !currentStatus });
   });
 }
 
 export function subscribeWishlistItems(
   wishlistId: string,
-  cb: (items: WishListItem[]) => void
+  cb: (items: WishListItem[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const colRef = collection(db, 'wishlists', wishlistId, 'items');
   const itemsQuery = query(colRef, orderBy('createdAt', 'asc'));
@@ -167,12 +179,12 @@ export function subscribeWishlistItems(
       return { id: docSnap.id, ...data };
     });
     cb(items);
-  });
+  }, onError);
 }
 
 export async function uploadWishlistBanner(wishlistId: string, file: File): Promise<string> {
-  const fileName = `${wishlistId}-${Date.now()}-${file.name}`;
-  const storageRef = ref(storage, `banners/${fileName}`);
+  const fileName = `${Date.now()}-${crypto.randomUUID()}`;
+  const storageRef = ref(storage, `banners/${wishlistId}/${fileName}`);
   await uploadBytes(storageRef, file, {
     contentType: file.type,
     cacheControl: 'public,max-age=31536000,immutable',
@@ -185,12 +197,39 @@ export async function uploadWishlistBanner(wishlistId: string, file: File): Prom
 export async function updateGiftItem(
   wishlistId: string,
   itemId: string,
-  patch: { name?: string; description?: string; link?: string }
+  patch: Partial<GiftValues>
 ): Promise<void> {
   const normalized = {
+    ...normalizeMoney(patch),
     ...(patch.name !== undefined ? { name: patch.name.trim() } : {}),
-    ...(patch.description !== undefined ? { description: patch.description.trim() } : {}),
-    ...(patch.link !== undefined ? { link: patch.link.trim() } : {}),
+    ...(patch.description !== undefined ? { description: patch.description?.trim() ?? '' } : {}),
+    ...(patch.link !== undefined ? { link: patch.link?.trim() ?? '' } : {}),
   };
   await updateDoc(doc(db, 'wishlists', wishlistId, 'items', itemId), normalized);
+}
+
+function normalizeMoney(values: Pick<WishListItem, 'priceMinor' | 'currency'>) {
+  if (values.priceMinor === undefined && values.currency === undefined) return {};
+  if (values.priceMinor === null && values.currency === null) return { priceMinor: null, currency: null };
+  if (!isValidMoney(values.priceMinor, values.currency)) throw new Error('Invalid gift price');
+  return { priceMinor: values.priceMinor, currency: values.currency };
+}
+
+export async function copyWishlist(
+  title: string,
+  ownerUid: string,
+  items: WishListItem[],
+  creationMethod: 'demo_copy' | 'shared_copy' = 'demo_copy'
+): Promise<string> {
+  if (items.length > 499) throw new Error('Wishlist exceeds atomic copy limit');
+  const resolved = items.map(item => ({
+    name: item.name.trim(), description: item.description?.trim() || '', link: item.link?.trim() || '',
+    ...normalizeMoney(item), claimed: false, createdAt: serverTimestamp(),
+  }));
+  const listRef = doc(collection(db, 'wishlists'));
+  const batch = writeBatch(db);
+  batch.set(listRef, { title: title.trim(), ownerUid, creationMethod, bannerImage: '', isHidden: false, createdAt: serverTimestamp() });
+  for (const item of resolved) batch.set(doc(collection(db, 'wishlists', listRef.id, 'items')), item);
+  await batch.commit();
+  return listRef.id;
 }

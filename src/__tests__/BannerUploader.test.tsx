@@ -6,10 +6,10 @@ import BannerUploader from '@components/BannerUploader';
 vi.mock('react-i18next', async (orig) => {
   const actual = await (orig() as Promise<unknown>);
   const tMap: Record<string, string> = {
-    bannerUploadTooltip: 'Upload banner',
-    bannerUploadAria: 'Upload banner',
+    bannerUploadTooltip: 'A decorative banner for looks. It appears in the wishlist header.',
+    bannerUploadAria: 'Upload wishlist banner image',
     bannerUploading: 'Uploading…',
-    bannerUpload: 'Upload',
+    bannerUpload: 'Upload wishlist banner image',
     bannerErrorNotImage: 'Please select an image file.',
     bannerErrorTooLarge: 'Image is too large. Max 10MB.',
     bannerErrorFailed: 'Failed to upload banner. Please try again.',
@@ -67,7 +67,18 @@ describe('BannerUploader (skeleton behavior)', () => {
       }} />
     );
     expect(container).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /upload banner/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /upload wishlist banner image/i })).not.toBeInTheDocument();
+  });
+
+  it('explains on hover that the banner is decorative and shown in the header', async () => {
+    render(<BannerUploader wishlistId="wl-1" canEdit />);
+
+    const button = screen.getByRole('button', { name: /upload wishlist banner image/i });
+    await userEvent.hover(button.parentElement ?? button);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'A decorative banner for looks. It appears in the wishlist header.'
+    );
   });
 
   it('happy path: uploads image, shows loader, calls onUpload', async () => {
@@ -76,7 +87,7 @@ describe('BannerUploader (skeleton behavior)', () => {
       <BannerUploader wishlistId="wl-1" canEdit onUpload={onUpload} />
     );
 
-    const button = screen.getByRole('button', { name: /upload banner/i });
+    const button = screen.getByRole('button', { name: /upload wishlist banner image/i });
 
     let resolve!: (v: string) => void;
     const url = 'https://cdn.example/banner.jpg';
@@ -152,7 +163,7 @@ describe('BannerUploader (skeleton behavior)', () => {
       expect(window.alert).toHaveBeenCalledWith(
         'Failed to upload banner. Please try again.'
       );
-      expect(screen.getByRole('button', { name: /upload banner/i })).toBeEnabled();
+      expect(screen.getByRole('button', { name: /upload wishlist banner image/i })).toBeEnabled();
     });
 
     expect(onUpload).not.toHaveBeenCalled();

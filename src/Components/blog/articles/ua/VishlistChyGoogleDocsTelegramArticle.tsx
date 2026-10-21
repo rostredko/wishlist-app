@@ -24,7 +24,7 @@ export default function VishlistChyGoogleDocsTelegramArticle({ origin, routeLang
   const { t: th } = useTranslation('home', { lng: routeLang });
   const { t: tb } = useTranslation('blog', { lng: routeLang });
   const canonicalUrl = `${origin}/ua/blog/${SLUG}`;
-  const alternates = resolveBlogAlternates(origin, 'ua', SLUG)!;
+  const alternates = resolveBlogAlternates(origin, 'ua', SLUG);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default function VishlistChyGoogleDocsTelegramArticle({ origin, routeLang
         structured={{
           article: {
             headline: 'Вішліст чи Google Docs / Telegram - що обрати для списку подарунків',
-            datePublished: BLOG_LAST_UPDATED,
+            datePublished: '2026-04-15',
             dateModified: BLOG_LAST_UPDATED,
           },
           faq: [
@@ -246,7 +246,7 @@ export default function VishlistChyGoogleDocsTelegramArticle({ origin, routeLang
                 </Table>
               </TableContainer>
               <Box sx={{ mt: 3 }}>
-                <Button component={RouterLink} to={`/${routeLang}`} variant="contained" size="large">
+                <Button component={RouterLink} to={`/${routeLang}`} state={{ creationSource: 'blog' }} variant="contained" size="large">
                   {th('createBtn')}
                 </Button>
               </Box>

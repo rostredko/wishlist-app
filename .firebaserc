@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "wishlist-app-51cf7"
+    "default": "demo-wishlist-local",
+    "production": "wishlist-app-51cf7"
   }
 }

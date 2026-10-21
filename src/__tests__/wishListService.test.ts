@@ -1,5 +1,7 @@
+import { DEMO_ITEMS } from '@constants/exampleWishlists';
 import {
   createWishlist,
+  copyWishlist,
   getWishlistById,
   updateWishlistTitle,
   subscribeMyWishlists,
@@ -19,6 +21,8 @@ import {
   getDocs,
   onSnapshot,
   updateDoc,
+  runTransaction,
+  writeBatch,
 } from 'firebase/firestore';
 import { uploadBytes, getDownloadURL, deleteObject, ref } from 'firebase/storage';
 import { vi, type Mock } from 'vitest';
@@ -33,6 +37,8 @@ vi.mock('firebase/firestore', async () => {
     getDocs: vi.fn(),
     onSnapshot: vi.fn(),
     updateDoc: vi.fn(),
+    runTransaction: vi.fn(),
+    writeBatch: vi.fn(),
     collection: vi.fn(() => ({ _col: true })),
     doc: vi.fn(() => ({ _doc: true })),
     query: vi.fn(() => ({ _query: true })),
@@ -60,7 +66,7 @@ describe('wishListService', () => {
   it('createWishlist calls addDoc and returns id', async () => {
     (addDoc as Mock).mockResolvedValue({ id: 'abc123' });
     const id = await createWishlist('Test title', 'user1');
-    expect(addDoc).toHaveBeenCalled();
+    expect(addDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ creationMethod: 'manual' }));
     expect(id).toBe('abc123');
   });
 
@@ -83,6 +89,19 @@ describe('wishListService', () => {
   it('updateWishlistTitle calls updateDoc', async () => {
     await updateWishlistTitle('id3', 'new title');
     expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), { title: 'new title' });
+  });
+
+  it('reads legacy customer records without backfilling or modifying stored data', async () => {
+    const legacy = { title: 'Old list', ownerUid: 'owner', bannerImage: 'old-banner', isHidden: false };
+    (getDoc as Mock).mockResolvedValue({ exists: () => true, id: 'legacy', data: () => legacy });
+    const result = await getWishlistById('legacy');
+    expect(result).toMatchObject({ id: 'legacy', ...legacy, creationMethod: undefined });
+    expect(addDoc).not.toHaveBeenCalled();
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(deleteDoc).not.toHaveBeenCalled();
+    expect(writeBatch).not.toHaveBeenCalled();
+    expect(uploadBytes).not.toHaveBeenCalled();
+    expect(deleteObject).not.toHaveBeenCalled();
   });
 
   it('subscribeMyWishlists calls onSnapshot and cb', () => {
@@ -155,6 +174,7 @@ describe('wishListService', () => {
   });
 
   it('toggleGiftClaimStatus flips claimed', async () => {
+    (runTransaction as Mock).mockImplementation((_db, action) => action({ get: async () => ({ exists: () => true, data: () => ({ claimed: false }) }), update: updateDoc }));
     await toggleGiftClaimStatus('w1', 'i1', false);
     expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), { claimed: true });
   });
@@ -194,6 +214,49 @@ describe('wishListService', () => {
       description: 'd',
       link: 'l',
     });
+  });
+
+  it('preserves optional price and clears both fields explicitly', async () => {
+    await addGiftItem('w1', { name: 'Pen', priceMinor: 0, currency: 'GBP' });
+    expect(addDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ priceMinor: 0, currency: 'GBP' }));
+    await updateGiftItem('w1', 'i1', { priceMinor: null, currency: null });
+    expect(updateDoc).toHaveBeenCalledWith(expect.anything(), { priceMinor: null, currency: null });
+    await expect(addGiftItem('w1', { name: 'Pen', priceMinor: -1, currency: 'USD' })).rejects.toThrow();
+  });
+  it('copies resolved items atomically and resets claims', async () => {
+    const set = vi.fn(); const commit = vi.fn().mockResolvedValue(undefined);
+    (writeBatch as Mock).mockReturnValue({ set, commit });
+    await copyWishlist('Copy', 'owner', [{ id: 'fallback', name: 'Pen', claimed: true, priceMinor: 123, currency: 'EUR' }]);
+    expect(set).toHaveBeenCalledTimes(2);
+    expect(set).toHaveBeenNthCalledWith(1, expect.anything(), expect.objectContaining({ creationMethod: 'demo_copy' }));
+    expect(set).toHaveBeenLastCalledWith(expect.anything(), expect.objectContaining({ name: 'Pen', claimed: false, priceMinor: 123, currency: 'EUR' }));
+    expect(commit).toHaveBeenCalledOnce();
+    commit.mockRejectedValueOnce(new Error('denied'));
+    await expect(copyWishlist('Copy', 'owner', [])).rejects.toThrow('denied');
+  });
+  it('classifies an explicit shared-list copy while retaining money and clearing reservations', async () => {
+    const set = vi.fn(); const commit = vi.fn().mockResolvedValue(undefined);
+    (writeBatch as Mock).mockReturnValue({ set, commit });
+    await copyWishlist('Shared copy', 'owner', [{ id: 'gift', name: 'Gift', claimed: true, priceMinor: 500, currency: 'USD' }], 'shared_copy');
+    expect(set).toHaveBeenNthCalledWith(1, expect.anything(), expect.objectContaining({ creationMethod: 'shared_copy' }));
+    expect(set).toHaveBeenNthCalledWith(2, expect.anything(), expect.objectContaining({ claimed: false, priceMinor: 500, currency: 'USD' }));
+    expect(commit).toHaveBeenCalledOnce();
+  });
+  it.each(['christmas-list', 'christmas-list-ua', 'secret-santa-list', 'secret-santa-list-ua'])('copies indicative demo money for %s', async demoId => {
+    const set = vi.fn(); const commit = vi.fn().mockResolvedValue(undefined);
+    (writeBatch as Mock).mockReturnValue({ set, commit });
+    await copyWishlist('Copy', 'owner', DEMO_ITEMS[demoId]);
+    const priced = DEMO_ITEMS[demoId].find(item => item.priceMinor !== undefined)!;
+    expect(set).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ name: priced.name, priceMinor: priced.priceMinor, currency: priced.currency, claimed: false }));
+  });
+  it('rejects oversized copies before creating writes', async () => {
+    await expect(copyWishlist('Copy', 'owner', Array(500).fill({ name: 'Pen', claimed: false }))).rejects.toThrow('limit');
+    expect(writeBatch).not.toHaveBeenCalled();
+  });
+  it('forwards subscription failures', () => {
+    (onSnapshot as Mock).mockImplementation((_q, _cb, error) => { error(new Error('offline')); return vi.fn(); });
+    const error = vi.fn(); subscribeWishlistItems('w1', vi.fn(), error);
+    expect(error).toHaveBeenCalledWith(expect.any(Error));
   });
 
   describe('DEMO_WISHLISTS fallback', () => {
