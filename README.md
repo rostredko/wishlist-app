@@ -42,11 +42,21 @@ Production builds require all six `VITE_FIREBASE_*` configuration fields in the 
 
 For changes that touch routing, SEO, or blog content, run `lint`, `build`, and `vitest` before handoff.
 
+## Page loading and canonical URLs
+
+The language-selection screen and lazy-route fallback reserve at least one viewport of height. Keep this loading space: showing the footer above the fold and then pushing it down when the homepage loads causes a large cumulative layout shift (CLS).
+
+The homepage is included in the initial app bundle. Its creation dialog loads when opened, and wishlist data code loads only for signed-in users or an explicit action. Keep Firestore/Storage imports out of the guest homepage's static dependency graph; asynchronous subscriptions must ignore results and release listeners after sign-out or navigation.
+
+`scripts/prerender.ts` writes the canonical and language alternates into each indexable route's HTML; `SEOHead` updates them during client-side navigation. Do not add canonical `Link` response headers in `firebase.json`: those headers remain attached to the original document after SPA navigation and can contradict the selected route or language. The root language-selection shell intentionally has no fixed canonical; the selected homepage supplies it at runtime.
+
+After a Hosting release, recheck PageSpeed on `/`, `/ua`, and `/en`, including the canonical, heading order, and contrast audits. Local production-build audits use Firebase emulators and are useful regression checks, but do not establish production scores or the rolling 28-day Core Web Vitals result.
+
 ## Publishing a blog article
 
 Keep new bilingual article text and SEO metadata in `src/locales/{ua,en}/blog.json` under `articles[English slug]`. Register the slug pair in `blogArticles.ts`, the static component in both `BlogArticlePage.tsx` maps, and localized hub cards under `cards[English slug]`. The build reads localized `title`, `description`, and `h1`; legacy articles still use their literal component metadata. The AI gift article is an example of the localized format.
 
-Add both URLs to `public/sitemap.xml`, `public/llms.txt`, and the canonical Hosting headers in `firebase.json`. Update the blog hubs' sitemap dates and use the new article's own dates in Article metadata and `BlogArticleFooter`; do not change dates on unrelated posts. Verify both languages, internal navigation, source links, and generated `dist/{lang}/blog/{slug}.html` metadata before release.
+Add both URLs to `public/sitemap.xml` and `public/llms.txt`; prerender supplies their canonical HTML tags. Update the blog hubs' sitemap dates and use the new article's own dates in Article metadata and `BlogArticleFooter`; do not change dates on unrelated posts. Verify both languages, internal navigation, source links, and generated `dist/{lang}/blog/{slug}.html` metadata before release.
 
 The personal Codex skill `wishlist-blog-writer` prepares research, natural Ukrainian/English copy and these local changes. The skill is installed outside this repository. The user reviews and commits manually. `.gitlab-ci.yml` tests and builds `dev`/`main`, then deploys explicitly scoped Hosting, Firestore rules, and Storage rules to `wishlist-app-51cf7` on `main`. Review all changes included in that push, including Firebase rules. Article preparation does not commit, push, or deploy.
 

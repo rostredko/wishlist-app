@@ -16,6 +16,7 @@ import { isProbablyBot, detectPreferredLang, SUPPORTED_LANGS, type SupportedLang
 import i18n from './i18n';
 import { auth } from '@lib/auth-client';
 import { useAuth } from '@hooks/useAuth';
+import HomePage from '@components/HomePage';
 import { trackPageView } from './utils/analytics';
 import { clearPendingWishlistCreateAfterAuth, completePendingWishlistAuth, hasPendingWishlistRedirect, getPendingWishlistAuthAttempt, discardPendingWishlistCreateOnNavigation } from '@utils/pendingWishlistCreate';
 
@@ -24,7 +25,6 @@ function scrollWindowToTop() {
 }
 
 const NotFoundPage = lazy(() => import('@components/NotFoundPage'));
-const HomePage = lazy(() => import('@components/HomePage'));
 const WishListItemList = lazy(() =>
   import('@components/WishListItemList').then((m) => ({ default: m.WishListItemList }))
 );
@@ -95,7 +95,7 @@ function FirstVisitGate() {
   }, [loc.pathname, nav]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
       <a href="/ua" style={{ marginRight: 16 }}>Українською</a>
       <a href="/en">English</a>
     </Box>
@@ -217,7 +217,8 @@ function App() {
           <Box sx={{ flexGrow: 1 }}>
             <Suspense
               fallback={
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                // Reserve the viewport so the footer does not jump when a lazy route loads.
+                <Box sx={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
                   <CircularProgress />
                 </Box>
               }

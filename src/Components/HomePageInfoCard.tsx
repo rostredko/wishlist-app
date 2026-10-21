@@ -149,6 +149,7 @@ export function HomePageInfoCard({ lang }: Props) {
                       <Typography sx={{ fontSize: { xs: 24, sm: 28 }, lineHeight: 1 }}>{ex.emoji}</Typography>
                       <Typography
                         variant="subtitle1"
+                        component="h3"
                         sx={{
                           fontWeight: 700,
                           pr: 1,

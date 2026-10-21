@@ -64,7 +64,7 @@ describe('AI gift article publication', () => {
     await waitFor(() => expect(document.title).toBe(cases[0].title));
   });
 
-  it.each(cases)('publishes matching $lang first-response metadata, sitemap and HTTP canonical', ({ lang, slug, h1, title }) => {
+  it.each(cases)('publishes matching $lang first-response metadata, sitemap and HTML canonical', ({ lang, slug, h1, title }) => {
     const path = `/${lang}/blog/${slug}`;
     const route = buildRoutes(resolve('.')).find(candidate => candidate.path === path);
     expect(route).toBeDefined();
@@ -74,13 +74,12 @@ describe('AI gift article publication', () => {
     expect(doc.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe(title);
     expect(doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content')).toBe(title);
     expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(origin + path);
+    expect(doc.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
     expect(doc.querySelector('link[hreflang="uk"]')?.getAttribute('href')).toBe(`${origin}/ua/blog/yak-vybraty-podarunok-z-chatgpt`);
     expect(doc.querySelector('meta[name="robots"]')?.getAttribute('content')).not.toContain('noindex');
     const sitemap = new DOMParser().parseFromString(readFileSync('public/sitemap.xml', 'utf8'), 'application/xml');
     const entry = [...sitemap.querySelectorAll('url')].find(url => url.querySelector('loc')?.textContent === origin + path);
     expect(entry?.querySelector('lastmod')?.textContent).toBe('2026-10-21');
-    const config = JSON.parse(readFileSync('firebase.json', 'utf8'));
-    expect(config.hosting.headers.find((header: { source: string }) => header.source === path)?.headers).toContainEqual({ key: 'Link', value: `<${origin + path}>; rel="canonical"` });
   });
 
   it('fails the build when localized article metadata is incomplete', () => {

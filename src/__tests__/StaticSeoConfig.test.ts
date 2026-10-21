@@ -10,6 +10,17 @@ function readText(relativePath: string): string {
 }
 
 describe('static SEO config', () => {
+  it('does not pin a canonical HTTP header across client-side language and route changes', () => {
+    const config = JSON.parse(readText('firebase.json')) as {
+      hosting: { headers: Array<{ headers: Array<{ key: string; value: string }> }> };
+    };
+    const canonicalHeaders = config.hosting.headers.flatMap(rule => rule.headers)
+      .filter(header => header.key.toLowerCase() === 'link' && /rel=["']?canonical/i.test(header.value));
+
+    // HTTP headers survive SPA navigation; only per-route HTML can follow the destination.
+    expect(canonicalHeaders).toEqual([]);
+  });
+
   it('ships no static canonical or hreflang in the SPA shell (prerender injects them per route)', () => {
     const html = readText('index.html');
     const doc = new DOMParser().parseFromString(html, 'text/html');

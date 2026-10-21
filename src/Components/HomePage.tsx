@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackEvent } from '@utils/analytics';
 import type { CreationSource } from '@utils/pendingWishlistCreate';
@@ -18,17 +18,18 @@ import { HomePageInfoCard } from '@components/HomePageInfoCard';
 import { HomePageGuestCta } from '@components/HomePageGuestCta';
 import { HomePageMyListsSection } from '@components/HomePageMyListsSection';
 import { HomePageFaq } from '@components/HomePageFaq';
-import { CreateWishListDialog } from '@components/CreateWishListDialog';
 import ConfirmDialog from '@components/ConfirmDialog';
 import type { WishList } from '@models/WishList';
 import { useAuth } from '@hooks/useAuth';
 import { useGoogleSignIn } from '@hooks/useGoogleSignIn';
-import { subscribeMyWishlists, deleteWishlistDeep } from '@api/wishListService';
 import {
   WISHLIST_AUTH_COMPLETE,
   consumePendingWishlistCreateAfterAuth,
   setPendingWishlistCreateAfterAuth,
 } from '@utils/pendingWishlistCreate';
+
+const CreateWishListDialog = lazy(() => import('@components/CreateWishListDialog')
+  .then(module => ({ default: module.CreateWishListDialog })));
 
 type WLItem = WishList & { id: string };
 type RouteLang = 'ua' | 'en';
@@ -60,13 +61,19 @@ export default function HomePage({ lang }: Props) {
     setMyLists(null);
     setMyListsError(false);
     if (!user?.uid) return;
-    const unsub = subscribeMyWishlists(user.uid, lists => {
-      if (active) { setMyLists(lists); setMyListsError(false); }
-    }, () => {
-      if (active) setMyListsError(true);
+    let unsubscribe: (() => void) | undefined;
+    const handleError = () => {
+      if (!active) return;
+      setMyListsError(true);
       void trackEvent('wishlist_operation_failed', { operation: 'load', error_category: 'persistence' });
-    });
-    return () => { active = false; unsub(); };
+    };
+    void import('@api/wishListService').then(({ subscribeMyWishlists }) => {
+      if (!active) return;
+      unsubscribe = subscribeMyWishlists(user.uid, lists => {
+        if (active) { setMyLists(lists); setMyListsError(false); }
+      }, handleError);
+    }).catch(handleError);
+    return () => { active = false; unsubscribe?.(); };
   }, [user?.uid, myListsAttempt]);
 
   useEffect(() => {
@@ -121,6 +128,7 @@ export default function HomePage({ lang }: Props) {
     if (!deleteDialog.id) return;
     try {
       setIsDeleting(true);
+      const { deleteWishlistDeep } = await import('@api/wishListService');
       await deleteWishlistDeep(deleteDialog.id);
     } finally {
       setIsDeleting(false);
@@ -205,12 +213,20 @@ export default function HomePage({ lang }: Props) {
         <HomePageFaq lang={lang} faqData={faqData} />
       </Container>
 
-      <CreateWishListDialog
-        user={user ? { uid: user.uid } : null}
-        open={createOpen}
-        onClose={handleCloseCreate}
-        source={creationSource}
-      />
+      <Suspense fallback={
+        <Backdrop open sx={{ color: '#fff', zIndex: theme => theme.zIndex.modal + 1 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      }>
+        {createOpen && (
+          <CreateWishListDialog
+            user={user ? { uid: user.uid } : null}
+            open={createOpen}
+            onClose={handleCloseCreate}
+            source={creationSource}
+          />
+        )}
+      </Suspense>
       <ConfirmDialog
         open={deleteDialog.open}
         title={t('deleteTitle', { name: deleteName })}

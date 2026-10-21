@@ -1,4 +1,4 @@
-import {render, screen, waitFor} from '@testing-library/react';
+import {act, render, screen, waitFor} from '@testing-library/react';
 import {StrictMode} from 'react';
 import userEvent from '@testing-library/user-event';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
@@ -60,6 +60,7 @@ describe('App redirect recovery and route analytics', () => {
     sessionStorage.setItem('auth_return_url', '/en');
     window.history.replaceState({}, '', '/ua');
     render(<App/>);
+    expect(screen.getByRole('heading', {name: 'Home ua'})).toBeInTheDocument();
     expect(await screen.findByRole('heading', {name: 'Home en'})).toBeInTheDocument();
     expect(mocks.redirectResult).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem('auth_return_url')).toBeNull();
@@ -117,5 +118,15 @@ describe('App redirect recovery and route analytics', () => {
     await screen.findByRole('heading', {name: 'Home en'});
     expect(pagePaths()).toEqual(['/en']);
     expect(JSON.stringify(pageViews())).not.toContain('secret');
+  });
+
+  it('reserves a viewport during root language selection so the footer cannot flash above the fold', async () => {
+    const userAgent = vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('OAI-SearchBot');
+    window.history.replaceState({}, '', '/');
+    await act(async () => { render(<App/>); });
+    userAgent.mockRestore();
+
+    const languageGate = screen.getByRole('link', {name: 'Українською'}).parentElement!;
+    expect(getComputedStyle(languageGate).minHeight).toBe('100vh');
   });
 });

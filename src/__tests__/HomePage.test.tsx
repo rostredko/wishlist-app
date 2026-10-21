@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { customRender as render, screen, waitFor } from '../test/render';
+import { act, customRender as render, screen, waitFor } from '../test/render';
 import userEvent from '@testing-library/user-event';
 import '../../src/i18n';
 import HomePage from '@components/HomePage';
 import { trackEvent } from '@utils/analytics';
 vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn().mockResolvedValue(undefined) }));
 
-vi.mock('@hooks/useAuth', () => ({
-  useAuth: () => ({ user: { uid: 'u-1' } }),
-}));
+const authState = vi.hoisted(() => ({ user: { uid: 'u-1' } as { uid: string } | null }));
+vi.mock('@hooks/useAuth', () => ({ useAuth: () => authState }));
 
 const subscribeMyWishlists = vi.fn();
 const deleteWishlistDeep = vi.fn();
@@ -27,12 +26,60 @@ function emitLists(lists: unknown[]) {
 }
 
 beforeEach(() => {
+  authState.user = { uid: 'u-1' };
   subscribeMyWishlists.mockReset().mockReturnValue(() => {});
   deleteWishlistDeep.mockReset();
   window.history.replaceState({}, '', '/en');
 });
 
-describe('HomePage – delete wishlist flow', () => {
+describe('HomePage', () => {
+  it('does not start a subscription if the user signs out while the data module is loading', async () => {
+    const { rerender } = render(<HomePage lang="en" />);
+    authState.user = null;
+    rerender(<HomePage lang="en" />);
+    await act(async () => {});
+
+    expect(subscribeMyWishlists).not.toHaveBeenCalled();
+    expect(screen.queryByRole('heading', { name: /your wishlists/i })).not.toBeInTheDocument();
+  });
+
+  it('does not start a subscription after the homepage has unmounted', async () => {
+    const { unmount } = render(<HomePage lang="en" />);
+    unmount();
+    await act(async () => {});
+
+    expect(subscribeMyWishlists).not.toHaveBeenCalled();
+  });
+
+  it('stops a loaded subscription on sign-out and ignores its late results', async () => {
+    let publish!: (lists: unknown[]) => void;
+    const unsubscribe = vi.fn();
+    subscribeMyWishlists.mockImplementation((_uid, callback) => { publish = callback; return unsubscribe; });
+    const { rerender } = render(<HomePage lang="en" />);
+    await act(async () => {});
+    await act(async () => { publish([{ id: 'old', title: 'Previous account list' }]); });
+    expect(screen.getByText('Previous account list')).toBeInTheDocument();
+
+    authState.user = null;
+    rerender(<HomePage lang="en" />);
+    await act(async () => { publish([{ id: 'stale', title: 'Stale list' }]); });
+    expect(unsubscribe).toHaveBeenCalledOnce();
+    expect(screen.queryByText('Stale list')).not.toBeInTheDocument();
+    expect(screen.queryByText('Previous account list')).not.toBeInTheDocument();
+  });
+
+  it.each(['en', 'ua'] as const)('keeps %s homepage headings in a sequential hierarchy', async lang => {
+    emitLists([]);
+    render(<HomePage lang={lang} />);
+    await screen.findByRole('heading', { level: 1 });
+
+    const levels = screen.getAllByRole('heading').map(heading => Number(heading.tagName.slice(1)));
+    expect(levels.filter(level => level === 1)).toHaveLength(1);
+    levels.slice(1).forEach((level, index) => {
+      expect(level).toBeLessThanOrEqual(levels[index] + 1);
+    });
+  });
+
   it('reports the blog as the creation source when its create link led here', async () => {
     emitLists([]);
     window.history.replaceState({ usr: { creationSource: 'blog' } }, '', '/en');

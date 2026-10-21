@@ -88,7 +88,7 @@ export default function Footer() {
             </Button>
           </Stack>
         ) : (
-          <Button variant="outlined" onClick={handleSignIn} disabled={signInLoading}>
+          <Button variant="outlined" sx={{ color: 'text.primary' }} onClick={handleSignIn} disabled={signInLoading}>
             {signInLoading ? t('pleaseWait') : t('signIn')}
           </Button>
         )}
