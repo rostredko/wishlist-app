@@ -9,6 +9,7 @@ import '../i18n';
 import BlogArticlePage from '@components/blog/BlogArticlePage';
 import BlogHubPage from '@components/blog/BlogHubPage';
 import { buildRoutes, renderPage } from '../../scripts/prerender';
+import { renderArticleHtml } from '../prerender/renderArticleHtml';
 
 const origin = 'https://wishlistapp.com.ua';
 const cases = [
@@ -66,7 +67,7 @@ describe('AI gift article publication', () => {
 
   it.each(cases)('publishes matching $lang first-response metadata, sitemap and HTML canonical', ({ lang, slug, h1, title }) => {
     const path = `/${lang}/blog/${slug}`;
-    const route = buildRoutes(resolve('.')).find(candidate => candidate.path === path);
+    const route = buildRoutes(resolve('.'), renderArticleHtml).find(candidate => candidate.path === path);
     expect(route).toBeDefined();
     const doc = new DOMParser().parseFromString(renderPage(readFileSync('index.html', 'utf8'), route!), 'text/html');
     expect(doc.title).toBe(title);
@@ -90,7 +91,7 @@ describe('AI gift article publication', () => {
         mkdirSync(join(root, 'src/locales', lang), { recursive: true });
         writeFileSync(join(root, 'src/locales', lang, 'blog.json'), JSON.stringify({ articles: { 'chatgpt-gift-ideas': { title: 'Title', h1: 'Heading' } } }));
       }
-      expect(() => buildRoutes(root)).toThrow(/Missing "description"/);
+      expect(() => buildRoutes(root, renderArticleHtml)).toThrow(/Missing "description"/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

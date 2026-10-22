@@ -10,15 +10,19 @@ function readText(relativePath: string): string {
 }
 
 describe('static SEO config', () => {
-  it('does not pin a canonical HTTP header across client-side language and route changes', () => {
+  it('sends a canonical HTTP header only for the bare root, pointing to /ua', () => {
     const config = JSON.parse(readText('firebase.json')) as {
-      hosting: { headers: Array<{ headers: Array<{ key: string; value: string }> }> };
+      hosting: { headers: Array<{ source: string; headers: Array<{ key: string; value: string }> }> };
     };
-    const canonicalHeaders = config.hosting.headers.flatMap(rule => rule.headers)
-      .filter(header => header.key.toLowerCase() === 'link' && /rel=["']?canonical/i.test(header.value));
+    const canonicalHeaders = config.hosting.headers.flatMap(rule => rule.headers
+      .filter(header => header.key.toLowerCase() === 'link' && /rel=["']?canonical/i.test(header.value))
+      .map(header => ({ source: rule.source, value: header.value })));
 
-    // HTTP headers survive SPA navigation; only per-route HTML can follow the destination.
-    expect(canonicalHeaders).toEqual([]);
+    // Per-route HTML carries every other canonical. Bots on "/" get only the language gate
+    // (no SEOHead), so without this header Google indexes "/" as its own page.
+    expect(canonicalHeaders).toEqual([
+      { source: '/', value: '<https://wishlistapp.com.ua/ua>; rel="canonical"' },
+    ]);
   });
 
   it('ships no static canonical or hreflang in the SPA shell (prerender injects them per route)', () => {

@@ -85,6 +85,7 @@
   ],
   "examplesTitle": "🎁 Wishlist examples",
   "createOwn": "Create own",
+  "noscript": "This site needs JavaScript to work.",
   "notFound": {
     "title": "Page not found - WishList App",
     "h1": "Page not found",

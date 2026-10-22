@@ -10,7 +10,7 @@ export const DEMO_WISHLISTS: Record<string, Partial<WishList>> = {
     isHidden: false,
   },
   'christmas-list-ua': {
-    title: 'Вішліст на Новий рік',
+    title: 'Вішліст на Новий рік та Різдво',
     ownerUid: 'demo',
     bannerImage: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1200&q=80',
     isHidden: false,
@@ -149,7 +149,7 @@ export const EXAMPLE_SEO: Record<string, { title: string; description: string }>
   },
   'secret-santa-list-ua': {
     title: 'Вішліст Таємного Санти - Безкоштовний Приклад | WishList App',
-    description: 'Перегляньте приклад вішліста для Таємного Санти. Зробіть свій список подарунків безкоштовно.',
+    description: 'Перегляньте приклад вішліста для Таємного Санти (Таємного Миколая). Зробіть свій список подарунків безкоштовно.',
   },
   'wedding-list': {
     title: 'Wedding Wishlist Example - Free Wedding Gift Registry | WishList App',

@@ -28,6 +28,11 @@ const ORIGIN = 'https://wishlistapp.com.ua';
 
 type RouteLang = 'ua' | 'en';
 
+type FaqItem = { q: string; a: string };
+
+/** Returns semantic HTML for one article, rendered from its React component (see src/prerender). */
+export type ArticleRenderer = (lang: RouteLang, slug: string) => string;
+
 type PrerenderRoute = {
   path: string;
   lang: RouteLang;
@@ -36,6 +41,12 @@ type PrerenderRoute = {
   keywords?: string;
   /** Replaces the hero block between the prerender:hero markers. */
   heroHtml: string;
+  /** Plain-text H1, repeated in the route's <noscript> note. */
+  h1: string;
+  /** Route-language sentence that follows the H1 in <noscript>. */
+  noscript: string;
+  /** Emitted as FAQPage JSON-LD that SEOHead takes over after hydration. */
+  faq?: FaqItem[];
   alternates?: { en: string; uk: string };
 };
 
@@ -47,6 +58,8 @@ type ArticleSeo = {
 };
 
 const LINK_STYLE = 'color:#2196f3';
+const NOSCRIPT_STYLE = 'padding: 0 24px; max-width: 900px; margin: 16px auto;';
+const HTML_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', '#x27': "'", '#39': "'" };
 
 function esc(s: string): string {
   return s
@@ -54,6 +67,32 @@ function esc(s: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function unescapeHtml(s: string): string {
+  return s.replace(/&(amp|lt|gt|quot|#x27|#39);/g, (entity, name: string) => HTML_ENTITIES[name] ?? entity);
+}
+
+function readFaq(locale: Record<string, unknown>, source: string): FaqItem[] {
+  const faq = locale.faq;
+  if (!Array.isArray(faq) || faq.length === 0
+    || !faq.every((item) => typeof item?.q === 'string' && typeof item?.a === 'string')) {
+    throw new Error(`[prerender] Missing or malformed "faq" in ${source}`);
+  }
+  return faq as FaqItem[];
+}
+
+function faqHtml(title: string, faq: FaqItem[]): string {
+  return [
+    `<section>\n<h2>${esc(title)}</h2>`,
+    ...faq.map((item) => `<h3>${esc(item.q)}</h3>\n<p>${esc(item.a)}</p>`),
+    '</section>',
+  ].join('\n');
+}
+
+/** JSON that cannot close its own <script> element. */
+function scriptJson(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
 function readJson(root: string, rel: string): Record<string, string> {
@@ -123,7 +162,7 @@ function article(map: Map<string, ArticleSeo>, lang: RouteLang, slug: string): A
   return seo;
 }
 
-export function buildRoutes(root: string): PrerenderRoute[] {
+export function buildRoutes(root: string, renderArticle: ArticleRenderer): PrerenderRoute[] {
   const routes: PrerenderRoute[] = [];
   const articles = extractArticleSeo(root);
 
@@ -138,6 +177,9 @@ export function buildRoutes(root: string): PrerenderRoute[] {
 
     const homeAlternates = { en: `${ORIGIN}/en`, uk: `${ORIGIN}/ua` };
     const source = `src/locales/${lang}`;
+    const noscript = req(home, 'noscript', `${source}/home.json`);
+    const faq = readFaq(home, `${source}/home.json`);
+    const heroH1 = req(home, 'heroH1', `${source}/home.json`);
 
     routes.push({
       path: `/${lang}`,
@@ -149,10 +191,14 @@ export function buildRoutes(root: string): PrerenderRoute[] {
         ? 'вішліст, список бажань, подарунки, день народження, різдво, весілля, безкоштовно, створити вішліст, поділитися вішлістом'
         : undefined,
       heroHtml: [
-        `<h1 class="shell-h1">${esc(req(home, 'heroH1', `${source}/home.json`))}</h1>`,
+        `<h1 class="shell-h1">${esc(heroH1)}</h1>`,
         `<p>${esc(req(home, 'heroH2', `${source}/home.json`))}</p>`,
         '<div class="shell-btn"></div>',
+        faqHtml(req(home, 'faqTitle', `${source}/home.json`), faq),
       ].join('\n                '),
+      h1: heroH1,
+      noscript,
+      faq,
       alternates: homeAlternates,
     });
 
@@ -166,6 +212,8 @@ export function buildRoutes(root: string): PrerenderRoute[] {
         `<p>${esc(req(privacy, 'intro', `${source}/privacy.json`))}</p>`,
         `<p><a href="/${lang}" style="${LINK_STYLE}">${esc(req(blog, 'backHome', `${source}/blog.json`))}</a></p>`,
       ].join('\n                '),
+      h1: req(privacy, 'title', `${source}/privacy.json`),
+      noscript,
       alternates: { en: `${ORIGIN}/en/privacy`, uk: `${ORIGIN}/ua/privacy` },
     });
 
@@ -185,12 +233,21 @@ export function buildRoutes(root: string): PrerenderRoute[] {
         `<p>${esc(req(hub, 'description', `${source}/blog.json hub`))}</p>`,
         `<ul>\n                    ${hubLinks}\n                </ul>`,
       ].join('\n                '),
+      h1: req(hub, 'h1', `${source}/blog.json hub`),
+      noscript,
       alternates: { en: `${ORIGIN}/en/blog`, uk: `${ORIGIN}/ua/blog` },
     });
 
+    const notFoundH1 = blogRaw.notFound?.h1 as string | undefined;
     for (const pair of BLOG_SLUG_PAIRS) {
       const slug = pair[lang];
       const seo = article(articles, lang, slug);
+      const body = renderArticle(lang, slug);
+      const h1Html = body.match(/<h1>([\s\S]*?)<\/h1>/)?.[1];
+      const h1 = h1Html === undefined ? '' : unescapeHtml(h1Html.replace(/<[^>]+>/g, '')).trim();
+      if (!h1 || h1 === notFoundH1) {
+        throw new Error(`[prerender] Article ${lang}/${slug} rendered without its own H1`);
+      }
       routes.push({
         path: `/${lang}/blog/${slug}`,
         lang,
@@ -200,9 +257,10 @@ export function buildRoutes(root: string): PrerenderRoute[] {
         heroHtml: [
           `<nav><a href="/${lang}" style="${LINK_STYLE}">${esc(req(blog, 'breadcrumbHome', `${source}/blog.json`))}</a>`
           + ` &rsaquo; <a href="/${lang}/blog" style="${LINK_STYLE}">${esc(req(blog, 'breadcrumbBlog', `${source}/blog.json`))}</a></nav>`,
-          `<h1 class="shell-h1">${esc(seo.h1)}</h1>`,
-          `<p>${esc(seo.description)}</p>`,
+          body.replace('<h1>', '<h1 class="shell-h1">'),
         ].join('\n                '),
+        h1,
+        noscript,
         alternates: resolveBlogAlternates(ORIGIN, lang, slug),
       });
     }
@@ -232,6 +290,8 @@ export function buildRoutes(root: string): PrerenderRoute[] {
             .join('\n                    ')}\n                </ul>`,
           `<p><a href="/${lang}" style="${LINK_STYLE}">${esc(backHome)}</a></p>`,
         ].join('\n                '),
+        h1: demoTitle,
+        noscript,
         alternates: {
           en: `${ORIGIN}/en/wishlist/${alt.en}`,
           uk: `${ORIGIN}/ua/wishlist/${alt.uk}`,
@@ -325,6 +385,18 @@ export function renderPage(template: string, route: PrerenderRoute): string {
       `<link rel="alternate" hreflang="uk" href="${route.alternates.uk}" />`,
       `<link rel="alternate" hreflang="x-default" href="${route.alternates.uk}" />`,
     ] : []),
+    // Same attributes as SEOHead's upsertJsonLd('faq'), so hydration replaces it instead of duplicating it.
+    ...(route.faq ? [
+      `<script type="application/ld+json" data-seo-head="1" data-jsonld-id="faq">${scriptJson({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: route.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
+      })}</script>`,
+    ] : []),
   ].join('\n    ');
   html = replaceOnce(html, /<\/head>/, `    ${headLinks}\n</head>`, 'head close', route.path);
 
@@ -333,6 +405,15 @@ export function renderPage(template: string, route: PrerenderRoute): string {
     /<!-- prerender:hero -->[\s\S]*?<!-- \/prerender:hero -->/,
     route.heroHtml,
     'hero markers',
+    route.path,
+  );
+
+  const note = `${route.h1}${/[.!?…]$/.test(route.h1) ? '' : '.'} ${route.noscript}`;
+  html = replaceOnce(
+    html,
+    /<!-- prerender:noscript -->[\s\S]*?<!-- \/prerender:noscript -->/,
+    `<noscript>\n        <p style="${NOSCRIPT_STYLE}">${esc(note)}</p>\n    </noscript>`,
+    'noscript markers',
     route.path,
   );
 
@@ -351,6 +432,31 @@ export function renderUnlistedShell(template: string, heroHtml: string, title = 
     .replace(/<!-- prerender:hero -->[\s\S]*?<!-- \/prerender:hero -->/, heroHtml);
 }
 
+/**
+ * Loads the article renderer through Vite's SSR module loader, so the React
+ * components (TSX, path aliases, JSON locales) run in Node without a second build.
+ * Imported lazily: esbuild refuses to load under the jsdom test environment.
+ */
+async function withArticleRenderer<T>(root: string, run: (render: ArticleRenderer) => T): Promise<T> {
+  const [{ createServer }, { default: tsconfigPaths }] = await Promise.all([import('vite'), import('vite-tsconfig-paths')]);
+  const server = await createServer({
+    root,
+    configFile: false,
+    logLevel: 'warn',
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false, ws: false },
+    optimizeDeps: { noDiscovery: true, include: [] },
+    esbuild: { jsx: 'automatic' },
+    plugins: [tsconfigPaths({ root, projects: ['tsconfig.app.json'] })],
+  });
+  try {
+    const mod = await server.ssrLoadModule('/src/prerender/renderArticleHtml.tsx');
+    return run(mod.renderArticleHtml as ArticleRenderer);
+  } finally {
+    await server.close();
+  }
+}
+
 export function prerender(): Plugin {
   let root = '';
   let outDir = 'dist';
@@ -361,10 +467,10 @@ export function prerender(): Plugin {
       root = config.root;
       outDir = config.build.outDir;
     },
-    closeBundle() {
+    async closeBundle() {
       const distDir = resolve(root, outDir);
       const template = readFileSync(join(distDir, 'index.html'), 'utf-8');
-      const routes = buildRoutes(root);
+      const routes = await withArticleRenderer(root, (render) => buildRoutes(root, render));
       assertSitemapCoverage(root, routes);
       for (const route of routes) {
         const outFile = join(distDir, `${route.path.slice(1)}.html`);

@@ -53,6 +53,12 @@
             "value": "no-cache"
           }
         ]
+      },
+      {
+        "source": "/",
+        "headers": [
+          { "key": "Link", "value": "<https://wishlistapp.com.ua/ua>; rel=\"canonical\"" }
+        ]
       }
     ],
     "redirects": [
