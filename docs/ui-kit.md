@@ -55,6 +55,7 @@ Defined in `theme.ts` (palette); a few legacy one-offs exist in layout component
 | Dialog description | `variant="body2"` `color="text.secondary"` |
 | Emphasis line | `body1` + `fontWeight: 600` |
 | Muted small copy | `body2` + `color: '#aaa'` or `text.secondary` |
+| Input suggestions | `Chip size="small" variant="outlined"` row under the `TextField` (`Stack direction="row" flexWrap="wrap" spacing={1}`, `role="group"` + translated `aria-label`); a click fills the field (`CreateWishListDialog`) |
 
 ---
 

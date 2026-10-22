@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { Fragment, lazy, Suspense, useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -7,15 +7,25 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+import { HOLIDAY_SEASON_ACTIVE } from '@constants/season';
+import { trackEvent } from '@utils/analytics';
 
 const VideoTutorialsSection = lazy(() => import('@components/VideoTutorialsSection'));
 
 type RouteLang = 'ua' | 'en';
 
 type Props = { lang: RouteLang };
+
+const HOLIDAY_GUIDES = [
+  { guide: 'new_year', ua: 'vishlist-na-novyj-rik-i-rizdvo', en: 'christmas-wishlist' },
+  { guide: 'st_nicholas', ua: 'lyst-svyatomu-mykolayu', en: 'kids-christmas-list' },
+  { guide: 'secret_santa', ua: 'tayemnyj-santa-pravyla', en: 'secret-santa-questionnaire' },
+] as const;
 
 export function HomePageInfoCard({ lang }: Props) {
   const { t } = useTranslation(['home', 'examples'], { lng: lang });
@@ -167,6 +177,25 @@ export function HomePageInfoCard({ lang }: Props) {
                 </Grid>
               ))}
             </Grid>
+            {HOLIDAY_SEASON_ACTIVE && (
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2 }}>
+                {t('examples:holidayGuides.label')}{' '}
+                {HOLIDAY_GUIDES.map((item, idx) => (
+                  <Fragment key={item.guide}>
+                    {idx > 0 && ' · '}
+                    <Link
+                      component={RouterLink}
+                      to={`/${lang}/blog/${item[lang]}`}
+                      // theme primary.main (#1565c0) is ~2.6:1 on the paper card; the UI kit link color passes AA.
+                      sx={{ color: '#2196f3' }}
+                      onClick={() => void trackEvent('holiday_guide_click', { guide: item.guide })}
+                    >
+                      {t(`examples:holidayGuides.${item.guide}`)}
+                    </Link>
+                  </Fragment>
+                ))}
+              </Typography>
+            )}
           </Box>
         </Stack>
       </CardContent>

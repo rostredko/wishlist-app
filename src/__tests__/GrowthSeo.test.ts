@@ -80,7 +80,7 @@ describe('growth SEO policy', () => {
     expect(routes.find(route => route.path === '/ua')?.description).toBe(home.desc);
   });
   it('ships one H1 per route and a noscript note in the route language that repeats it', () => {
-    expect(routes).toHaveLength(38);
+    expect(routes).toHaveLength(40);
     for (const route of routes) {
       const html = page(route.path);
       const body = bodyOf(html);

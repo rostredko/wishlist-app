@@ -63,7 +63,23 @@ const ARTICLES = [
     h1: 'Secret Santa questionnaire: 20 questions and a wishlist template',
     demo: '/en/wishlist/secret-santa-list',
   },
+  {
+    lang: 'ua', slug: 'shcho-poprosyty-na-novyj-rik', counterpart: '/en/blog/what-to-put-on-christmas-list', minWords: 2000, howTo: false,
+    title: 'Що попросити на Новий рік: 70 ідей для вішліста за бюджетом',
+    description: 'Не знаєте, що додати у вішліст? 70 ідей на Новий рік і Різдво: до 500, 1000 і 3000 грн, враження, корисні речі і донати.',
+    h1: 'Що попросити на Новий рік і Різдво: 70 ідей для вішліста',
+    demo: '/ua/wishlist/christmas-list-ua',
+  },
+  {
+    lang: 'en', slug: 'what-to-put-on-christmas-list', counterpart: '/ua/blog/shcho-poprosyty-na-novyj-rik', minWords: 2000, howTo: false,
+    title: 'What to Put on Your Christmas List: 70 Ideas by Budget',
+    description: 'Stuck on your Christmas list? 70 ideas by budget - under 25, 50 and 100 EUR/USD - plus experiences and practical gifts, ready to add to a shareable wishlist.',
+    h1: 'What to put on your Christmas list: 70 ideas by budget',
+    demo: '/en/wishlist/christmas-list',
+  },
 ] as const;
+
+const IDEA_ARTICLES = ARTICLES.filter(({ slug }) => slug === 'shcho-poprosyty-na-novyj-rik' || slug === 'what-to-put-on-christmas-list');
 
 const HOLIDAY_DEMOS = ['christmas-list', 'christmas-list-ua', 'secret-santa-list', 'secret-santa-list-ua', 'kids-christmas-list', 'st-nicholas-list-ua'];
 
@@ -80,9 +96,13 @@ describe('holiday blog registration', () => {
     ]);
   });
 
+  it('lists the budget ideas pair right after them, as hreflang equivalents', () => {
+    expect(BLOG_SLUG_PAIRS[3]).toEqual({ en: 'what-to-put-on-christmas-list', ua: 'shcho-poprosyty-na-novyj-rik' });
+  });
+
   it('has hub cards in both locales for every new pair', () => {
     for (const cards of [enBlog.cards, uaBlog.cards] as Record<string, { title: string; desc: string; read: string }>[]) {
-      for (const pair of BLOG_SLUG_PAIRS.slice(0, 3)) {
+      for (const pair of BLOG_SLUG_PAIRS.slice(0, 4)) {
         expect(cards[pair.en]?.title, pair.en).toBeTruthy();
         expect(cards[pair.en]?.desc, pair.en).toBeTruthy();
         expect(cards[pair.en]?.read, pair.en).toBeTruthy();
@@ -126,6 +146,15 @@ describe('holiday articles in the first HTTP response', () => {
   it('keeps the new article copy free of em dashes', () => {
     for (const { lang, slug } of ARTICLES) expect(renderArticleHtml(lang, slug), slug).not.toContain('\u2014');
   });
+
+  it('links the budget ideas article from the "what to add" section of both pillars', () => {
+    const section = (lang: 'ua' | 'en', slug: string, h2: string) => {
+      const html = renderArticleHtml(lang, slug);
+      return html.slice(html.indexOf(`<h2>${h2}</h2>`), html.indexOf('<h2>', html.indexOf(`<h2>${h2}</h2>`) + 1));
+    };
+    expect(section('ua', 'vishlist-na-novyj-rik-i-rizdvo', 'Що додати у вішліст на Новий рік?')).toContain('href="/ua/blog/shcho-poprosyty-na-novyj-rik"');
+    expect(section('en', 'christmas-wishlist', 'What should you put on a Christmas list?')).toContain('href="/en/blog/what-to-put-on-christmas-list"');
+  });
 });
 
 describe('holiday article structured data', () => {
@@ -151,6 +180,29 @@ describe('holiday article structured data', () => {
   });
 });
 
+describe('budget ideas articles', () => {
+  it.each(IDEA_ARTICLES)('numbers exactly 70 ideas on /$lang/blog/$slug and lists each with its anchor in ItemList JSON-LD', async ({ lang, slug, h1 }) => {
+    render(
+      <MemoryRouter initialEntries={[`/${lang}/blog/${slug}`]}>
+        <Routes><Route path="/:lng/blog/:slug" element={<BlogArticlePage />} /></Routes>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('heading', { name: h1, level: 1 })).toBeInTheDocument();
+    const ideas = [...document.querySelectorAll('li[id^="idea-"]')];
+    expect(ideas.map(idea => idea.id)).toEqual(Array.from({ length: 70 }, (_, index) => `idea-${index + 1}`));
+
+    await waitFor(() => expect(document.querySelector('script[data-jsonld-id="guideitemlist"]')).not.toBeNull());
+    const list = JSON.parse(document.querySelector('script[data-jsonld-id="guideitemlist"]')!.textContent!);
+    expect(list['@type']).toBe('ItemList');
+    expect(list.numberOfItems).toBe(70);
+    list.itemListElement.forEach((entry: { position: number; name: string; item: string }, index: number) => {
+      expect(entry.position).toBe(index + 1);
+      expect(entry.item).toBe(`${window.location.origin}/${lang}/blog/${slug}#idea-${index + 1}`);
+      expect(`${entry.name}.`).toBe(ideas[index].querySelector('strong')?.textContent);
+    });
+  });
+});
+
 describe('holiday URLs in sitemap and llms.txt', () => {
   const sitemap = new DOMParser().parseFromString(read('public/sitemap.xml'), 'application/xml');
   const entryFor = (url: string) => [...sitemap.querySelectorAll('url')].find(node => node.querySelector('loc')?.textContent === url);
@@ -169,7 +221,7 @@ describe('holiday URLs in sitemap and llms.txt', () => {
   });
 
   it('names the holiday query intents and the update date in llms.txt', () => {
-    for (const intent of ['Christmas wish list', "Kids' Christmas list", 'letter to Santa', 'Secret Santa questionnaire', 'вішліст на Новий рік', 'лист Святому Миколаю', 'що попросити на Новий рік']) {
+    for (const intent of ['Christmas wish list', "Kids' Christmas list", 'letter to Santa', 'Secret Santa questionnaire', 'What to put on my Christmas list', 'вішліст на Новий рік', 'лист Святому Миколаю', 'що попросити на Новий рік']) {
       expect(llms).toContain(intent);
     }
     expect(llms).toContain('last_updated: 2026-10-22');

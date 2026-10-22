@@ -57,6 +57,15 @@ describe('bounded product analytics', () => {
     }));
   });
 
+  it('keeps the seasonal guide and title suggestion keys but never free text', async () => {
+    await trackEvent('holiday_guide_click', { guide: 'st_nicholas' });
+    expect(window.gtag).toHaveBeenLastCalledWith('event', 'holiday_guide_click', expect.objectContaining({ guide: 'st_nicholas' }));
+    await trackEvent('title_suggestion_click', { suggestion: 'secret_santa' });
+    expect(window.gtag).toHaveBeenLastCalledWith('event', 'title_suggestion_click', expect.objectContaining({ suggestion: 'secret_santa' }));
+    await trackEvent('title_suggestion_click', { suggestion: 'Таємний Санта 2026', guide: '/ua/blog/x' });
+    expect(JSON.stringify(vi.mocked(window.gtag!).mock.calls.at(-1))).not.toMatch(/Таємний|\/ua\/blog\/x|"suggestion"|"guide"/);
+  });
+
   it('keeps actions safe if analytics throws and flushes a queued event once', async () => {
     window.gtag = vi.fn(() => { throw new Error('blocked'); });
     await expect(trackEvent('wishlist_share_copy', { method: 'clipboard' })).resolves.toBeUndefined();

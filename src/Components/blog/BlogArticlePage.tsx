@@ -23,6 +23,7 @@ import HowListsChangeYourLifeArticle from './articles/en/HowListsChangeYourLifeA
 import ChristmasWishlistArticle from './articles/en/ChristmasWishlistArticle';
 import KidsChristmasListArticle from './articles/en/KidsChristmasListArticle';
 import SecretSantaQuestionnaireArticle from './articles/en/SecretSantaQuestionnaireArticle';
+import WhatToPutOnChristmasListArticle from './articles/en/WhatToPutOnChristmasListArticle';
 
 import YakZrobytyVishlistArticle from './articles/ua/YakZrobytyVishlistArticle';
 import DeStvorytyVishlist2026Article from './articles/ua/DeStvorytyVishlist2026Article';
@@ -34,12 +35,14 @@ import YakSpyskyZminyuyutZhyttiaArticle from './articles/ua/YakSpyskyZminyuyutZh
 import VishlistNaNovyjRikIRizdvoArticle from './articles/ua/VishlistNaNovyjRikIRizdvoArticle';
 import LystSvyatomuMykolayuArticle from './articles/ua/LystSvyatomuMykolayuArticle';
 import TayemnyjSantaPravylaArticle from './articles/ua/TayemnyjSantaPravylaArticle';
+import ShchoPoprosytyNaNovyjRikArticle from './articles/ua/ShchoPoprosytyNaNovyjRikArticle';
 
 const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogArticleProps>>> = {
   en: {
     'christmas-wishlist': ChristmasWishlistArticle,
     'kids-christmas-list': KidsChristmasListArticle,
     'secret-santa-questionnaire': SecretSantaQuestionnaireArticle,
+    'what-to-put-on-christmas-list': WhatToPutOnChristmasListArticle,
     'chatgpt-gift-ideas': AiGiftIdeasArticle,
     'how-to-create-a-wishlist': HowToCreateWishlistArticle,
     'best-wishlist-apps-2026': BestWishlistApps2026Article,
@@ -53,6 +56,7 @@ const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogAr
     'vishlist-na-novyj-rik-i-rizdvo': VishlistNaNovyjRikIRizdvoArticle,
     'lyst-svyatomu-mykolayu': LystSvyatomuMykolayuArticle,
     'tayemnyj-santa-pravyla': TayemnyjSantaPravylaArticle,
+    'shcho-poprosyty-na-novyj-rik': ShchoPoprosytyNaNovyjRikArticle,
     'yak-vybraty-podarunok-z-chatgpt': AiGiftIdeasArticle,
     'yak-zrobyty-vishlist': YakZrobytyVishlistArticle,
     'de-stvoryty-vishlist-2026': DeStvorytyVishlist2026Article,

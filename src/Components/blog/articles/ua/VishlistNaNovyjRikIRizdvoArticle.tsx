@@ -225,6 +225,13 @@ export default function VishlistNaNovyjRikIRizdvoArticle({ origin, routeLang }: 
                 краще за річ. У списку враження оформлюється так само, як товар: назва, посилання на
                 сторінку з квитками і примітка про зручні дати.
               </Typography>
+              <Typography variant="body1" sx={{ mt: 2 }}>
+                Більше ідей - у статті{' '}
+                <RouterLink to={`/${routeLang}/blog/shcho-poprosyty-na-novyj-rik`}>
+                  що попросити на Новий рік
+                </RouterLink>
+                : 70 варіантів у різних бюджетах, від теплих шкарпеток до вражень і донатів.
+              </Typography>
             </section>
 
             <section>

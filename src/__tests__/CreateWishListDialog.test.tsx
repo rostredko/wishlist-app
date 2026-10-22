@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act } from 'react';
-import { customRender as render, screen } from '../test/render';
+import { customRender as render, screen, within } from '../test/render';
 import userEvent from '@testing-library/user-event';
-import '../../src/i18n';
+import i18n from '../../src/i18n';
 import { CreateWishListDialog } from '@components/CreateWishListDialog';
 
 const createWishlist = vi.fn();
@@ -139,6 +139,72 @@ describe('CreateWishListDialog (skeleton behavior)', () => {
 
     expect(onClose).toHaveBeenCalled();
     expect((input as HTMLInputElement).value).toBe('');
+  });
+
+  describe('seasonal title suggestions', () => {
+    const suggestions = () => screen.queryByRole('group', { name: /holiday title ideas/i });
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      window.gtag = vi.fn();
+      window.dataLayer = [];
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      delete window.gtag;
+      delete window.dataLayer;
+    });
+
+    it.each([
+      ['Nov 1', new Date(2026, 10, 1, 0, 0)],
+      ['Dec 31', new Date(2026, 11, 31, 23, 59)],
+    ])('shows three chips on %s', (_label, now) => {
+      vi.setSystemTime(now);
+      render(<CreateWishListDialog open onClose={vi.fn()} user={{ uid: 'u1' }} />);
+      expect(within(suggestions()!).getAllByRole('button').map(chip => chip.textContent)).toEqual([
+        'Christmas Wish List 2026', "Kids' Christmas List", 'Secret Santa 2026',
+      ]);
+    });
+
+    it.each([
+      ['Oct 31', new Date(2026, 9, 31, 23, 59)],
+      ['Jan 1', new Date(2027, 0, 1, 0, 0)],
+    ])('hides the chips on %s', (_label, now) => {
+      vi.setSystemTime(now);
+      render(<CreateWishListDialog open onClose={vi.fn()} user={{ uid: 'u1' }} />);
+      expect(suggestions()).toBeNull();
+    });
+
+    it('hides the chips when copying a list', () => {
+      vi.setSystemTime(new Date(2026, 11, 1));
+      const items = [{ id: 'template', name: 'Book', claimed: false }];
+      render(<CreateWishListDialog open onClose={vi.fn()} user={{ uid: 'u1' }} initialTitle="Copy" copyItems={items} />);
+      expect(suggestions()).toBeNull();
+    });
+
+    it('fills the title from a chip and reports only the bounded suggestion key', async () => {
+      vi.setSystemTime(new Date(2026, 10, 20));
+      render(<CreateWishListDialog open onClose={vi.fn()} user={{ uid: 'u1' }} />);
+      await userEvent.click(screen.getByRole('button', { name: 'Secret Santa 2026' }));
+
+      expect(screen.getByRole('textbox', { name: /wishlist name/i })).toHaveValue('Secret Santa 2026');
+      expect(window.gtag).toHaveBeenCalledWith('event', 'title_suggestion_click', expect.objectContaining({ suggestion: 'secret_santa' }));
+      expect(JSON.stringify(vi.mocked(window.gtag!).mock.calls)).not.toContain('Secret Santa 2026');
+    });
+
+    it('uses the Ukrainian titles with the coming New Year in Ukrainian', async () => {
+      vi.setSystemTime(new Date(2026, 11, 10));
+      await i18n.changeLanguage('ua');
+      try {
+        render(<CreateWishListDialog open onClose={vi.fn()} user={{ uid: 'u1' }} />);
+        expect(within(screen.getByRole('group', { name: 'Ідеї назви до свят' })).getAllByRole('button').map(chip => chip.textContent)).toEqual([
+          'Вішліст на Новий рік 2027', 'Лист Святому Миколаю', 'Таємний Санта 2026',
+        ]);
+      } finally {
+        await i18n.changeLanguage('en');
+      }
+    });
   });
 
   it('while isCreating, both buttons disabled (guard against double submit)', async () => {

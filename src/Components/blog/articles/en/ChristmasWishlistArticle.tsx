@@ -219,6 +219,13 @@ export default function ChristmasWishlistArticle({ origin, routeLang }: BlogArti
                 need tomorrow. The example list at the end of this post has eleven gifts like these -
                 you can copy it and rework it in a few minutes.
               </Typography>
+              <Typography variant="body1" sx={{ mt: 2 }}>
+                Need more ideas? See{' '}
+                <RouterLink to={`/${routeLang}/blog/what-to-put-on-christmas-list`}>
+                  what to put on your Christmas list
+                </RouterLink>
+                : 70 ideas sorted by budget, from wool socks to experiences and donations.
+              </Typography>
             </section>
 
             <section>

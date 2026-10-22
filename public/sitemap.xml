@@ -86,6 +86,24 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/shcho-poprosyty-na-novyj-rik</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/what-to-put-on-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/shcho-poprosyty-na-novyj-rik"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/shcho-poprosyty-na-novyj-rik"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/what-to-put-on-christmas-list</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/what-to-put-on-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/shcho-poprosyty-na-novyj-rik"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/shcho-poprosyty-na-novyj-rik"/>
+    </url>
+    <url>
         <loc>https://wishlistapp.com.ua/ua/blog/yak-vybraty-podarunok-z-chatgpt</loc>
         <lastmod>2026-10-21</lastmod>
         <changefreq>monthly</changefreq>

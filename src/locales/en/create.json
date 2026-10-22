@@ -7,5 +7,11 @@
   "copyTitle": "Use this example",
   "copyHint": "Review the name before creating your own copy. All gifts will be available to reserve.",
   "createFailed": "Could not create your wishlist. Your changes are saved here - please try again.",
-  "copySharedTitle": "Copy this wishlist"
+  "copySharedTitle": "Copy this wishlist",
+  "suggestionsLabel": "Holiday title ideas",
+  "suggestions": {
+    "new_year": "Christmas Wish List {{year}}",
+    "st_nicholas": "Kids' Christmas List",
+    "secret_santa": "Secret Santa {{year}}"
+  }
 }

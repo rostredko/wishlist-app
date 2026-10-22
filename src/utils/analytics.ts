@@ -28,6 +28,8 @@ const categories: Record<string, readonly string[]> = {
   operation: ['create', 'copy', 'load', 'load_items', 'add_item', 'edit_item', 'reserve', 'share', 'delete', 'title'],
   error_category: ['persistence', 'unavailable', 'permission', 'unknown'],
   currency: ['UAH', 'USD', 'EUR', 'GBP'],
+  guide: ['new_year', 'st_nicholas', 'secret_santa'],
+  suggestion: ['new_year', 'st_nicholas', 'secret_santa'],
 };
 
 export function getAnalyticsPage(path: string): AnalyticsPage {
