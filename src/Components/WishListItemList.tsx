@@ -231,7 +231,8 @@ export function WishListItemList() {
   const handleBannerUpload = useCallback((url: string) => {
     if (!visit.active) return;
     setWishlist(previous => previous && previous.id === wishlistId ? { ...previous, bannerImage: url } : previous);
-  }, [setWishlist, wishlistId, visit]);
+    void trackEvent('wishlist_banner_upload', { viewer_role: viewerRole, is_demo: isExampleWishlist });
+  }, [setWishlist, wishlistId, visit, viewerRole, isExampleWishlist]);
 
   const handleCopyLink = async () => {
     if (!canonicalUrl) return;

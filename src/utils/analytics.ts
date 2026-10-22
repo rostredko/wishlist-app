@@ -25,7 +25,7 @@ const categories: Record<string, readonly string[]> = {
   creation_method: ['manual', 'demo_copy', 'shared_copy'],
   source: ['home', 'guest_list', 'demo', 'blog'],
   method: ['native', 'clipboard', 'manual'],
-  operation: ['create', 'copy', 'load', 'load_items', 'add_item', 'edit_item', 'reserve', 'share', 'delete', 'title'],
+  operation: ['create', 'copy', 'load', 'load_items', 'add_item', 'edit_item', 'reserve', 'share', 'delete', 'title', 'banner'],
   error_category: ['persistence', 'unavailable', 'permission', 'unknown'],
   currency: ['UAH', 'USD', 'EUR', 'GBP'],
   guide: ['new_year', 'st_nicholas', 'secret_santa'],

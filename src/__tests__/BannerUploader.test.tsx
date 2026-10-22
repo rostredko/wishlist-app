@@ -37,6 +37,9 @@ vi.mock('@api/wishListService', () => ({
   uploadWishlistBanner: (...args: unknown[]) => uploadWishlistBanner(...args),
 }));
 
+vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn().mockResolvedValue(undefined) }));
+import { trackEvent } from '@utils/analytics';
+
 function makeFile({
   name = 'pic.png',
   type = 'image/png',
@@ -56,6 +59,7 @@ function getHiddenInput(container: HTMLElement) {
 describe('BannerUploader (skeleton behavior)', () => {
   beforeEach(() => {
     uploadWishlistBanner.mockReset();
+    vi.mocked(trackEvent).mockClear();
     vi.restoreAllMocks();
     vi.spyOn(window, 'alert').mockImplementation(() => {
     });
@@ -167,6 +171,17 @@ describe('BannerUploader (skeleton behavior)', () => {
     });
 
     expect(onUpload).not.toHaveBeenCalled();
+    expect(trackEvent).toHaveBeenCalledWith('wishlist_operation_failed', { operation: 'banner', error_category: 'persistence' });
+  });
+
+  it('does not report a failure for rejected files', async () => {
+    const { container } = render(<BannerUploader wishlistId="wl-1" canEdit />);
+    const input = getHiddenInput(container);
+
+    await userEvent.upload(input, makeFile({ name: 'doc.txt', type: 'text/plain', size: 50 }), { applyAccept: false });
+    await userEvent.upload(input, makeFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 }));
+
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 
   it('resets input after every attempt (we can upload again)', async () => {

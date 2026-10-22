@@ -66,6 +66,13 @@ describe('bounded product analytics', () => {
     expect(JSON.stringify(vi.mocked(window.gtag!).mock.calls.at(-1))).not.toMatch(/Таємний|\/ua\/blog\/x|"suggestion"|"guide"/);
   });
 
+  it('keeps the banner operation as a bounded failure dimension', async () => {
+    await trackEvent('wishlist_operation_failed', { operation: 'banner', error_category: 'persistence' });
+    expect(window.gtag).toHaveBeenLastCalledWith('event', 'wishlist_operation_failed', expect.objectContaining({
+      operation: 'banner', error_category: 'persistence',
+    }));
+  });
+
   it('keeps actions safe if analytics throws and flushes a queued event once', async () => {
     window.gtag = vi.fn(() => { throw new Error('blocked'); });
     await expect(trackEvent('wishlist_share_copy', { method: 'clipboard' })).resolves.toBeUndefined();

@@ -3,6 +3,7 @@ import {Box, Button, CircularProgress, Tooltip} from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import {useTranslation} from 'react-i18next';
 import {uploadWishlistBanner} from '@api/wishListService';
+import {trackEvent} from '@utils/analytics';
 
 type Props = {
   wishlistId: string | null | undefined;
@@ -71,6 +72,7 @@ export default function BannerUploader({wishlistId, canEdit, onUpload}: Props) {
       onUpload?.(url);
     } catch (err) {
       console.error('Failed to upload banner', err);
+      void trackEvent('wishlist_operation_failed', {operation: 'banner', error_category: 'persistence'});
       alert(t('bannerErrorFailed'));
     } finally {
       setLoading(false);

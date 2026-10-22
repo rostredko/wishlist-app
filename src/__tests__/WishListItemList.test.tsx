@@ -105,6 +105,17 @@ describe('wishlist growth journey', () => {
     }
     await act(async () => { oldUpload('late-a-image'); });
     expect(vi.mocked(WishlistHeader).mock.calls.at(-1)![0].wishlist.bannerImage).toBe(returnToOriginal ? 'a-current' : 'b-image');
+    expect(trackEvent).not.toHaveBeenCalledWith('wishlist_banner_upload', expect.anything());
+  });
+
+  it('reports a successful banner upload with bounded owner context', async () => {
+    vi.mocked(getWishlistById).mockResolvedValue({ id: 'owned', title: 'Owned', ownerUid: 'u1' });
+    renderAt('/en/wishlist/owned');
+    await screen.findByText('Owned');
+    const upload = vi.mocked(WishlistHeader).mock.calls.at(-1)![0].onBannerUpload!;
+    await act(async () => { upload('https://cdn.example/banner.webp'); });
+    expect(trackEvent).toHaveBeenCalledWith('wishlist_banner_upload', { viewer_role: 'owner', is_demo: false });
+    expect(vi.mocked(WishlistHeader).mock.calls.at(-1)![0].wishlist.bannerImage).toBe('https://cdn.example/banner.webp');
   });
 
   it('does not release the next wishlist operation lock when an earlier share completes', async () => {
