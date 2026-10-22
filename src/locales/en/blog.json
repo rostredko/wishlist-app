@@ -18,6 +18,21 @@
   "lastUpdated": "Updated: {{date}}",
   "byline": "I run WishList App and write these posts myself - feedback welcome anytime.",
   "cards": {
+    "christmas-wishlist": {
+      "title": "How to Make a Christmas Wish List and Share It With Family",
+      "desc": "Five steps, what to put on it, and how one link stops two relatives buying the same gift.",
+      "read": "9 min read"
+    },
+    "kids-christmas-list": {
+      "title": "Kids' Christmas List: From a Letter to Santa to a Wishlist",
+      "desc": "A sample letter, ideas by age, and how grandparents can claim gifts without spoiling the magic.",
+      "read": "7 min read"
+    },
+    "secret-santa-questionnaire": {
+      "title": "Secret Santa Questionnaire: 20 Questions and a Wishlist",
+      "desc": "Copy the questions, turn the answers into 3-5 gifts within budget and share them with your giver.",
+      "read": "7 min read"
+    },
     "how-to-create-a-wishlist": {
       "title": "How to Create a Wishlist People Actually Buy From",
       "desc": "Three identical books, one dead Google Doc, and the method I ended up with.",

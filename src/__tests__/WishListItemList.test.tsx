@@ -404,11 +404,25 @@ describe('WishListItemList - EXAMPLE_SEO title override', () => {
     await waitFor(() =>
       expect(vi.mocked(SEOHead)).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Christmas Wish List 2026 - Free Holiday Gift List | WishList App',
+          title: 'Christmas Wish List 2026 - Example and Free Template | WishList App',
         }),
         undefined
       )
     );
+  });
+
+  it('shows the example intro to guests on a holiday demo', async () => {
+    (getWishlistById as Mock).mockResolvedValueOnce(null);
+    renderAt('/ua/wishlist/st-nicholas-list-ua');
+    expect(await screen.findByText(/Це приклад вішліста на Миколая для дитини 6-9 років/)).toBeInTheDocument();
+  });
+
+  it('hides the example intro from admins editing a demo', async () => {
+    vi.mocked(useAuth).mockReturnValue({ user: { uid: 'admin-uid', displayName: 'Admin' }, isAdmin: true });
+    (getWishlistById as Mock).mockResolvedValueOnce({ id: 'christmas-list', title: 'Christmas Wish List 2026', ownerUid: 'demo' });
+    renderAt('/en/wishlist/christmas-list');
+    expect(await screen.findByRole('heading', { name: 'Christmas Wish List 2026', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByText(/This is an example Christmas wish list/)).not.toBeInTheDocument();
   });
 
   it('uses regular title for non-example wishlist IDs', async () => {

@@ -1,5 +1,8 @@
 /** Editorial slots for routing and hub cards. Only equivalent topics use hreflang. */
 export const BLOG_SLUG_PAIRS = [
+  { en: 'christmas-wishlist', ua: 'vishlist-na-novyj-rik-i-rizdvo' },
+  { en: 'kids-christmas-list', ua: 'lyst-svyatomu-mykolayu' },
+  { en: 'secret-santa-questionnaire', ua: 'tayemnyj-santa-pravyla', equivalent: false },
   { en: 'chatgpt-gift-ideas', ua: 'yak-vybraty-podarunok-z-chatgpt' },
   { en: 'how-to-create-a-wishlist', ua: 'yak-zrobyty-vishlist' },
   { en: 'how-lists-change-your-life', ua: 'yak-spysky-zminyuyut-zhyttia' },

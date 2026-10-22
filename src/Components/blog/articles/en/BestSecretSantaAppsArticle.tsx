@@ -14,7 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import { useTranslation } from 'react-i18next';
 
 import SEOHead from '@components/SEOHead';
-import { BLOG_LAST_UPDATED, resolveBlogAlternates } from '@constants/blogArticles';
+import { resolveBlogAlternates } from '@constants/blogArticles';
 import type { BlogArticleProps } from '@components/blog/blogArticleTypes';
 import { BlogArticleFooter } from '@components/blog/BlogArticleFooter';
 
@@ -39,7 +39,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
           article: {
             headline: 'Best Secret Santa Apps - What Actually Works in a Group Chat',
             datePublished: '2026-04-15',
-            dateModified: BLOG_LAST_UPDATED,
+            dateModified: '2026-10-22',
           },
           breadcrumbs: [
             { name: tb('breadcrumbHome'), url: `${origin}/en` },
@@ -171,6 +171,11 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
                 <Typography component="li" variant="body1" sx={{ mb: 1.5 }}>
                   Each participant creates their own WishList App list and adds items with real URLs
                   and an optional description with relevant context (approximate price, size, color).
+                  If someone has no idea what to add, send them my{' '}
+                  <RouterLink to={`/${routeLang}/blog/secret-santa-questionnaire`}>
+                    Secret Santa questionnaire
+                  </RouterLink>{' '}
+                  first - 20 quick questions that turn into a 3-5 item list.
                 </Typography>
                 <Typography component="li" variant="body1" sx={{ mb: 1.5 }}>
                   Each person shares their wishlist link with their assigned Secret Santa - privately,
@@ -251,7 +256,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
             </section>
           </Stack>
 
-          <BlogArticleFooter routeLang={routeLang} />
+          <BlogArticleFooter routeLang={routeLang} date="2026-10-22" />
         </Container>
       </Box>
     </>

@@ -16,9 +16,6 @@ dist-ssr
 # Firebase CLI local cache (deploy state)
 .firebase/
 
-# Local docs only (not for repo) - includes ui-kit, plans, notes
-docs/
-
 # Claude Code local settings (machine-specific, not for repo)
 .claude/settings.local.json
 

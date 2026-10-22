@@ -42,7 +42,7 @@ try {
   assert.deepEqual((await getDoc(doc(owner.db, 'wishlists/legacy/items/gift'))).data(), { ...legacyGift, name: 'Renamed legacy gift', claimed: true });
   const demoSource = (await readFile(new URL('../src/constants/exampleWishlists.ts', import.meta.url), 'utf8')).split('export const DEMO_ITEMS')[0];
   const reservedIds = [...demoSource.matchAll(/^  '([^']+)':/gm)].map(match => match[1]);
-  assert.equal(reservedIds.length, 8);
+  assert.equal(reservedIds.length, 10);
   for (const id of reservedIds) await denied(setDoc(doc(stranger.db, 'wishlists', id), { title: 'Hijack', ownerUid: 'stranger' }));
   await setDoc(doc(admin.db, 'wishlists', 'birthday-list'), { title: 'Official demo', ownerUid: 'admin' });
   await setDoc(doc(admin.db, 'wishlists/birthday-list/items/example'), { name: 'Example', claimed: false });

@@ -266,6 +266,7 @@ export function buildRoutes(root: string, renderArticle: ArticleRenderer): Prere
     }
 
     const backHome = req(blog, 'backHome', `${source}/blog.json`);
+    const demoIntros = (JSON.parse(readFileSync(join(root, `${source}/examples.json`), 'utf-8')).intros ?? {}) as Record<string, string>;
     const demoIds = Object.keys(EXAMPLE_SEO).filter((id) =>
       lang === 'ua' ? id.endsWith('-ua') : !id.endsWith('-ua'),
     );
@@ -284,6 +285,7 @@ export function buildRoutes(root: string, renderArticle: ArticleRenderer): Prere
         description: seo.description,
         heroHtml: [
           `<h1 class="shell-h1">${esc(demoTitle)}</h1>`,
+          ...(demoIntros[id] ? [`<p>${esc(demoIntros[id])}</p>`] : []),
           `<p>${esc(seo.description)}</p>`,
           `<ul>\n                    ${items
             .map((item) => `<li>${esc(item.name)}</li>`)

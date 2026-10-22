@@ -6,6 +6,11 @@
       "wishlistId": "christmas-list"
     },
     {
+      "title": "Kids' Christmas list",
+      "emoji": "✉️",
+      "wishlistId": "kids-christmas-list"
+    },
+    {
       "title": "Secret Santa wishlist",
       "emoji": "🎅",
       "wishlistId": "secret-santa-list"
@@ -20,5 +25,10 @@
       "emoji": "🎉",
       "wishlistId": "wedding-list"
     }
-  ]
+  ],
+  "intros": {
+    "christmas-list": "This is an example Christmas wish list. Copy it to your account, swap in your own gifts, and send the link to family - they will see what is already claimed, so nobody buys the same thing twice.",
+    "secret-santa-list": "This is an example Secret Santa wishlist. Copy it to your account, keep 3-5 gifts within your group's budget, and send the link to the organizer or the group chat - your Secret Santa will know what to get.",
+    "kids-christmas-list": "This is an example kids' Christmas list for ages 6-9. Copy it to your account, add the wishes from your child's letter to Santa, and send the link to grandparents and godparents - they will see what is already claimed, so nobody buys the same thing twice."
+  }
 }

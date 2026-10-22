@@ -20,6 +20,9 @@ import HowToCreateBirthdayWishlistArticle from './articles/en/HowToCreateBirthda
 import WishlistVsGiftRegistryArticle from './articles/en/WishlistVsGiftRegistryArticle';
 import BestSecretSantaAppsArticle from './articles/en/BestSecretSantaAppsArticle';
 import HowListsChangeYourLifeArticle from './articles/en/HowListsChangeYourLifeArticle';
+import ChristmasWishlistArticle from './articles/en/ChristmasWishlistArticle';
+import KidsChristmasListArticle from './articles/en/KidsChristmasListArticle';
+import SecretSantaQuestionnaireArticle from './articles/en/SecretSantaQuestionnaireArticle';
 
 import YakZrobytyVishlistArticle from './articles/ua/YakZrobytyVishlistArticle';
 import DeStvorytyVishlist2026Article from './articles/ua/DeStvorytyVishlist2026Article';
@@ -28,9 +31,15 @@ import YakZrobytyVishlistNaDenNarodzhennyaArticle from './articles/ua/YakZrobyty
 import VishlistChyGoogleDocsTelegramArticle from './articles/ua/VishlistChyGoogleDocsTelegramArticle';
 import YakPodilytysiaVishlistomBezDublikativArticle from './articles/ua/YakPodilytysiaVishlistomBezDublikativArticle';
 import YakSpyskyZminyuyutZhyttiaArticle from './articles/ua/YakSpyskyZminyuyutZhyttiaArticle';
+import VishlistNaNovyjRikIRizdvoArticle from './articles/ua/VishlistNaNovyjRikIRizdvoArticle';
+import LystSvyatomuMykolayuArticle from './articles/ua/LystSvyatomuMykolayuArticle';
+import TayemnyjSantaPravylaArticle from './articles/ua/TayemnyjSantaPravylaArticle';
 
 const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogArticleProps>>> = {
   en: {
+    'christmas-wishlist': ChristmasWishlistArticle,
+    'kids-christmas-list': KidsChristmasListArticle,
+    'secret-santa-questionnaire': SecretSantaQuestionnaireArticle,
     'chatgpt-gift-ideas': AiGiftIdeasArticle,
     'how-to-create-a-wishlist': HowToCreateWishlistArticle,
     'best-wishlist-apps-2026': BestWishlistApps2026Article,
@@ -41,6 +50,9 @@ const ARTICLE_BY_SLUG: Record<BlogRouteLang, Record<string, ComponentType<BlogAr
     'how-lists-change-your-life': HowListsChangeYourLifeArticle,
   },
   ua: {
+    'vishlist-na-novyj-rik-i-rizdvo': VishlistNaNovyjRikIRizdvoArticle,
+    'lyst-svyatomu-mykolayu': LystSvyatomuMykolayuArticle,
+    'tayemnyj-santa-pravyla': TayemnyjSantaPravylaArticle,
     'yak-vybraty-podarunok-z-chatgpt': AiGiftIdeasArticle,
     'yak-zrobyty-vishlist': YakZrobytyVishlistArticle,
     'de-stvoryty-vishlist-2026': DeStvorytyVishlist2026Article,

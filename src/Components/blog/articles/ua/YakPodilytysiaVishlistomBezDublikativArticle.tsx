@@ -14,7 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import { useTranslation } from 'react-i18next';
 
 import SEOHead from '@components/SEOHead';
-import { BLOG_LAST_UPDATED, resolveBlogAlternates } from '@constants/blogArticles';
+import { resolveBlogAlternates } from '@constants/blogArticles';
 import type { BlogArticleProps } from '@components/blog/blogArticleTypes';
 import { BlogArticleFooter } from '@components/blog/BlogArticleFooter';
 
@@ -39,7 +39,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
           article: {
             headline: 'Як поділитися вішлістом і не отримати два однакові подарунки',
             datePublished: '2026-04-15',
-            dateModified: BLOG_LAST_UPDATED,
+            dateModified: '2026-10-22',
           },
           howTo: {
             name: 'Поділитися вішлістом без однакових подарунків',
@@ -209,6 +209,27 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
 
             <section>
               <Typography variant="h2" sx={{ fontWeight: 700, fontSize: 22, mb: 1.5 }}>
+                Зимові свята: коли дублікатів найбільше
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Найбільше однакових подарунків трапляється взимку: Миколай, Різдво 25 грудня і Новий
+                рік ідуть одне за одним, а подарунки купує вся родина одночасно. Тому новорічний
+                список я складаю довшим, ніж на день народження, і завжди прошу бронювати. Як його
+                скласти і що туди додати - у статті{' '}
+                <RouterLink to={`/${routeLang}/blog/vishlist-na-novyj-rik-i-rizdvo`}>
+                  вішліст на Новий рік і Різдво
+                </RouterLink>
+                . А якщо з друзями чи на роботі граєте в Таємного Санту, правила, бюджет і
+                жеребкування я розібрав окремо:{' '}
+                <RouterLink to={`/${routeLang}/blog/tayemnyj-santa-pravyla`}>
+                  Таємний Санта: правила і вішліст
+                </RouterLink>
+                .
+              </Typography>
+            </section>
+
+            <section>
+              <Typography variant="h2" sx={{ fontWeight: 700, fontSize: 22, mb: 1.5 }}>
                 Часті питання
               </Typography>
 
@@ -265,7 +286,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
             </section>
           </Stack>
 
-          <BlogArticleFooter routeLang={routeLang} />
+          <BlogArticleFooter routeLang={routeLang} date="2026-10-22" />
         </Container>
       </Box>
     </>

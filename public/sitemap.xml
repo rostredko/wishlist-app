@@ -38,6 +38,54 @@
 
     <!-- Blog hub + posts -->
     <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/vishlist-na-novyj-rik-i-rizdvo</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/christmas-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/vishlist-na-novyj-rik-i-rizdvo"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/vishlist-na-novyj-rik-i-rizdvo"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/christmas-wishlist</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/christmas-wishlist"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/vishlist-na-novyj-rik-i-rizdvo"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/vishlist-na-novyj-rik-i-rizdvo"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/lyst-svyatomu-mykolayu</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/kids-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/lyst-svyatomu-mykolayu"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/lyst-svyatomu-mykolayu"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/kids-christmas-list</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/blog/kids-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/blog/lyst-svyatomu-mykolayu"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/blog/lyst-svyatomu-mykolayu"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/blog/tayemnyj-santa-pravyla</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/en/blog/secret-santa-questionnaire</loc>
+        <lastmod>2026-10-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://wishlistapp.com.ua/ua/blog/yak-vybraty-podarunok-z-chatgpt</loc>
         <lastmod>2026-10-21</lastmod>
         <changefreq>monthly</changefreq>
@@ -199,6 +247,20 @@
         <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/wishlist/christmas-list-ua"/>
     </url>
 
+    <url>
+        <loc>https://wishlistapp.com.ua/en/wishlist/kids-christmas-list</loc>
+        <lastmod>2026-10-22</lastmod>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/kids-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/st-nicholas-list-ua"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/wishlist/st-nicholas-list-ua"/>
+    </url>
+    <url>
+        <loc>https://wishlistapp.com.ua/ua/wishlist/st-nicholas-list-ua</loc>
+        <lastmod>2026-10-22</lastmod>
+        <xhtml:link rel="alternate" hreflang="uk" href="https://wishlistapp.com.ua/ua/wishlist/st-nicholas-list-ua"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://wishlistapp.com.ua/en/wishlist/kids-christmas-list"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://wishlistapp.com.ua/ua/wishlist/st-nicholas-list-ua"/>
+    </url>
     <url>
         <loc>https://wishlistapp.com.ua/en/wishlist/secret-santa-list</loc>
         <lastmod>2026-10-22</lastmod>

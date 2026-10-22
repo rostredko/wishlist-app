@@ -30,6 +30,7 @@ export function WishListItemList() {
   const { wishlistId, lng } = useParams();
   const routeLang = lng === 'ua' ? 'ua' : 'en';
   const { t } = useTranslation('wishlist', { lng: routeLang });
+  const { t: tExamples } = useTranslation('examples', { lng: routeLang });
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { signIn, loading: signInLoading, isTelegram } = useGoogleSignIn();
   const { pathname, key: visitKey } = useLocation();
@@ -272,6 +273,8 @@ export function WishListItemList() {
   const pageTitle = exampleSeo?.title ?? (wishlist ? `${wishlist.title} - WishList App` : `${t(status === 'not_found' ? 'notFoundTitle' : status === 'error' ? 'loadFailedTitle' : 'brandName')} - WishList App`);
   const pageDescription = exampleSeo?.description ?? (wishlist ? t('pageDescriptionView', { name: wishlist.title }) : t(status === 'not_found' ? 'pageDescriptionNotFound' : 'pageDescriptionLoading'));
   const alternateIds = wishlistId ? EXAMPLE_WISHLIST_ALTERNATES[wishlistId] : undefined;
+  const exampleIntros = tExamples('intros', { returnObjects: true }) as Record<string, string>;
+  const exampleIntro = isExampleWishlist && !canEdit && wishlistId ? exampleIntros?.[wishlistId] : undefined;
   const beginTitleEdit = () => { setTitleDraft(wishlist?.title ?? ''); setEditingTitle(true); };
   const readFailed = Boolean(data.error || itemsError);
 
@@ -309,6 +312,7 @@ export function WishListItemList() {
           }}><FileCopyIcon fontSize="small" /></IconButton></Tooltip>}
           <Tooltip title={t('copyLinkTooltip')}><IconButton aria-label={t('copyLinkAria')} onClick={() => void handleCopyLink()}><ContentCopyIcon fontSize="small" /></IconButton></Tooltip>
         </Stack>}
+        {exampleIntro && <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{exampleIntro}</Typography>}
         {canEdit && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
           <Button size="large" variant="contained" onClick={() => setAddOpen(true)} disabled={pending || !itemsLoaded || readFailed}>{t('addGift')}</Button>
           <Button variant="outlined" startIcon={<ShareIcon />} onClick={() => void handleShare()} disabled={pending}>{t('share')}</Button>

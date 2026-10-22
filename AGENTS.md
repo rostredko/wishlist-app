@@ -130,11 +130,11 @@ src/
 
 ## Docs
 
-Everything under `docs/` is **local-only** (gitignored, not pushed). That includes [docs/ui-kit.md](docs/ui-kit.md) – keep a copy on your machine for UI conventions; the link in this file is still valid locally even though the repo has no `docs/` tree.
+Agent notes, plans, and the UI kit live in `docs/` and are part of the repo. Reference [docs/ui-kit.md](docs/ui-kit.md) before adding new visual patterns.
 
 **Language**
 - **Documentation** (`AGENTS.md`, `CLAUDE.md`, README, technical notes under `docs/`): **English** only.
 - **Comments in code** (`//`, `/* */`, JSDoc in `.ts`/`.tsx`, Firebase rules such as `storage.rules`): **English** only. Do not write comments in Russian, Ukrainian, or other languages — English keeps the codebase consistent for tools and review.
 - **User-visible copy** belongs in `src/locales/{en,ua}/` and in SEO/static shell where the product needs Ukrainian or English per i18n rules above — not mixed into non-locale comments.
 
-Keep this file concise: prefer links to locale files, `wishListService.ts`, and local `docs/` over pasting long specifications here (progressive disclosure).
+Keep this file concise: prefer links to locale files, `wishListService.ts`, and `docs/` over pasting long specifications here (progressive disclosure).

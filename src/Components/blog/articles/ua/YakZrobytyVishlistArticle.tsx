@@ -305,7 +305,11 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 <RouterLink to={`/${routeLang}/blog/yak-zrobyty-vishlist-na-den-narodzhennya`}>
                   окремий чекліст
                 </RouterLink>{' '}
-                з нюансами.
+                з нюансами. Збираєте список на зимові свята? У статті{' '}
+                <RouterLink to={`/${routeLang}/blog/vishlist-na-novyj-rik-i-rizdvo`}>
+                  вішліст на Новий рік і Різдво
+                </RouterLink>{' '}
+                - що змінюється, коли подарунки купує вся родина одночасно.
               </Typography>
               <Button
                 component={RouterLink}

@@ -4,7 +4,8 @@ service cloud.firestore {
     function isAdmin() { return request.auth != null && request.auth.token.get('isAdmin', false) == true; }
     function isReservedDemo(wishlistId) {
       return wishlistId in ['christmas-list', 'christmas-list-ua', 'birthday-list', 'birthday-list-ua',
-        'secret-santa-list', 'secret-santa-list-ua', 'wedding-list', 'wedding-list-ua'];
+        'secret-santa-list', 'secret-santa-list-ua', 'wedding-list', 'wedding-list-ua',
+        'kids-christmas-list', 'st-nicholas-list-ua'];
     }
     function managesWishlist(wishlistId) {
       return request.auth != null && (isAdmin() ||

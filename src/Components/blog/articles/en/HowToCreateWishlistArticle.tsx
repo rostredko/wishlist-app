@@ -308,7 +308,11 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 <RouterLink to={`/${routeLang}/blog/how-to-create-a-birthday-wishlist`}>
                   separate birthday checklist
                 </RouterLink>{' '}
-                too.
+                too. Making one for the holidays? My guide on{' '}
+                <RouterLink to={`/${routeLang}/blog/christmas-wishlist`}>
+                  how to make a Christmas wish list
+                </RouterLink>{' '}
+                covers what changes when the whole family buys at once.
               </Typography>
               <Button
                 component={RouterLink}
