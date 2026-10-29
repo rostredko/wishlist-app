@@ -165,7 +165,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
 
 
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Google Docs / Sheets
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -175,7 +175,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
                 одночасно і не побачили один одного.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Telegram
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -184,7 +184,7 @@ export default function DeStvorytyVishlist2026Article({ origin, routeLang }: Blo
                 писати в чат «я беру кавову машину» і сподіватися, що всі побачили.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 WishList App - мій вибір, буду чесним
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

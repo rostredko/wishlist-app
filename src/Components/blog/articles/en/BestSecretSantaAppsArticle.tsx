@@ -67,7 +67,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
                 The two problems you actually need to solve
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 The draw
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -77,7 +77,7 @@ export default function BestSecretSantaAppsArticle({ origin, routeLang }: BlogAr
                 need much more than that.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 The wishlist
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

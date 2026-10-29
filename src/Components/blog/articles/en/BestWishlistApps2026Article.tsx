@@ -176,7 +176,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
                 My honest take on each option
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Amazon Wishlist
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -187,14 +187,14 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
                 the recipient can see exactly who bought what, which kills surprises.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Elfster
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
                 {tb('research.elfster')} <a href="https://help.elfster.com/en/articles/11518008-how-do-i-change-the-settings-on-my-elfster-wishlist">Elfster Help</a>
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Google Docs / Sheets
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -204,7 +204,7 @@ export default function BestWishlistApps2026Article({ origin, routeLang }: BlogA
                 noticed. Works better for small, organized households than for larger groups.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 WishList App - my own product
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

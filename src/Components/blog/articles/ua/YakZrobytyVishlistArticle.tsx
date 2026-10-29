@@ -166,7 +166,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 Технічна частина справді швидка. Думати треба над наповненням - до нього й дійдемо.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1. Увійти і назвати список за приводом
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -175,7 +175,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 це не список для переїзду. Називайте привід.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 2. Реальні посилання, а не настрій
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -185,7 +185,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 працює більше за все інше в списку.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 3. Змішати ціни навмисно
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -194,7 +194,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 списку каже студентові-племіннику: тобі тут теж раді.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 4. Один лінк для всіх
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -203,7 +203,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 без встановлення застосунків.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 5. Сказати про бронювання вголос
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -256,7 +256,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 Питання, які мені ставлять постійно
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Де зробити вішліст безкоштовно?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -270,7 +270,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 .
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Чи потрібна гостям реєстрація?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -279,7 +279,7 @@ export default function YakZrobytyVishlistArticle({ origin, routeLang }: BlogArt
                 бронюють.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Що додати у вішліст?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

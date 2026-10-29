@@ -76,7 +76,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
                 Мій 4-кроковий метод
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1. Чітка назва з роком або віком
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -85,7 +85,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
                 посилання через місяць після того, як ви його надіслали.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 2. Кожен товар - реальне посилання і опис
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -95,7 +95,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
                 але вільний текст дозволяє написати все що потрібно.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 3. Одне повідомлення-шаблон з лінком
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -104,7 +104,7 @@ export default function YakZrobytyVishlistNaDenNarodzhennyaArticle({ origin, rou
                 бажань якщо хочете підказку для подарунка - ось посилання».
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 4. Поясни гостям про анонімне бронювання
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

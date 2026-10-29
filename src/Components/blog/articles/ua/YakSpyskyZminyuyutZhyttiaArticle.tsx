@@ -176,7 +176,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 і завжди заздалегідь. Ось що я бачу в українському контексті для кожного свята.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 День народження
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -186,7 +186,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 одноразова нотатка.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Святий Миколай (6 грудня)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -196,7 +196,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 бажань, реалістичні ціни - і радість гарантована.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Новий рік (31 грудня - 1 січня)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -207,7 +207,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 відчуття: від зобов&apos;язання до наміру.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Різдво (25 грудня і 7 січня)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -217,7 +217,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 свята, щоб все встигло доїхати поштою.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1 вересня - День знань
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -228,7 +228,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 сьомокласнику цього року.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Великдень (березень-квітень)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -237,7 +237,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 чай, крем, книга, річ для дому. Нічого практичного - тільки те, що радує.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 День матері і День батька
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -247,7 +247,7 @@ export default function YakSpyskyZminyuyutZhyttiaArticle({ origin, routeLang }: 
                 три пункти повністю змінюють ситуацію.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Маланка і Старий Новий рік (13-14 січня)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

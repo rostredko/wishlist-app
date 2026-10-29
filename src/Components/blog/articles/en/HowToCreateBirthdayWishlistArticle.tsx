@@ -77,7 +77,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
                 My 4-step method
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Step 1 - Pick a clear title with the year
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -87,7 +87,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
                 guests that this is current and active.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Step 2 - Add items with real URLs and a description
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -98,7 +98,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
                 description where you can add any context you want.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Step 3 - Write one share message with the link
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -108,7 +108,7 @@ export default function HowToCreateBirthdayWishlistArticle({ origin, routeLang }
                 of truth matters; do not post different lists in different places.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Step 4 - Tell guests they can claim
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

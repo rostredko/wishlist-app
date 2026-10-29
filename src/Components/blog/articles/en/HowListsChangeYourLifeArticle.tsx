@@ -180,7 +180,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 major occasions.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Christmas and the holiday season (December)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -192,7 +192,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 in every price range.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Birthday
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -202,7 +202,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 forward. It is a living document, not a one-time list.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Valentine&apos;s Day (February 14)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -212,7 +212,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 short list for this one: no more than five items, skewing personal and a bit indulgent.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Easter (March-April)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -221,7 +221,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 luxury foods, or things you would not buy yourself but genuinely enjoy receiving.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Mother&apos;s Day and Father&apos;s Day
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -231,7 +231,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 three items completely changes the conversation.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Back to school (August-September)
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -241,7 +241,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 grandparents who want to help but do not know what a seventh-grader needs this year.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 New Year&apos;s
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -252,7 +252,7 @@ export default function HowListsChangeYourLifeArticle({ origin, routeLang }: Blo
                 obligation to genuine intention - and I follow through on it far more often.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Graduation and housewarming
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

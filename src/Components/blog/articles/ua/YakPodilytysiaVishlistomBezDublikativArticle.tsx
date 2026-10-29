@@ -111,7 +111,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 Покроково: від списку до успішного свята 🎉
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1. Створіть список і додайте товари з посиланнями
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -120,7 +120,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 гості одразу розуміють що саме ви хочете і чи вписується це в їхній бюджет.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 2. Скопіюйте одне посилання
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -128,7 +128,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 або мати акаунт - просто відкрити лінк у браузері. Це знижує тертя до мінімуму.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 3. Надішліть у той чат де збираються гості
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -136,7 +136,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 месенджер підходить. Надсилайте за 2-3 тижні щоб гості встигли замовити поштою.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 4. Гість натискає «Забронювати» на тому, що купує
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -144,7 +144,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 «Забронювати». Більше нічого не потрібно - жодної реєстрації, жодного пароля.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 5. Список автоматично оновлюється для всіх
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -233,7 +233,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 Часті питання
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Що робити якщо хтось помилково забронював не ту річ?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -242,7 +242,7 @@ export default function YakPodilytysiaVishlistomBezDublikativArticle({ origin, r
                 на заброньовану позицію. Власник не бачить хто саме бронював - тільки факт бронювання.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Чи може власник скасувати бронювання?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

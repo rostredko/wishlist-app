@@ -167,7 +167,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 to that.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1. Sign in and name the list after the occasion
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -176,7 +176,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 asked me in all seriousness whether it was a moving checklist. Name the occasion.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 2. Add real links, not vibes
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -186,7 +186,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 That one line is doing more work than everything else on the list.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 3. Mix the prices on purpose
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -195,7 +195,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 pack of good coffee on it tells your broke student cousin he is welcome too.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 4. One link for everyone
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -204,7 +204,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 open it in the browser, no account, no app install.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 5. Say the claiming part out loud
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -259,7 +259,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 Questions I keep getting
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Where can I create a wishlist for free?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -273,7 +273,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 .
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 Do my friends need an account?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -281,7 +281,7 @@ export default function HowToCreateWishlistArticle({ origin, routeLang }: BlogAr
                 have lost a gift. Only the list owner signs in; guests just open the link and claim.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 What should I actually put on it?
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>

@@ -21,7 +21,14 @@ export default function NajkrashchiServisySpyskuBazhanArticle({ origin, routeLan
         title="Сервіси для списку бажань в Україні - порівняння | WishList App"
         description="Порівняння Wishpicks, Bazhannya та WishList App за офіційними описами: українська мова, бронювання, додавання товарів і вхід. Перевірено 9 жовтня 2026."
         canonical={canonical}
-        structured={{ article: { headline: t('ukraineComparison.h1'), datePublished: '2026-04-15', dateModified: BLOG_LAST_UPDATED } }} />
+        structured={{
+          article: { headline: t('ukraineComparison.h1'), datePublished: '2026-04-15', dateModified: BLOG_LAST_UPDATED },
+          breadcrumbs: [
+            { name: t('breadcrumbHome'), url: `${origin}/ua` },
+            { name: t('breadcrumbBlog'), url: `${origin}/ua/blog` },
+            { name: t('ukraineComparison.h1'), url: canonical },
+          ],
+        }} />
       <Container component="article" maxWidth="md" sx={{ py: 6 }}>
         <Typography variant="h1" sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 800, mb: 2 }}>{t('ukraineComparison.h1')}</Typography>
         <Typography sx={{ mb: 2 }}>{t('ukraineComparison.intro')}</Typography>

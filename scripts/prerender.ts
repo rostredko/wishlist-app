@@ -47,14 +47,20 @@ type PrerenderRoute = {
   noscript: string;
   /** Emitted as FAQPage JSON-LD that SEOHead takes over after hydration. */
   faq?: FaqItem[];
+  /** Emitted as BreadcrumbList JSON-LD that SEOHead takes over after hydration. */
+  breadcrumbs?: Breadcrumb[];
   alternates?: { en: string; uk: string };
 };
+
+type Breadcrumb = { name: string; url: string };
 
 type ArticleSeo = {
   title: string;
   description: string;
   keywords?: string;
   h1: string;
+  /** Literal name of the article's last SEOHead breadcrumb, when the component spells one out. */
+  breadcrumb?: string;
 };
 
 const LINK_STYLE = 'color:#2196f3';
@@ -147,7 +153,10 @@ function extractArticleSeo(root: string): Map<string, ArticleSeo> {
       // JSX text may contain markup or expressions; fall back to the SEO title.
       const h1 = h1Raw && !/[<{]/.test(h1Raw) ? h1Raw : title.split(' | ')[0];
 
-      result.set(`${lang}:${slug}`, { title, description, keywords, h1 });
+      const breadcrumbBlock = source.match(/breadcrumbs: \[([\s\S]*?)\]/)?.[1] ?? '';
+      const breadcrumb = [...breadcrumbBlock.matchAll(/name: (['"])((?:(?!\1)[^\\\n])+)\1/g)].pop()?.[2];
+
+      result.set(`${lang}:${slug}`, { title, description, keywords, h1, breadcrumb });
     }
   }
 
@@ -177,6 +186,10 @@ export function buildRoutes(root: string, renderArticle: ArticleRenderer): Prere
 
     const homeAlternates = { en: `${ORIGIN}/en`, uk: `${ORIGIN}/ua` };
     const source = `src/locales/${lang}`;
+    const blogBreadcrumbs: Breadcrumb[] = [
+      { name: req(blog, 'breadcrumbHome', `${source}/blog.json`), url: `${ORIGIN}/${lang}` },
+      { name: req(blog, 'breadcrumbBlog', `${source}/blog.json`), url: `${ORIGIN}/${lang}/blog` },
+    ];
     const noscript = req(home, 'noscript', `${source}/home.json`);
     const faq = readFaq(home, `${source}/home.json`);
     const heroH1 = req(home, 'heroH1', `${source}/home.json`);
@@ -235,6 +248,7 @@ export function buildRoutes(root: string, renderArticle: ArticleRenderer): Prere
       ].join('\n                '),
       h1: req(hub, 'h1', `${source}/blog.json hub`),
       noscript,
+      breadcrumbs: blogBreadcrumbs,
       alternates: { en: `${ORIGIN}/en/blog`, uk: `${ORIGIN}/ua/blog` },
     });
 
@@ -261,6 +275,8 @@ export function buildRoutes(root: string, renderArticle: ArticleRenderer): Prere
         ].join('\n                '),
         h1,
         noscript,
+        // Components that name their last crumb with an expression (t(), content.h1) use the H1.
+        breadcrumbs: [...blogBreadcrumbs, { name: seo.breadcrumb ?? h1, url: `${ORIGIN}/${lang}/blog/${slug}` }],
         alternates: resolveBlogAlternates(ORIGIN, lang, slug),
       });
     }
@@ -387,7 +403,7 @@ export function renderPage(template: string, route: PrerenderRoute): string {
       `<link rel="alternate" hreflang="uk" href="${route.alternates.uk}" />`,
       `<link rel="alternate" hreflang="x-default" href="${route.alternates.uk}" />`,
     ] : []),
-    // Same attributes as SEOHead's upsertJsonLd('faq'), so hydration replaces it instead of duplicating it.
+    // Same attributes as SEOHead's upsertJsonLd(), so hydration replaces these instead of duplicating them.
     ...(route.faq ? [
       `<script type="application/ld+json" data-seo-head="1" data-jsonld-id="faq">${scriptJson({
         '@context': 'https://schema.org',
@@ -396,6 +412,18 @@ export function renderPage(template: string, route: PrerenderRoute): string {
           '@type': 'Question',
           name: item.q,
           acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
+      })}</script>`,
+    ] : []),
+    ...(route.breadcrumbs ? [
+      `<script type="application/ld+json" data-seo-head="1" data-jsonld-id="breadcrumbs">${scriptJson({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: route.breadcrumbs.map((crumb, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: crumb.name,
+          item: crumb.url,
         })),
       })}</script>`,
     ] : []),

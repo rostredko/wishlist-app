@@ -155,7 +155,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
                 The four scenarios where I switch
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 1. Birthday with a mixed shop list
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -164,7 +164,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
                 three shops. Amazon cannot hold all of that cleanly.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 2. European or Ukrainian context
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -173,7 +173,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
                 means gifters can buy locally and still know exactly what was wanted.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 3. Surprise protection matters
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
@@ -182,7 +182,7 @@ export default function AmazonWishlistAlternativesArticle({ origin, routeLang }:
                 controls here are inconsistent enough that I would not rely on them.
               </Typography>
 
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: 18, mb: 1, mt: 2 }}>
                 4. Friend group is not on Amazon
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
